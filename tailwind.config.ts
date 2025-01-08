@@ -25,9 +25,9 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#006400', // Dark green from the logo
-          dark: '#004d00',
-          light: '#008000'
+          DEFAULT: '#004d00', // Darker forest green
+          dark: '#003300',    // Even darker shade
+          light: '#006400'    // Original dark green as light variant
         },
         secondary: {
           DEFAULT: '#FFFFFF', // White from the logo
@@ -36,10 +36,10 @@ export default {
         mystical: {
           100: '#F5F5F5',
           200: '#E5E5E5',
-          300: '#006400',
-          400: '#004d00',
-          500: '#003300',
-          600: '#002200'
+          300: '#004d00',
+          400: '#003300',
+          500: '#002200',
+          600: '#001100'
         }
       },
       animation: {
