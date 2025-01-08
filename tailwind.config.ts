@@ -25,21 +25,21 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#9b87f5',
-          dark: '#7E69AB',
-          light: '#D6BCFA'
+          DEFAULT: '#006400', // Dark green from the logo
+          dark: '#004d00',
+          light: '#008000'
         },
         secondary: {
-          DEFAULT: '#1A1F2C',
-          light: '#2A2F3C'
+          DEFAULT: '#FFFFFF', // White from the logo
+          light: '#F5F5F5'
         },
         mystical: {
-          100: '#F5F3FF',
-          200: '#E9E4FF',
-          300: '#D6BCFA',
-          400: '#9b87f5',
-          500: '#7E69AB',
-          600: '#6E59A5'
+          100: '#F5F5F5',
+          200: '#E5E5E5',
+          300: '#006400',
+          400: '#004d00',
+          500: '#003300',
+          600: '#002200'
         }
       },
       animation: {
