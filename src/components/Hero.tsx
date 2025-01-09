@@ -15,7 +15,7 @@ export const Hero = () => {
               alt="Time Capsule Logo" 
               className="w-20 h-20 object-contain"
             />
-            <nav className="flex gap-6">
+            <nav className="flex gap-10">
               <button 
                 onClick={() => navigate("/")} 
                 className="text-secondary hover:text-secondary-light transition-colors"
