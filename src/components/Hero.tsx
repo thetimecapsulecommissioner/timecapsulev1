@@ -20,11 +20,11 @@ export const Hero = () => {
         />
       </div>
       <h1 className="text-5xl md:text-7xl font-bold text-secondary mb-6 text-center">
-        2025 AFL Time Capsule
+        The Time Capsule
       </h1>
       <p className="text-xl md:text-2xl text-secondary/90 max-w-2xl text-center mb-8">
         Make your predictions about the future and seal them in our digital time capsule. 
-        Return later to see how accurate you were!
+        Gather later with your community to countdown and crown your Time Capsule winner!
       </p>
     </div>
   );
