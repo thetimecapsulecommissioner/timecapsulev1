@@ -13,7 +13,7 @@ export const Hero = () => {
             <img 
               src="/lovable-uploads/35614cf5-abd7-4652-b283-0686716b99f2.png" 
               alt="Time Capsule Logo" 
-              className="w-16 h-16 object-contain"
+              className="w-40 h-40 object-contain"
             />
             <nav className="flex gap-6">
               <button 
