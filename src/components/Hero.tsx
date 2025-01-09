@@ -5,7 +5,13 @@ export const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 animate-fade-in bg-primary">
+    <div className="relative min-h-[80vh] flex flex-col items-center justify-center px-4 animate-fade-in bg-primary">
+      <Button 
+        onClick={() => navigate("/register")}
+        className="absolute top-4 right-4 bg-secondary hover:bg-secondary-light text-primary px-8 py-6 text-lg rounded-lg transition-all duration-300 animate-slide-up font-bold"
+      >
+        Begin Your Journey
+      </Button>
       <div className="mb-8">
         <img 
           src="/lovable-uploads/1db7c607-3782-4cdd-9bc6-253bd55f6e86.png" 
@@ -20,12 +26,6 @@ export const Hero = () => {
         Make your predictions about the future and seal them in our digital time capsule. 
         Return later to see how accurate you were!
       </p>
-      <Button 
-        onClick={() => navigate("/register")}
-        className="bg-secondary hover:bg-secondary-light text-primary px-8 py-6 text-lg rounded-lg transition-all duration-300 animate-slide-up font-bold"
-      >
-        Begin Your Journey
-      </Button>
     </div>
   );
 };
