@@ -26,7 +26,7 @@ export const Hero = () => {
       </div>
 
       {/* Main content with padding to account for fixed menubar */}
-      <div className="pt-24 flex flex-col items-center justify-center px-4 animate-fade-in">
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 animate-fade-in">
         <h1 className="text-5xl md:text-7xl font-bold text-secondary mb-6 text-center">
           The Time Capsule
         </h1>
@@ -34,6 +34,12 @@ export const Hero = () => {
           Make your predictions about the future and seal them in our digital time capsule. 
           Gather later with your community to countdown and crown your Time Capsule winner!
         </p>
+        <Button 
+          onClick={() => navigate("/about")}
+          className="bg-secondary hover:bg-secondary-light text-primary px-8 py-6 text-lg rounded-lg transition-all duration-300 animate-slide-up font-bold mt-4"
+        >
+          The Time Capsule Explained
+        </Button>
       </div>
     </div>
   );
