@@ -26,7 +26,7 @@ export const Hero = () => {
       </div>
 
       {/* Main content with padding to account for fixed menubar */}
-      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 animate-fade-in">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 animate-fade-in">
         <h1 className="text-5xl md:text-7xl font-bold text-secondary mb-6 text-center">
           The Time Capsule
         </h1>
