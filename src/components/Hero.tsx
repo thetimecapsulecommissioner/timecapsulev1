@@ -11,7 +11,7 @@ export const Hero = () => {
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
           <div className="flex items-center gap-8">
             <img 
-              src="/lovable-uploads/35614cf5-abd7-4652-b283-0686716b99f2.png" 
+              src="/lovable-uploads/3b3da353-b5c7-4a52-ac15-a9833289a7f1.png" 
               alt="Time Capsule Logo" 
               className="w-40 h-40 object-contain"
             />
