@@ -5,16 +5,48 @@ export const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-[80vh] flex flex-col items-center bg-primary">
+    <div className="relative min-h-screen flex flex-col items-center bg-primary">
       {/* Fixed menubar */}
       <div className="fixed top-0 left-0 right-0 bg-primary z-50 shadow-md">
         <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-          <div className="flex items-center">
+          <div className="flex items-center gap-8">
             <img 
               src="/lovable-uploads/1db7c607-3782-4cdd-9bc6-253bd55f6e86.png" 
               alt="Time Capsule Logo" 
               className="w-16 h-16 object-contain"
             />
+            <nav className="flex gap-6">
+              <button 
+                onClick={() => navigate("/")} 
+                className="text-secondary hover:text-secondary-light transition-colors"
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => navigate("/about")} 
+                className="text-secondary hover:text-secondary-light transition-colors"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => navigate("/leaderboards")} 
+                className="text-secondary hover:text-secondary-light transition-colors"
+              >
+                Leaderboards
+              </button>
+              <button 
+                onClick={() => navigate("/register")} 
+                className="text-secondary hover:text-secondary-light transition-colors"
+              >
+                Start my own
+              </button>
+              <button 
+                onClick={() => navigate("/contact")} 
+                className="text-secondary hover:text-secondary-light transition-colors"
+              >
+                Contact
+              </button>
+            </nav>
           </div>
           <Button 
             onClick={() => navigate("/register")}
