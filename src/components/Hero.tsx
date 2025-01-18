@@ -15,8 +15,8 @@ export const Hero = () => {
           The Time Capsule
         </h1>
         <p className="text-xl md:text-2xl text-secondary/90 max-w-2xl text-center mb-8">
-          Make your predictions about the future and seal them in our digital time capsule. 
-          Gather later with your community to countdown and crown your Time Capsule winner!
+          Make your predictions about the future and seal them The Time Capsule. 
+          Gather later with your community to crown your Time Capsule winner and help raise funds and awareness for community sport!
         </p>
         <Button 
           onClick={() => navigate("/about")}
