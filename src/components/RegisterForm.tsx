@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -22,6 +23,7 @@ export const RegisterForm = () => {
     organization: "",
     state: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const organizations = [
     "Inner North Brewing Company",
@@ -41,14 +43,52 @@ export const RegisterForm = () => {
     "Australian Capital Territory",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.organization || !formData.state) {
       toast.error("Please fill in all fields");
       return;
     }
-    toast.success("Registration successful!");
-    navigate("/questions");
+
+    setIsLoading(true);
+    try {
+      // Sign up the user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signUpError) {
+        toast.error(signUpError.message);
+        return;
+      }
+
+      if (authData.user) {
+        // Update the profile with additional information
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            organization: formData.organization,
+            state: formData.state,
+          })
+          .eq('id', authData.user.id);
+
+        if (profileError) {
+          toast.error("Error updating profile");
+          return;
+        }
+
+        toast.success("Registration successful!");
+        navigate("/questions");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -136,8 +176,9 @@ export const RegisterForm = () => {
             <Button 
               type="submit"
               className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-lg transition-all duration-300"
+              disabled={isLoading}
             >
-              Register
+              {isLoading ? "Registering..." : "Register"}
             </Button>
           </form>
         </ScrollArea>

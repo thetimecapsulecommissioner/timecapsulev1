@@ -46,12 +46,20 @@ export const Navigation = () => {
             </button>
           </nav>
         </div>
-        <Button 
-          onClick={() => navigate("/register")}
-          className="bg-secondary hover:bg-secondary-light text-primary px-8 py-6 text-lg rounded-lg transition-all duration-300 animate-slide-up font-bold"
-        >
-          Begin Your Journey
-        </Button>
+        <div className="flex gap-4 items-center">
+          <Button 
+            onClick={() => navigate("/register")}
+            className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
+          >
+            Begin Your Journey
+          </Button>
+          <Button 
+            onClick={() => navigate("/login")}
+            className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
+          >
+            Log in
+          </Button>
+        </div>
       </div>
     </div>
   );
