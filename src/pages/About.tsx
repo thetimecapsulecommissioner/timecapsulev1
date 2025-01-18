@@ -59,7 +59,7 @@ const About = () => {
         <div className="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div className="md:w-1/2">
             <p className="text-secondary/90 text-lg leading-relaxed">
-              The Time Capsule is a social enterprise, aiming to foster community and connection in its games and events. In addition to this, we look to raise funds for important causes. In our latest season, we proudly raised $2,500 for Movember, supporting men's health initiatives, with all proceeds going to this important cause.
+              The Time Capsule is a social enterprise, aiming to foster community and connection in its games and events. In addition to this, we look to raise funds for important causes. In our latest season, we proudly raised $2,500 for Movember, supporting men's health initiatives.
             </p>
           </div>
           <div className="md:w-1/2 h-64 bg-mystical-200/10 rounded-lg flex items-center justify-center">
@@ -74,7 +74,7 @@ const About = () => {
           </div>
           <div className="md:w-1/2">
             <p className="text-secondary/90 text-lg leading-relaxed">
-              This year, The Time Capsule is excited to extend its mission by this year raising funds for community sporting organisations. Cost of living pressures are effecting our community organisations more than most and we are excited at the prospect of being a part of the solution.
+              This year, The Time Capsule is excited to extend its mission raising funds for community sporting organisations. Cost of living pressures are effecting our community organisations more than most and we are excited at the prospect of being a part of the solution.
             </p>
           </div>
         </div>
