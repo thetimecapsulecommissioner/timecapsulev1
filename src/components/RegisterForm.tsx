@@ -106,7 +106,7 @@ export const RegisterForm = () => {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select an organization" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {organizations.map((org) => (
                     <SelectItem key={org} value={org}>
                       {org}
@@ -124,7 +124,7 @@ export const RegisterForm = () => {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a state" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {australianStates.map((state) => (
                     <SelectItem key={state} value={state}>
                       {state}
