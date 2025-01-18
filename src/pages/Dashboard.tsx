@@ -43,7 +43,8 @@ const Dashboard = () => {
           .single();
 
         if (profile?.name) {
-          setUserName(profile.name.split(" ")[0]); // Get first name
+          const firstName = profile.name.split(" ")[0];
+          setUserName(firstName);
         }
 
         // Fetch competitions with entries
@@ -83,12 +84,12 @@ const Dashboard = () => {
   }, [navigate]);
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Completed":
+    switch (status.toLowerCase()) {
+      case "completed":
         return "bg-green-100";
-      case "In Progress":
+      case "in progress":
         return "bg-yellow-100";
-      case "Not Started":
+      case "not started":
         return "bg-red-100";
       default:
         return "bg-gray-100";
@@ -104,13 +105,13 @@ const Dashboard = () => {
       <Navigation />
       <div className="container mx-auto px-4 pt-28">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-secondary">
+          <h1 className="text-3xl font-bold text-primary">
             Hi, {userName}
           </h1>
         </div>
         
         <div className="bg-primary/10 rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-secondary">Competitions</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-primary">Competitions</h2>
           <div className="space-y-4">
             {competitions.map((competition) => (
               <div

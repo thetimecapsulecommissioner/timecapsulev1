@@ -5,7 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { User, Award, LogOut } from "lucide-react";
+import { User, Home, Award, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -32,6 +32,10 @@ export const ProfileDropdown = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48 bg-white">
+        <DropdownMenuItem onClick={() => navigate("/")} className="cursor-pointer text-gray-700">
+          <Home className="mr-2 h-4 w-4" />
+          Home
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer text-gray-700">
           <User className="mr-2 h-4 w-4" />
           Profile
