@@ -9,17 +9,23 @@ import { Logo } from "./navigation/Logo";
 export const Navigation = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setIsLoggedIn(!!user);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsLoggedIn(!!user);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
+      setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -42,23 +48,25 @@ export const Navigation = () => {
         </div>
         
         <div className="flex gap-4 items-center">
-          {isLoggedIn ? (
-            <ProfileDropdown />
-          ) : (
-            <>
-              <Button 
-                onClick={() => navigate("/register")}
-                className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
-              >
-                Begin Your Journey
-              </Button>
-              <Button 
-                onClick={() => navigate("/login")}
-                className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
-              >
-                Log in
-              </Button>
-            </>
+          {!isLoading && (
+            isLoggedIn ? (
+              <ProfileDropdown />
+            ) : (
+              <>
+                <Button 
+                  onClick={() => navigate("/register")}
+                  className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
+                >
+                  Begin Your Journey
+                </Button>
+                <Button 
+                  onClick={() => navigate("/login")}
+                  className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
+                >
+                  Log in
+                </Button>
+              </>
+            )
           )}
         </div>
       </div>
