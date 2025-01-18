@@ -11,7 +11,7 @@ const About = () => {
         <div className="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div className="md:w-1/2">
             <p className="text-secondary/90 text-lg leading-relaxed">
-              Welcome to The Time Capsule, an exciting Prediction Competition where competitors have the opportunity to show their predictive skills by answering a series of intriguing questions.
+              Welcome to The Time Capsule, the premier sports prediction competition, where competitors have their predictive skills and knowledge tested by answering a series of intriguing questions.
             </p>
           </div>
           <div className="md:w-1/2 h-64 bg-mystical-200/10 rounded-lg flex items-center justify-center">
@@ -35,7 +35,7 @@ const About = () => {
         <div className="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div className="md:w-1/2">
             <p className="text-secondary/90 text-lg leading-relaxed">
-              Once the season draws to a close, we host a thrilling awards night, reminiscent of the prestigious Brownlow event, where we unveil the winners based on their accumulated points.
+              Once the season draws to a close, the highlight of the Time Capsule arrives in that of the thrilling awards night, reminiscent of the prestigious Brownlow event. Reason enough to enter, regardless of sports knowledge, the questions are counted down and the winners unveiled based on their accumulated points.
             </p>
           </div>
           <div className="md:w-1/2 h-64 bg-mystical-200/10 rounded-lg flex items-center justify-center">
@@ -50,7 +50,7 @@ const About = () => {
           </div>
           <div className="md:w-1/2">
             <p className="text-secondary/90 text-lg leading-relaxed">
-              The Time Capsule is now entering its fourth season. Our previous season saw 60 people take part and our biggest event ever held at Inner North Brewing Company. In 2024 we crowned Will Horsfall as our winner, storming into a win during his debut season.
+              The Time Capsule is now entering its fourth season. Our third season saw 60 people take part and our biggest event ever held at Inner North Brewing Company. That event saw Will Horsfall crowned as our winner, storming into a win during his debut season.
             </p>
           </div>
         </div>
@@ -59,7 +59,7 @@ const About = () => {
         <div className="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div className="md:w-1/2">
             <p className="text-secondary/90 text-lg leading-relaxed">
-              The Time Capsule is a social enterprise, aiming to foster community and connection in its games and event events. It also works to raise funds for important causes. In our latest season, we proudly raised $2,500 for Movember, supporting men's health initiatives, with all proceeds going to this important cause.
+              The Time Capsule is a social enterprise, aiming to foster community and connection in its games and events. In addition to this, we look to raise funds for important causes. In our latest season, we proudly raised $2,500 for Movember, supporting men's health initiatives, with all proceeds going to this important cause.
             </p>
           </div>
           <div className="md:w-1/2 h-64 bg-mystical-200/10 rounded-lg flex items-center justify-center">
