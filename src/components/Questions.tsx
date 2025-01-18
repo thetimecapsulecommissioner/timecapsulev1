@@ -30,9 +30,9 @@ export const Questions = () => {
   };
 
   return (
-    <div className="min-h-screen bg-mystical-100 py-12 px-4">
+    <div className="min-h-screen bg-primary py-12 px-4">
       <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
-        <h2 className="text-3xl font-bold text-primary text-center mb-8">
+        <h2 className="text-3xl font-bold text-secondary text-center mb-8">
           Make Your Predictions
         </h2>
         
@@ -57,7 +57,7 @@ export const Questions = () => {
 
         <Button
           onClick={handleSubmit}
-          className="w-full bg-primary hover:bg-primary-dark text-white py-6 text-lg rounded-lg transition-all duration-300"
+          className="w-full bg-secondary hover:bg-secondary-light text-primary py-6 text-lg rounded-lg transition-all duration-300"
         >
           Seal Your Predictions
         </Button>
