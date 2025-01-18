@@ -18,7 +18,7 @@ export const ProfileDropdown = () => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       toast.success("Logged out successfully");
-      navigate("/login");
+      navigate("/"); // Changed from "/login" to "/"
     } catch (error) {
       toast.error("Error logging out");
     }
