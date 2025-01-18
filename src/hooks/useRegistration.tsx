@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 interface RegistrationFormData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   phone: string;
@@ -15,7 +16,8 @@ interface RegistrationFormData {
 export const useRegistration = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<RegistrationFormData>({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     phone: "",
@@ -26,7 +28,7 @@ export const useRegistration = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.organization || !formData.state) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.phone || !formData.organization || !formData.state) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -47,7 +49,8 @@ export const useRegistration = () => {
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
-            name: formData.name,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
             email: formData.email,
             phone: formData.phone,
             organization: formData.organization,

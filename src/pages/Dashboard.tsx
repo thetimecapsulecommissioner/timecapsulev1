@@ -22,7 +22,7 @@ interface CompetitionWithStats extends Competition {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
   const [competitions, setCompetitions] = useState<CompetitionWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,14 +38,12 @@ const Dashboard = () => {
         // Fetch user profile
         const { data: profile } = await supabase
           .from("profiles")
-          .select("name")
+          .select("first_name")
           .eq("id", user.id)
           .single();
 
-        if (profile?.name) {
-          // Split the full name and take the first word as the first name
-          const firstName = profile.name.split(" ")[0];
-          setUserName(firstName);
+        if (profile?.first_name) {
+          setFirstName(profile.first_name);
         }
 
         // Fetch competitions with entries
@@ -107,7 +105,7 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 pt-28">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-secondary">
-            Hi, {userName}
+            Hi, {firstName}
           </h1>
         </div>
         

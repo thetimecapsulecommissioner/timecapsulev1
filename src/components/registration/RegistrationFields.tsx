@@ -4,7 +4,8 @@ import { OrganizationSelect } from "./OrganizationSelect";
 
 interface RegistrationFieldsProps {
   formData: {
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
     phone: string;
@@ -18,13 +19,23 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
   return (
     <>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
         <Input
           type="text"
-          value={formData.name}
-          onChange={(e) => onChange("name", e.target.value)}
+          value={formData.firstName}
+          onChange={(e) => onChange("firstName", e.target.value)}
           className="w-full"
-          placeholder="Enter your name"
+          placeholder="Enter your first name"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+        <Input
+          type="text"
+          value={formData.lastName}
+          onChange={(e) => onChange("lastName", e.target.value)}
+          className="w-full"
+          placeholder="Enter your last name"
         />
       </div>
       <div>
