@@ -43,7 +43,9 @@ const Dashboard = () => {
           .single();
 
         if (profile?.name) {
-          setUserName(profile.name.split(" ")[0]); // Get first name
+          // Split the full name and take the first word as the first name
+          const firstName = profile.name.split(" ")[0];
+          setUserName(firstName);
         }
 
         // Fetch competitions with entries

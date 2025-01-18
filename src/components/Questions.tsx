@@ -7,12 +7,29 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProfileDropdown } from "./ProfileDropdown";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const Questions = () => {
   const navigate = useNavigate();
+  const { id: competitionId } = useParams();
   const queryClient = useQueryClient();
   const [answers, setAnswers] = useState<Record<number, string>>({});
+
+  // Fetch competition details
+  const { data: competition } = useQuery({
+    queryKey: ['competition', competitionId],
+    queryFn: async () => {
+      if (!competitionId) return null;
+      const { data, error } = await supabase
+        .from('competitions')
+        .select('*')
+        .eq('id', competitionId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!competitionId,
+  });
 
   // Fetch questions from Supabase
   const { data: questions, isLoading: questionsLoading } = useQuery({
@@ -113,7 +130,7 @@ export const Questions = () => {
       
       <div className="max-w-3xl mx-auto space-y-8 animate-fade-in py-12 px-4">
         <h2 className="text-3xl font-bold text-secondary text-center mb-8">
-          Make Your Predictions
+          {competition?.label || 'Make Your Predictions'}
         </h2>
         
         {questions?.map((q) => (
