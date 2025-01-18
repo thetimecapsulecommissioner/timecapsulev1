@@ -38,7 +38,7 @@ export const Questions = () => {
         
         {sampleQuestions.map((q) => (
           <Card key={q.id} className="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <h3 className="text-xl font-semibold mb-4 text-secondary">{q.question}</h3>
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">{q.question}</h3>
             <RadioGroup
               onValueChange={(value) => setAnswers({ ...answers, [q.id]: value })}
               value={answers[q.id]}
@@ -47,7 +47,7 @@ export const Questions = () => {
                 {q.options.map((option) => (
                   <div key={option} className="flex items-center space-x-2">
                     <RadioGroupItem value={option} id={`${q.id}-${option}`} />
-                    <Label htmlFor={`${q.id}-${option}`}>{option}</Label>
+                    <Label htmlFor={`${q.id}-${option}`} className="text-gray-700">{option}</Label>
                   </div>
                 ))}
               </div>
