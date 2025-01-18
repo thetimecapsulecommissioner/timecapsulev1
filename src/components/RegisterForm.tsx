@@ -52,7 +52,6 @@ export const RegisterForm = () => {
 
     setIsLoading(true);
     try {
-      // Sign up the user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -64,7 +63,6 @@ export const RegisterForm = () => {
       }
 
       if (authData.user) {
-        // Update the profile with additional information
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
@@ -82,7 +80,7 @@ export const RegisterForm = () => {
         }
 
         toast.success("Registration successful!");
-        navigate("/questions");
+        navigate("/dashboard");
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
