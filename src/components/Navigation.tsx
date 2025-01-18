@@ -1,8 +1,36 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { ProfileDropdown } from "./ProfileDropdown";
 
 export const Navigation = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+    };
+
+    checkAuth();
+
+    // Subscribe to auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogoClick = () => {
+    if (isLoggedIn) {
+      navigate("/dashboard");
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 bg-primary z-50 shadow-md">
@@ -11,11 +39,12 @@ export const Navigation = () => {
           <img 
             src="/lovable-uploads/3b3da353-b5c7-4a52-ac15-a9833289a7f1.png" 
             alt="Time Capsule Logo" 
-            className="w-20 h-20 object-contain"
+            className="w-20 h-20 object-contain cursor-pointer"
+            onClick={handleLogoClick}
           />
           <nav className="flex gap-6 ml-5">
             <button 
-              onClick={() => navigate("/")} 
+              onClick={handleLogoClick}
               className="text-secondary hover:text-secondary-light transition-colors"
             >
               Home
@@ -47,18 +76,24 @@ export const Navigation = () => {
           </nav>
         </div>
         <div className="flex gap-4 items-center">
-          <Button 
-            onClick={() => navigate("/register")}
-            className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
-          >
-            Begin Your Journey
-          </Button>
-          <Button 
-            onClick={() => navigate("/login")}
-            className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
-          >
-            Log in
-          </Button>
+          {isLoggedIn ? (
+            <ProfileDropdown />
+          ) : (
+            <>
+              <Button 
+                onClick={() => navigate("/register")}
+                className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
+              >
+                Begin Your Journey
+              </Button>
+              <Button 
+                onClick={() => navigate("/login")}
+                className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
+              >
+                Log in
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
