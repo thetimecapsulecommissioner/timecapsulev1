@@ -55,7 +55,7 @@ export const RegisterForm = () => {
     <div className="min-h-screen flex items-center justify-center bg-primary">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md animate-fade-in">
         <h2 className="text-3xl font-bold text-primary mb-6 text-center">Join Time Capsule</h2>
-        <ScrollArea className="h-[500px] pr-4">
+        <ScrollArea className="h-[400px] pr-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
