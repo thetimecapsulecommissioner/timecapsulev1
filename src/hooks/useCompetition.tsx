@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface Competition {
+  id: string;
+  label: string;
+  total_questions: number;
+  status: string;
+}
+
 export const useCompetition = (competitionId: string | undefined) => {
   return useQuery({
     queryKey: ['competition', competitionId],
@@ -12,7 +19,7 @@ export const useCompetition = (competitionId: string | undefined) => {
         .eq('id', competitionId)
         .single();
       if (error) throw error;
-      return data;
+      return data as Competition;
     },
     enabled: !!competitionId,
   });
