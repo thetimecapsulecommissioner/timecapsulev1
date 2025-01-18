@@ -104,11 +104,11 @@ export const RegisterForm = () => {
                 onValueChange={(value) => setFormData({ ...formData, organization: value })}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select an organization" />
+                  <SelectValue placeholder="Select an organization" className="text-gray-700" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {organizations.map((org) => (
-                    <SelectItem key={org} value={org}>
+                    <SelectItem key={org} value={org} className="text-gray-700">
                       {org}
                     </SelectItem>
                   ))}
@@ -122,11 +122,11 @@ export const RegisterForm = () => {
                 onValueChange={(value) => setFormData({ ...formData, state: value })}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a state" />
+                  <SelectValue placeholder="Select a state" className="text-gray-700" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {australianStates.map((state) => (
-                    <SelectItem key={state} value={state}>
+                    <SelectItem key={state} value={state} className="text-gray-700">
                       {state}
                     </SelectItem>
                   ))}
