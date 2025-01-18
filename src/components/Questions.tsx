@@ -37,7 +37,7 @@ export const Questions = () => {
         </h2>
         
         {sampleQuestions.map((q) => (
-          <Card key={q.id} className="p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card key={q.id} className="p-6 bg-mystical-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-semibold mb-4 text-gray-700">{q.question}</h3>
             <RadioGroup
               onValueChange={(value) => setAnswers({ ...answers, [q.id]: value })}
