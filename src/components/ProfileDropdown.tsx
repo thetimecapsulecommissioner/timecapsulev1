@@ -32,11 +32,11 @@ export const ProfileDropdown = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48 bg-white">
-        <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer text-gray-700">
           <User className="mr-2 h-4 w-4" />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/competitions")} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => navigate("/competitions")} className="cursor-pointer text-gray-700">
           <Award className="mr-2 h-4 w-4" />
           Competitions
         </DropdownMenuItem>
