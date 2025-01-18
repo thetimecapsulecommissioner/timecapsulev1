@@ -33,7 +33,7 @@ export const Login = () => {
       }
 
       toast.success("Login successful!");
-      navigate("/");
+      navigate("/questions");
     } catch (error) {
       toast.error("An unexpected error occurred");
     } finally {

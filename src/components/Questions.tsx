@@ -2,45 +2,125 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
-const sampleQuestions = [
-  {
-    id: 1,
-    question: "By 2025, what will be the dominant mode of transportation in major cities?",
-    options: ["Electric vehicles", "Flying taxis", "Autonomous vehicles", "Public transit"],
-  },
-  {
-    id: 2,
-    question: "Which technology will have the biggest impact on daily life in the next 5 years?",
-    options: ["Artificial Intelligence", "Virtual Reality", "Biotechnology", "Quantum Computing"],
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ProfileDropdown } from "./ProfileDropdown";
+import { useNavigate } from "react-router-dom";
 
 export const Questions = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [answers, setAnswers] = useState<Record<number, string>>({});
 
-  const handleSubmit = () => {
-    if (Object.keys(answers).length !== sampleQuestions.length) {
+  // Fetch questions from Supabase
+  const { data: questions, isLoading: questionsLoading } = useQuery({
+    queryKey: ['questions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .order('id');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch user's existing predictions
+  const { data: predictions, isLoading: predictionsLoading } = useQuery({
+    queryKey: ['predictions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('predictions')
+        .select('*');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Load existing predictions into state
+  useEffect(() => {
+    if (predictions) {
+      const existingAnswers: Record<number, string> = {};
+      predictions.forEach((prediction) => {
+        existingAnswers[prediction.question_id] = prediction.answer;
+      });
+      setAnswers(existingAnswers);
+    }
+  }, [predictions]);
+
+  // Save prediction mutation
+  const savePrediction = useMutation({
+    mutationFn: async ({ questionId, answer }: { questionId: number; answer: string }) => {
+      const { data, error } = await supabase
+        .from('predictions')
+        .upsert({
+          question_id: questionId,
+          answer,
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+        }, {
+          onConflict: 'user_id,question_id'
+        });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+    },
+  });
+
+  const handleAnswerChange = async (questionId: number, value: string) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    try {
+      await savePrediction.mutateAsync({ questionId, answer: value });
+      toast.success("Prediction saved!");
+    } catch (error) {
+      toast.error("Failed to save prediction");
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!questions || Object.keys(answers).length !== questions.length) {
       toast.error("Please answer all questions");
       return;
     }
-    toast.success("Predictions saved to your time capsule!");
+
+    try {
+      const { error } = await supabase
+        .from('predictions')
+        .update({ submitted: true })
+        .in('question_id', questions.map(q => q.id));
+
+      if (error) throw error;
+      toast.success("Predictions submitted successfully!");
+    } catch (error) {
+      toast.error("Failed to submit predictions");
+    }
   };
 
+  if (questionsLoading || predictionsLoading) {
+    return <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className="text-secondary">Loading...</div>
+    </div>;
+  }
+
   return (
-    <div className="min-h-screen bg-primary py-12 px-4">
-      <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+    <div className="min-h-screen bg-primary">
+      <div className="fixed top-4 right-4 z-50">
+        <ProfileDropdown />
+      </div>
+      
+      <div className="max-w-3xl mx-auto space-y-8 animate-fade-in py-12 px-4">
         <h2 className="text-3xl font-bold text-secondary text-center mb-8">
           Make Your Predictions
         </h2>
         
-        {sampleQuestions.map((q) => (
+        {questions?.map((q) => (
           <Card key={q.id} className="p-6 bg-mystical-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-semibold mb-4 text-gray-700">{q.question}</h3>
             <RadioGroup
-              onValueChange={(value) => setAnswers({ ...answers, [q.id]: value })}
+              onValueChange={(value) => handleAnswerChange(q.id, value)}
               value={answers[q.id]}
             >
               <div className="space-y-3">

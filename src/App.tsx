@@ -23,6 +23,8 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/questions" element={<Questions />} />
           <Route path="/about" element={<About />} />
+          <Route path="/profile" element={<div>Profile Page (Coming Soon)</div>} />
+          <Route path="/competitions" element={<div>Competitions Page (Coming Soon)</div>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

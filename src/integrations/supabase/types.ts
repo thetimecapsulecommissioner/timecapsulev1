@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      predictions: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          question_id: number
+          submitted: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          question_id: number
+          submitted?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          question_id?: number
+          submitted?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -39,6 +69,27 @@ export type Database = {
           phone?: string | null
           state?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          created_at: string
+          id: number
+          options: string[]
+          question: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          options: string[]
+          question: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          options?: string[]
+          question?: string
         }
         Relationships: []
       }
