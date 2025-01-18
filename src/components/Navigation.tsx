@@ -27,22 +27,16 @@ export const Navigation = () => {
               About
             </button>
             <button 
-              onClick={() => navigate("/leaderboards")} 
-              className="text-secondary hover:text-secondary-light transition-colors"
-            >
-              Leaderboards
-            </button>
-            <button 
               onClick={() => navigate("/register")} 
               className="text-secondary hover:text-secondary-light transition-colors"
             >
               Start my own
             </button>
             <button 
-              onClick={() => navigate("/contact")} 
+              onClick={() => navigate("/questions")} 
               className="text-secondary hover:text-secondary-light transition-colors"
             >
-              Contact
+              Questions
             </button>
           </nav>
         </div>
