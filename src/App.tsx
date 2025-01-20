@@ -28,6 +28,9 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/profile" element={<div>Profile Page (Coming Soon)</div>} />
           <Route path="/competitions" element={<div>Competitions Page (Coming Soon)</div>} />
+          <Route path="/leaderboard" element={<div>Leaderboard (Coming Soon)</div>} />
+          <Route path="/community-groups" element={<div>Community Groups (Coming Soon)</div>} />
+          <Route path="/contact" element={<div>Contact (Coming Soon)</div>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
