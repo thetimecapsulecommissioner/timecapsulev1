@@ -5,11 +5,11 @@ export const MainContent = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex-1 text-right pr-8">
+    <div className="flex-1 text-center pr-8">
       <h1 className="text-5xl md:text-7xl font-bold text-secondary mb-6">
         The Time Capsule
       </h1>
-      <p className="text-xl md:text-2xl text-secondary/90 max-w-2xl ml-auto mb-8">
+      <p className="text-xl md:text-2xl text-secondary/90 max-w-2xl mx-auto mb-8">
         Make your predictions about the future and seal them The Time Capsule. 
         Gather later with your community to crown your Time Capsule winner and help raise funds and awareness for community sport!
       </p>

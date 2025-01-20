@@ -5,7 +5,7 @@ export const ActionButtons = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col justify-center gap-4 pl-8">
+    <div className="flex flex-col justify-center gap-8 pl-8">
       <Button 
         variant="secondary" 
         className="text-primary font-semibold w-64"
