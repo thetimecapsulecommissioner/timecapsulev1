@@ -68,7 +68,7 @@ const About = () => {
           <div className="md:w-1/2">
             <h2 className="text-2xl text-secondary/90 italic mb-4">Mission</h2>
             <p className="text-secondary/90 text-lg leading-relaxed">
-              The Time Capsule wants to help in building genuine community and connection through exciting games and engaging events. It also seeks to be a part of fundraising and creating awareness about important causes to its community. This year, The Time Capsule is excited to extend its mission to raising funds and awareness for community sporting organisations. Recently in a survey, 68% of community clubs stated experiencing increased running costs and 52% cite the cost of living as the key driver in dropping participation, and the Time Capsule wants to be a part of supporting the growth of grassroots community organisations. If you would like to register your community group as a Time Capsule Partner so they can be in the fundraising pool, please contact us through the below linked page!
+              The Time Capsule wants to help in building genuine community and connection through exciting games and engaging events. It also seeks to be a part of fundraising and creating awareness about important causes to its community. This year, The Time Capsule is excited to extend its mission to supporting community sporting organisations. Local sporting clubs are the centre of many communities and cost of living pressures are affecting them more than most. If you would like to register your community group as a Time Capsule Partner, so they can be in the fundraising pool, please contact us through the below linked page!
             </p>
           </div>
           <div className="md:w-1/2 h-64 bg-mystical-200/10 rounded-lg flex items-center justify-center">
@@ -76,7 +76,6 @@ const About = () => {
           </div>
         </div>
 
-        {/* Sixth Section */}
         <div className="flex flex-col-reverse md:flex-row items-center gap-8 mb-16">
           <div className="md:w-1/2 h-64 bg-mystical-200/10 rounded-lg flex items-center justify-center">
             <span className="text-secondary/50">Image Placeholder</span>
