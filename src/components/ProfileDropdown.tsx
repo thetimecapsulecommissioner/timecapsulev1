@@ -1,52 +1,50 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { User, Award, LogOut, Home } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const ProfileDropdown = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
     try {
+      setIsLoading(true);
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        toast.error("Error logging out");
+        return;
+      }
       toast.success("Logged out successfully");
-      navigate("/"); // Changed from "/login" to "/"
+      // Only navigate after successful logout
+      window.location.href = '/';
     } catch (error) {
       toast.error("Error logging out");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-10 w-10 rounded-full bg-secondary">
-          <User className="h-5 w-5 text-primary" />
-        </Button>
+      <DropdownMenuTrigger disabled={isLoading}>
+        <Avatar>
+          <AvatarFallback>U</AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-white">
-        <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer text-gray-700">
-          <Home className="mr-2 h-4 w-4" />
-          Home
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer text-gray-700">
-          <User className="mr-2 h-4 w-4" />
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => navigate("/profile")}>
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/competitions")} className="cursor-pointer text-gray-700">
-          <Award className="mr-2 h-4 w-4" />
-          Competitions
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
-          <LogOut className="mr-2 h-4 w-4" />
-          Log out
+        <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
+          {isLoading ? "Logging out..." : "Logout"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
