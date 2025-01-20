@@ -58,7 +58,7 @@ const About = () => {
           <div className="md:w-1/2">
             <h2 className="text-2xl text-secondary/90 italic mb-4">History</h2>
             <p className="text-secondary/90 text-lg leading-relaxed">
-              The Time Capsule is now entering its fourth season. Our third season saw 60 people take part and our biggest event ever held at Inner North Brewing Company. That event saw Will Horsfall crowned as our winner, storming into a win during his debut season.
+              The Time Capsule is now entering its fourth season. Our third season saw 60 people take part and our biggest event ever held at Inner North Brewing Company. That event saw Will Horsfall crowned as our winner, storming into a win during his debut season. In our latest season, we proudly raised $2,500 for Movember, supporting men's health initiatives.
             </p>
           </div>
         </div>
@@ -68,7 +68,7 @@ const About = () => {
           <div className="md:w-1/2">
             <h2 className="text-2xl text-secondary/90 italic mb-4">Mission</h2>
             <p className="text-secondary/90 text-lg leading-relaxed">
-              The Time Capsule wants to help in building genuine community and connection through exciting games and engaging events. It also seeks to be a part of fundraising and creating awareness about important causes to its community. In our latest season, we proudly raised $2,500 for Movember, supporting men's health initiatives. This year, The Time Capsule is excited to extend its mission to raising funds and awareness for community sporting organisations. Cost of living pressures are effecting our community organisations more than most and we are excited at the prospect of being a part of the solution. If you would like to register your community group as a Time Capsule Partner so they can be in the fundraising pool, please contact us through through the below linked page!
+              The Time Capsule wants to help in building genuine community and connection through exciting games and engaging events. It also seeks to be a part of fundraising and creating awareness about important causes to its community. This year, The Time Capsule is excited to extend its mission to raising funds and awareness for community sporting organisations. Recently in a survey, 68% of community clubs stated experiencing increased running costs and 52% cite the cost of living as the key driver in dropping participation, and the Time Capsule wants to be a part of supporting the growth of grassroots community organisations. If you would like to register your community group as a Time Capsule Partner so they can be in the fundraising pool, please contact us through the below linked page!
             </p>
           </div>
           <div className="md:w-1/2 h-64 bg-mystical-200/10 rounded-lg flex items-center justify-center">
