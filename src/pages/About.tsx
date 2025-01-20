@@ -42,7 +42,7 @@ const About = () => {
           <div className="md:w-1/2">
             <h2 className="text-2xl text-secondary/90 italic mb-4">What happens at the end of the season?</h2>
             <p className="text-secondary/90 text-lg leading-relaxed">
-              Once the season comes to a close, the Time Capsule must be opened, and this is done at a Brownlow-Style awards night. Reason enough to enter, regardless of sports knowledge, your community gathers, points are counted down and the winners unveiled! A great opportunity to get together and celebrate the season with your community, the night includes fun and prizes for all!
+              Once the season comes to a close, the Time Capsule must be opened, and this is done at a Brownlow-Style awards night. Reason enough to enter, regardless of predictive skills, your community gathers, points are counted down and the winners unveiled! A great opportunity to get together and celebrate the season with your community, the night includes fun and prizes for all!
             </p>
           </div>
           <div className="md:w-1/2 h-64 bg-mystical-200/10 rounded-lg flex items-center justify-center">
