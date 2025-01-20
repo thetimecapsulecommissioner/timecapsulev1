@@ -8,7 +8,7 @@ interface AboutSectionProps {
 
 export const AboutSection = ({ title, content, imagePosition }: AboutSectionProps) => {
   const contentSection = (
-    <div className="md:w-1/2">
+    <div className="md:w-1/2 px-6">
       <h2 className="text-2xl text-secondary/90 italic mb-4">{title}</h2>
       <p className="text-secondary/90 text-lg leading-relaxed">{content}</p>
     </div>
@@ -21,18 +21,9 @@ export const AboutSection = ({ title, content, imagePosition }: AboutSectionProp
   );
 
   return (
-    <div className={`flex flex-col ${imagePosition === 'left' ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 mb-16`}>
-      {imagePosition === 'left' ? (
-        <>
-          {imageSection}
-          {contentSection}
-        </>
-      ) : (
-        <>
-          {contentSection}
-          {imageSection}
-        </>
-      )}
+    <div className={`flex flex-col md:flex-row ${imagePosition === 'right' ? '' : 'md:flex-row-reverse'} items-center gap-8 mb-16`}>
+      {contentSection}
+      {imageSection}
     </div>
   );
 };
