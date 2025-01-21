@@ -10,7 +10,7 @@ export const MainContent = () => {
         The Time Capsule
       </h1>
       <p className="text-xl md:text-2xl text-secondary/90 max-w-2xl mx-auto mb-8">
-        Make your predictions about the future and seal them The Time Capsule. 
+        Make your predictions about the future and seal them in The Time Capsule. 
         Gather later with your community to crown your Time Capsule winner and help raise funds and awareness for community sport!
       </p>
       <Button 
