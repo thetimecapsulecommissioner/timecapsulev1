@@ -8,6 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -59,6 +62,7 @@ export const ProfileDropdown = () => {
       if (error) throw error;
       setAvatarUrl(url);
       setIsAvatarDialogOpen(false);
+      toast.success('Avatar updated successfully');
     } catch (error) {
       toast.error('Error updating avatar');
       console.error(error);
@@ -87,19 +91,37 @@ export const ProfileDropdown = () => {
       <DropdownMenu>
         <DropdownMenuTrigger disabled={isLoading}>
           <Avatar>
-            <AvatarImage src={avatarUrl || undefined} />
+            <AvatarImage 
+              src={avatarUrl || "/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png"} 
+              alt="Profile" 
+            />
             <AvatarFallback>
-              {avatarUrl ? '...' : 'U'}
+              <img 
+                src="/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png" 
+                alt="Default Avatar" 
+              />
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => setIsAvatarDialogOpen(true)}>
-            Update Avatar
-          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate("/profile")}>
             Profile
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/competitions")}>
+            My Competitions
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Settings</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={() => setIsAvatarDialogOpen(true)}>
+                Update Avatar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
+                Personal Details
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
             {isLoading ? "Logging out..." : "Logout"}
