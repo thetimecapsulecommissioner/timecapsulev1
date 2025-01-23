@@ -42,9 +42,9 @@ export const Questions = () => {
 
         <div className="bg-mystical-100 p-6 rounded-lg mb-8">
           <p className="text-primary text-lg text-center">
-            The Original and Central AFL Time Capsule Competition, focussed on determining who truly knows their footy best! 
-            Click below to read the terms and conditions and enter this competition, so you can begin making your predictions 
-            and try and take home the prize money and shield!
+            The Original AFL Time Capsule, focussed on finding out who truly is the biggest footy nuff! 
+            Click below to read the terms and conditions and enter this competition, to start making your predictions 
+            and put yourself in with a chance to win the prize-money and coveted Time Capsule Shield!
           </p>
         </div>
 
@@ -71,7 +71,9 @@ export const Questions = () => {
             onClick={() => hasEntered && setShowTerms(false)}
           >
             <span className="text-primary font-semibold">Pre-Season Predictions</span>
-            <span className="px-3 py-1 rounded bg-green-500 text-white">Open</span>
+            <div className="flex-1 flex justify-center">
+              <span className="px-3 py-1 rounded bg-green-500 text-white">Open</span>
+            </div>
             <span className="text-primary">
               {preSeasonTimeLeft}
             </span>
@@ -82,7 +84,9 @@ export const Questions = () => {
             className="w-full h-16 flex justify-between items-center px-6 bg-gray-200"
           >
             <span className="text-primary font-semibold">Mid-Season Predictions</span>
-            <span className="px-3 py-1 rounded bg-gray-400 text-white">Closed</span>
+            <div className="flex-1 flex justify-center">
+              <span className="px-3 py-1 rounded bg-gray-400 text-white">Closed</span>
+            </div>
             <span></span>
           </Button>
         </div>
