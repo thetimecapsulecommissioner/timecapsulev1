@@ -4,18 +4,30 @@ import { useCompetition } from "@/hooks/useCompetition";
 import { PredictionForm } from "./questions/PredictionForm";
 import { LoadingState } from "./ui/LoadingState";
 import { Button } from "./ui/button";
-import { format } from "date-fns";
+import { Logo } from "./navigation/Logo";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useCountdown } from "@/hooks/useCountdown";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Questions = () => {
   const { id: competitionId } = useParams();
   const { data: competition, isLoading } = useCompetition(competitionId);
   const [showTerms, setShowTerms] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
+  const navigate = useNavigate();
 
   const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
   const { timeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
+
+  const handleLogoClick = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      navigate("/dashboard");
+    } else {
+      navigate("/");
+    }
+  };
 
   if (isLoading) {
     return <LoadingState />;
@@ -31,6 +43,9 @@ export const Questions = () => {
 
   return (
     <div className="min-h-screen bg-primary">
+      <div className="fixed top-4 left-4 z-50">
+        <Logo onClick={handleLogoClick} />
+      </div>
       <div className="fixed top-4 right-4 z-50">
         <ProfileDropdown />
       </div>
@@ -42,7 +57,8 @@ export const Questions = () => {
 
         <div className="bg-mystical-100 p-6 rounded-lg mb-8">
           <p className="text-primary text-lg text-center">
-            The Original AFL Time Capsule, focussed on finding out who truly is the biggest footy nuff! 
+            The Original AFL Time Capsule, focussed on finding out who truly is the biggest footy nuff!{' '}
+            <br />
             Click below to read the terms and conditions and enter this competition, to start making your predictions 
             and put yourself in with a chance to win the prize-money and coveted Time Capsule Shield!
           </p>
@@ -70,11 +86,11 @@ export const Questions = () => {
               ${hasEntered ? 'bg-green-100 hover:bg-green-200' : 'bg-secondary hover:bg-secondary-light'}`}
             onClick={() => hasEntered && setShowTerms(false)}
           >
-            <span className="text-primary font-semibold">Pre-Season Predictions</span>
+            <span className="text-primary font-semibold w-48">Pre-Season Predictions</span>
             <div className="flex-1 flex justify-center">
               <span className="px-3 py-1 rounded bg-green-500 text-white">Open</span>
             </div>
-            <span className="text-primary">
+            <span className="text-primary w-48 text-right">
               {preSeasonTimeLeft}
             </span>
           </Button>
@@ -83,11 +99,11 @@ export const Questions = () => {
             disabled
             className="w-full h-16 flex justify-between items-center px-6 bg-gray-200"
           >
-            <span className="text-primary font-semibold">Mid-Season Predictions</span>
+            <span className="text-primary font-semibold w-48">Mid-Season Predictions</span>
             <div className="flex-1 flex justify-center">
               <span className="px-3 py-1 rounded bg-gray-400 text-white">Closed</span>
             </div>
-            <span></span>
+            <span className="w-48"></span>
           </Button>
         </div>
 
