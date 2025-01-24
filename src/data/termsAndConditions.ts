@@ -3,7 +3,7 @@ export const termsAndConditions = [
     reference: "1.1",
     category: "General",
     label: "Number of Questions",
-    description: "The competition consists of a guaranteed 28 Pre-Season questions and 4 Mid-Season Questions related to the 2025 AFL season. Up to four more rounds of questions may be added at the discretion of the competition organizers during the season."
+    description: "The competition consists of a guaranteed 28 Pre-Season questions and 4 Mid-Season Questions related to the 2025 AFL season. Up to four more rounds of questions may be added at the discretion of the competition organisers during the season."
   },
   {
     reference: "1.2",
