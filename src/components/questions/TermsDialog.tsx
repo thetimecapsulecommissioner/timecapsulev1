@@ -4,7 +4,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,16 +35,10 @@ export const TermsDialog = ({ open, onOpenChange }: TermsDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[900px] h-[80vh] flex flex-col">
-        <DialogHeader className="relative">
+        <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold">
             Terms and Conditions
           </DialogTitle>
-          <button
-            onClick={() => onOpenChange(false)}
-            className="absolute right-0 top-0 p-2 hover:bg-gray-100 rounded-full"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </DialogHeader>
         
         <div className="flex-1 overflow-auto mt-4">
