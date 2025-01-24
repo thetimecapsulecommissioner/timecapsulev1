@@ -7,6 +7,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTermsAndConditions } from "@/hooks/useTermsAndConditions";
+import { LoadingState } from "../ui/LoadingState";
 
 interface TermsAndConditionsDialogProps {
   open: boolean;
@@ -14,7 +15,11 @@ interface TermsAndConditionsDialogProps {
 }
 
 export const TermsAndConditionsDialog = ({ open, onOpenChange }: TermsAndConditionsDialogProps) => {
-  const { data: termsAndConditions = [] } = useTermsAndConditions();
+  const { data: termsAndConditions, isLoading } = useTermsAndConditions();
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -33,7 +38,7 @@ export const TermsAndConditionsDialog = ({ open, onOpenChange }: TermsAndConditi
               </TableRow>
             </TableHeader>
             <TableBody>
-              {termsAndConditions.map((term) => (
+              {termsAndConditions?.map((term) => (
                 <TableRow key={term["Rule Reference"]}>
                   <TableCell className="font-medium">{term["Rule Reference"]}</TableCell>
                   <TableCell>{term.Category}</TableCell>
