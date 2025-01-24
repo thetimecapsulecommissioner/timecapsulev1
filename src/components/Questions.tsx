@@ -3,21 +3,13 @@ import { useParams } from "react-router-dom";
 import { useCompetition } from "@/hooks/useCompetition";
 import { PredictionForm } from "./questions/PredictionForm";
 import { LoadingState } from "./ui/LoadingState";
-import { Button } from "./ui/button";
 import { Logo } from "./navigation/Logo";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useTermsAndConditions } from "@/hooks/useTermsAndConditions";
 import { useCountdown } from "@/hooks/useCountdown";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CompetitionButtons } from "./questions/CompetitionButtons";
+import { TermsAndConditionsDialog } from "./questions/TermsAndConditionsDialog";
 
 export const Questions = () => {
   const { id: competitionId } = useParams();
@@ -38,15 +30,9 @@ export const Questions = () => {
     }
   };
 
-  const { data: termsAndConditions = [] } = useTermsAndConditions();
-
   if (isLoading) {
     return <LoadingState />;
   }
-
-  const handleEnterCompetition = () => {
-    setHasEntered(true);
-  };
 
   return (
     <div className="min-h-screen bg-primary">
@@ -71,78 +57,17 @@ export const Questions = () => {
           </p>
         </div>
 
-        <div className="flex gap-4 justify-center mb-12">
-          <Button
-            onClick={handleEnterCompetition}
-            className="flex-1 bg-secondary hover:bg-secondary-light text-primary"
-          >
-            Enter this Competition
-          </Button>
-          <Button
-            onClick={() => setShowTerms(true)}
-            variant="outline"
-            className="flex-1 border-secondary text-secondary hover:bg-secondary/10"
-          >
-            Terms and Conditions
-          </Button>
-        </div>
+        <CompetitionButtons
+          hasEntered={hasEntered}
+          preSeasonTimeLeft={preSeasonTimeLeft}
+          onEnterCompetition={() => setHasEntered(true)}
+          onShowTerms={() => setShowTerms(true)}
+        />
 
-        <Dialog open={showTerms} onOpenChange={setShowTerms}>
-          <DialogContent className="max-w-[900px] max-h-[80vh]">
-            <DialogHeader>
-              <DialogTitle className="text-center text-xl font-bold">Terms and Conditions</DialogTitle>
-            </DialogHeader>
-            <ScrollArea className="h-[60vh]">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">Rule Reference</TableHead>
-                    <TableHead className="w-[150px]">Rule Category</TableHead>
-                    <TableHead className="w-[200px]">Rule Label</TableHead>
-                    <TableHead>Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {termsAndConditions.map((term) => (
-                    <TableRow key={term["Rule Reference"]}>
-                      <TableCell className="font-medium">{term["Rule Reference"]}</TableCell>
-                      <TableCell>{term.Category}</TableCell>
-                      <TableCell>{term.Name}</TableCell>
-                      <TableCell className="whitespace-pre-wrap">{term.Description}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-          </DialogContent>
-        </Dialog>
-
-        <div className="space-y-4 mt-12">
-          <Button
-            className={`w-full h-16 flex justify-between items-center px-6 
-              ${hasEntered ? 'bg-green-100 hover:bg-green-200' : 'bg-secondary hover:bg-secondary-light'}`}
-            onClick={() => hasEntered && setShowTerms(false)}
-          >
-            <span className="text-primary font-semibold w-48">Pre-Season Predictions</span>
-            <div className="flex-1 flex justify-center">
-              <span className="px-3 py-1 rounded bg-green-500 text-white">Open</span>
-            </div>
-            <span className="text-primary w-48 text-right">
-              {preSeasonTimeLeft}
-            </span>
-          </Button>
-
-          <Button
-            disabled
-            className="w-full h-16 flex justify-between items-center px-6 bg-gray-200"
-          >
-            <span className="text-primary font-semibold w-48">Mid-Season Predictions</span>
-            <div className="flex-1 flex justify-center">
-              <span className="px-3 py-1 rounded bg-gray-400 text-white">Closed</span>
-            </div>
-            <span className="w-48"></span>
-          </Button>
-        </div>
+        <TermsAndConditionsDialog
+          open={showTerms}
+          onOpenChange={setShowTerms}
+        />
 
         {!showTerms && hasEntered && <PredictionForm competitionLabel={competition?.label} />}
       </div>
