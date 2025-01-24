@@ -15,17 +15,35 @@ interface TermsAndConditionsDialogProps {
 }
 
 export const TermsAndConditionsDialog = ({ open, onOpenChange }: TermsAndConditionsDialogProps) => {
-  const { data: termsAndConditions, isLoading } = useTermsAndConditions();
+  const { data: termsAndConditions, isLoading, error } = useTermsAndConditions();
 
   if (isLoading) {
     return <LoadingState />;
+  }
+
+  if (error) {
+    console.error('Error loading terms and conditions:', error);
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold text-red-500">
+              Error Loading Terms and Conditions
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-center">Please try again later.</p>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[900px] max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl font-bold">Terms and Conditions</DialogTitle>
+          <DialogTitle className="text-center text-xl font-bold">
+            Terms and Conditions
+          </DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[60vh]">
           <Table>

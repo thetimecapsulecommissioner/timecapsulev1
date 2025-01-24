@@ -17,7 +17,11 @@ export const useTermsAndConditions = () => {
         .select('*')
         .order('"Rule Reference"');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching terms and conditions:', error);
+        throw error;
+      }
+      
       return data as TermsAndConditions[];
     },
   });
