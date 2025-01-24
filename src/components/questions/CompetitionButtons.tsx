@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { TermsDialog } from "./TermsDialog";
+import { AcceptTermsDialog } from "./AcceptTermsDialog";
 
 interface CompetitionButtonsProps {
   hasEntered: boolean;
@@ -14,13 +15,15 @@ export const CompetitionButtons = ({
   onEnterCompetition,
 }: CompetitionButtonsProps) => {
   const [showTerms, setShowTerms] = useState(false);
+  const [showAcceptTerms, setShowAcceptTerms] = useState(false);
 
   return (
     <>
       <div className="flex gap-4 justify-center mb-12">
         <Button
-          onClick={onEnterCompetition}
-          className="flex-1 bg-secondary hover:bg-secondary-light text-primary"
+          onClick={() => setShowAcceptTerms(true)}
+          variant="outline"
+          className="flex-1 border-secondary text-secondary hover:bg-secondary/10"
         >
           Enter this Competition
         </Button>
@@ -34,6 +37,11 @@ export const CompetitionButtons = ({
       </div>
 
       <TermsDialog open={showTerms} onOpenChange={setShowTerms} />
+      <AcceptTermsDialog 
+        open={showAcceptTerms} 
+        onOpenChange={setShowAcceptTerms}
+        onAcceptTerms={onEnterCompetition}
+      />
 
       <div className="space-y-4 mt-12">
         <Button
