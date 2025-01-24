@@ -67,6 +67,7 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
               id="terms" 
               checked={accepted}
               onCheckedChange={(checked) => setAccepted(checked as boolean)}
+              className="h-5 w-5 rounded-full border-2 border-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
             />
             <label
               htmlFor="terms"
