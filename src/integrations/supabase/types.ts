@@ -161,6 +161,27 @@ export type Database = {
         }
         Relationships: []
       }
+      "Terms and Conditions 2025 AFL Time Capsule": {
+        Row: {
+          Category: string | null
+          Description: string | null
+          Name: string | null
+          "Rule Reference": number
+        }
+        Insert: {
+          Category?: string | null
+          Description?: string | null
+          Name?: string | null
+          "Rule Reference": number
+        }
+        Update: {
+          Category?: string | null
+          Description?: string | null
+          Name?: string | null
+          "Rule Reference"?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

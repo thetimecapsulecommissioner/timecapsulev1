@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { Logo } from "./navigation/Logo";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useTermsAndConditions } from "@/hooks/useTermsAndConditions";
 import { useCountdown } from "@/hooks/useCountdown";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -37,15 +38,7 @@ export const Questions = () => {
     }
   };
 
-  const termsAndConditions = [
-    {
-      reference: "1.1",
-      category: "General",
-      label: "Number of Questions",
-      description: "The competition consists of a guaranteed 28 Pre-Season questions and 4 Mid-Season Questions related to the 2025 AFL season. Up to four more rounds of questions may be added at the discretion of the competition organizers during the season."
-    },
-    // ... Add all other terms here following the same structure
-  ];
+  const { data: termsAndConditions = [] } = useTermsAndConditions();
 
   if (isLoading) {
     return <LoadingState />;
@@ -111,11 +104,11 @@ export const Questions = () => {
                 </TableHeader>
                 <TableBody>
                   {termsAndConditions.map((term) => (
-                    <TableRow key={term.reference}>
-                      <TableCell className="font-medium">{term.reference}</TableCell>
-                      <TableCell>{term.category}</TableCell>
-                      <TableCell>{term.label}</TableCell>
-                      <TableCell className="whitespace-pre-wrap">{term.description}</TableCell>
+                    <TableRow key={term["Rule Reference"]}>
+                      <TableCell className="font-medium">{term["Rule Reference"]}</TableCell>
+                      <TableCell>{term.Category}</TableCell>
+                      <TableCell>{term.Name}</TableCell>
+                      <TableCell className="whitespace-pre-wrap">{term.Description}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
