@@ -1,18 +1,20 @@
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { TermsDialog } from "./TermsDialog";
 
 interface CompetitionButtonsProps {
   hasEntered: boolean;
   preSeasonTimeLeft: string;
   onEnterCompetition: () => void;
-  onShowTerms: () => void;
 }
 
 export const CompetitionButtons = ({
   hasEntered,
   preSeasonTimeLeft,
   onEnterCompetition,
-  onShowTerms,
 }: CompetitionButtonsProps) => {
+  const [showTerms, setShowTerms] = useState(false);
+
   return (
     <>
       <div className="flex gap-4 justify-center mb-12">
@@ -23,13 +25,15 @@ export const CompetitionButtons = ({
           Enter this Competition
         </Button>
         <Button
-          onClick={onShowTerms}
+          onClick={() => setShowTerms(true)}
           variant="outline"
           className="flex-1 border-secondary text-secondary hover:bg-secondary/10"
         >
           Terms and Conditions
         </Button>
       </div>
+
+      <TermsDialog open={showTerms} onOpenChange={setShowTerms} />
 
       <div className="space-y-4 mt-12">
         <Button

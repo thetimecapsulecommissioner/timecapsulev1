@@ -9,12 +9,10 @@ import { useState } from "react";
 import { useCountdown } from "@/hooks/useCountdown";
 import { supabase } from "@/integrations/supabase/client";
 import { CompetitionButtons } from "./questions/CompetitionButtons";
-import { TermsAndConditionsDialog } from "./questions/TermsAndConditionsDialog";
 
 export const Questions = () => {
   const { id: competitionId } = useParams();
   const { data: competition, isLoading } = useCompetition(competitionId);
-  const [showTerms, setShowTerms] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
   const navigate = useNavigate();
 
@@ -61,15 +59,9 @@ export const Questions = () => {
           hasEntered={hasEntered}
           preSeasonTimeLeft={preSeasonTimeLeft}
           onEnterCompetition={() => setHasEntered(true)}
-          onShowTerms={() => setShowTerms(true)}
         />
 
-        <TermsAndConditionsDialog
-          open={showTerms}
-          onOpenChange={setShowTerms}
-        />
-
-        {!showTerms && hasEntered && <PredictionForm competitionLabel={competition?.label} />}
+        {hasEntered && <PredictionForm competitionLabel={competition?.label} />}
       </div>
     </div>
   );
