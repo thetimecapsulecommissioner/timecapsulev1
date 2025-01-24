@@ -9,6 +9,14 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useCountdown } from "@/hooks/useCountdown";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export const Questions = () => {
   const { id: competitionId } = useParams();
@@ -29,16 +37,22 @@ export const Questions = () => {
     }
   };
 
+  const termsAndConditions = [
+    {
+      reference: "1.1",
+      category: "General",
+      label: "Number of Questions",
+      description: "The competition consists of a guaranteed 28 Pre-Season questions and 4 Mid-Season Questions related to the 2025 AFL season. Up to four more rounds of questions may be added at the discretion of the competition organizers during the season."
+    },
+    // ... Add all other terms here following the same structure
+  ];
+
   if (isLoading) {
     return <LoadingState />;
   }
 
   const handleEnterCompetition = () => {
     setHasEntered(true);
-  };
-
-  const handleShowTerms = () => {
-    setShowTerms(true);
   };
 
   return (
@@ -72,13 +86,43 @@ export const Questions = () => {
             Enter this Competition
           </Button>
           <Button
-            onClick={handleShowTerms}
+            onClick={() => setShowTerms(true)}
             variant="outline"
             className="flex-1 border-secondary text-secondary hover:bg-secondary/10"
           >
             Terms and Conditions
           </Button>
         </div>
+
+        <Dialog open={showTerms} onOpenChange={setShowTerms}>
+          <DialogContent className="max-w-[900px] max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle className="text-center text-xl font-bold">Terms and Conditions</DialogTitle>
+            </DialogHeader>
+            <ScrollArea className="h-[60vh]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px]">Rule Reference</TableHead>
+                    <TableHead className="w-[150px]">Rule Category</TableHead>
+                    <TableHead className="w-[200px]">Rule Label</TableHead>
+                    <TableHead>Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {termsAndConditions.map((term) => (
+                    <TableRow key={term.reference}>
+                      <TableCell className="font-medium">{term.reference}</TableCell>
+                      <TableCell>{term.category}</TableCell>
+                      <TableCell>{term.label}</TableCell>
+                      <TableCell className="whitespace-pre-wrap">{term.description}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
 
         <div className="space-y-4 mt-12">
           <Button
