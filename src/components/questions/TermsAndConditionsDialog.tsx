@@ -17,6 +17,8 @@ interface TermsAndConditionsDialogProps {
 export const TermsAndConditionsDialog = ({ open, onOpenChange }: TermsAndConditionsDialogProps) => {
   const { data: termsAndConditions, isLoading, error } = useTermsAndConditions();
 
+  console.log('Terms and Conditions Dialog:', { termsAndConditions, isLoading, error });
+
   if (isLoading) {
     return <LoadingState />;
   }
@@ -37,6 +39,21 @@ export const TermsAndConditionsDialog = ({ open, onOpenChange }: TermsAndConditi
     );
   }
 
+  if (!termsAndConditions || termsAndConditions.length === 0) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold">
+              No Terms and Conditions Found
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-center">No terms and conditions are currently available.</p>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[900px] max-h-[80vh]">
@@ -50,8 +67,8 @@ export const TermsAndConditionsDialog = ({ open, onOpenChange }: TermsAndConditi
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[100px]">Rule Reference</TableHead>
-                <TableHead className="w-[150px]">Rule Category</TableHead>
-                <TableHead className="w-[200px]">Rule Label</TableHead>
+                <TableHead className="w-[150px]">Category</TableHead>
+                <TableHead className="w-[200px]">Name</TableHead>
                 <TableHead>Description</TableHead>
               </TableRow>
             </TableHeader>

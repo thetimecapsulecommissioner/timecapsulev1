@@ -12,6 +12,7 @@ export const useTermsAndConditions = () => {
   return useQuery({
     queryKey: ['terms-and-conditions'],
     queryFn: async () => {
+      console.log('Fetching terms and conditions...');
       const { data, error } = await supabase
         .from('Terms and Conditions 2025 AFL Time Capsule')
         .select('*')
@@ -22,6 +23,7 @@ export const useTermsAndConditions = () => {
         throw error;
       }
       
+      console.log('Terms and conditions data:', data);
       return data as TermsAndConditions[];
     },
   });
