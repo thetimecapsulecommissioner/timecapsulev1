@@ -34,14 +34,14 @@ const About = () => {
           title="History"
           content="The Time Capsule is now entering its fourth season. Our third season saw 60 people take part and our biggest event ever held at Inner North Brewing Company. That event saw Will Horsfall crowned as our winner, storming into a win during his debut season. In our latest season, we proudly raised $2,500 for Movember, supporting men's health initiatives."
           imagePosition="left"
-          imageSrc="/lovable-uploads/b506d885-393e-4b3e-8ec6-0ed5565a7b23.png"
+          imageSrc="/lovable-uploads/649a08b2-8cc5-4584-b7e9-690895ac697c.png"
         />
 
         <AboutSection
           title="Mission"
           content="The Time Capsule wants to help in building genuine community and connection through exciting games and engaging events. It also seeks to be a part of fundraising and creating awareness about important causes to its community. This year, The Time Capsule is excited to extend its mission to supporting community sporting organisations. Local sporting clubs are the centre of many communities and cost of living pressures are affecting them more than most. If you would like to register your community group as a Time Capsule Partner, so they can be in the fundraising pool, please contact us through the below linked page!"
           imagePosition="right"
-          imageSrc="/lovable-uploads/649a08b2-8cc5-4584-b7e9-690895ac697c.png"
+          imageSrc="/lovable-uploads/ef0e589f-e07b-48b5-b432-9eecbb113582.png"
         />
 
         <AboutSection
