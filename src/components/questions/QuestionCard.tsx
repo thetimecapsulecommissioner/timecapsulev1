@@ -49,19 +49,31 @@ export const QuestionCard = ({
     if (responseCategory === "AFL Clubs") {
       return (
         <div className="space-y-3">
-          {options.map((option) => (
-            <div key={option} className="flex items-center space-x-2">
-              <Checkbox
-                id={`${id}-${option}`}
-                checked={selected.includes(option)}
-                onCheckedChange={(checked) => {
-                  const newSelected = checked
-                    ? [...selected, option].slice(0, requiredAnswers)
-                    : selected.filter(item => item !== option);
-                  handleAnswerChange(newSelected);
+          {Array.from({ length: requiredAnswers || 1 }).map((_, index) => (
+            <div key={index} className="w-full">
+              <Select
+                value={selected[index] || ""}
+                onValueChange={(value) => {
+                  const newSelected = [...selected];
+                  newSelected[index] = value;
+                  handleAnswerChange(newSelected.filter(Boolean));
                 }}
-              />
-              <Label htmlFor={`${id}-${option}`} className="text-gray-700">{option}</Label>
+              >
+                <SelectTrigger className="w-full bg-white text-gray-700">
+                  <SelectValue placeholder="Select AFL Club" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {options.map((club) => (
+                    <SelectItem 
+                      key={club} 
+                      value={club}
+                      className="text-gray-700 hover:bg-gray-100"
+                    >
+                      {club}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           ))}
         </div>
@@ -92,12 +104,16 @@ export const QuestionCard = ({
           value={selected[0]}
           onValueChange={(value) => handleAnswerChange([value])}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-white text-gray-700">
             <SelectValue placeholder="Select a number" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             {options.map((option) => (
-              <SelectItem key={option} value={option}>
+              <SelectItem 
+                key={option} 
+                value={option}
+                className="text-gray-700 hover:bg-gray-100"
+              >
                 {option}
               </SelectItem>
             ))}
@@ -126,23 +142,23 @@ export const QuestionCard = ({
   return (
     <Card className="p-6 bg-mystical-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start space-x-2">
+        <div className="flex items-start space-x-2 max-w-[90%]">
           <h3 className="text-xl font-semibold text-gray-700">{question}</h3>
           {helpText && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <HelpCircle className="h-5 w-5 text-gray-500" />
+                  <HelpCircle className="h-5 w-5 text-gray-500 flex-shrink-0" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs bg-white p-2">
-                  <p>{helpText}</p>
+                <TooltipContent className="max-w-xs bg-white">
+                  <p className="text-gray-700">{helpText}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
         </div>
         {points !== undefined && (
-          <span className="text-sm font-medium text-gray-600">
+          <span className="text-sm font-medium text-gray-600 flex-shrink-0">
             {points} Points
           </span>
         )}
