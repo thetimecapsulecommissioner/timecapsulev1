@@ -11,6 +11,8 @@ interface RegistrationFormData {
   phone: string;
   organization: string;
   state: string;
+  playerStatus: string;
+  playerReference?: string;
 }
 
 export const useRegistration = () => {
@@ -23,13 +25,17 @@ export const useRegistration = () => {
     phone: "",
     organization: "",
     state: "",
+    playerStatus: "",
+    playerReference: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.phone || !formData.organization || !formData.state) {
-      toast.error("Please fill in all fields");
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || 
+        !formData.phone || !formData.organization || !formData.state || !formData.playerStatus || 
+        (formData.playerStatus === "new" && !formData.playerReference)) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
@@ -55,6 +61,8 @@ export const useRegistration = () => {
             phone: formData.phone,
             organization: formData.organization,
             state: formData.state,
+            player_status: formData.playerStatus,
+            player_reference: formData.playerReference,
           })
           .eq('id', authData.user.id);
 
