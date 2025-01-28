@@ -20,12 +20,16 @@ export const usePredictions = () => {
 
   const savePrediction = useMutation({
     mutationFn: async ({ questionId, answers }: { questionId: number; answers: string[] }) => {
+      // Get user ID once at the beginning
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id) throw new Error('User not authenticated');
+      
       // Delete existing predictions for this question
       await supabase
         .from('predictions')
         .delete()
         .eq('question_id', questionId)
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('user_id', user.id);
 
       // Insert new predictions
       const { data, error } = await supabase
@@ -34,7 +38,7 @@ export const usePredictions = () => {
           answers.map(answer => ({
             question_id: questionId,
             answer,
-            user_id: (await supabase.auth.getUser()).data.user?.id,
+            user_id: user.id,
           }))
         );
       if (error) throw error;
