@@ -39,7 +39,7 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
         .order("name");
 
       if (error) throw error;
-      return (data || []) as AFLClub[];
+      return data as AFLClub[];
     },
   });
 
@@ -47,6 +47,14 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
 
   if (error) {
     console.error("Error loading AFL clubs:", error);
+    return (
+      <div className="w-full">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          What AFL Club do you support?
+        </label>
+        <div className="text-red-500 text-sm">Failed to load AFL clubs. Please try again later.</div>
+      </div>
+    );
   }
 
   return (
@@ -69,32 +77,34 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0 bg-white">
-          <Command>
-            <CommandInput placeholder="Search AFL clubs..." />
-            <CommandEmpty>No AFL club found.</CommandEmpty>
-            <CommandGroup className="max-h-60 overflow-y-auto">
-              {clubs.map((club) => (
-                <CommandItem
-                  key={club.id}
-                  value={club.name}
-                  onSelect={() => {
-                    onChange(club.id);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === club.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {club.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
+        {!isLoading && (
+          <PopoverContent className="w-full p-0 bg-white">
+            <Command>
+              <CommandInput placeholder="Search AFL clubs..." />
+              <CommandEmpty>No AFL club found.</CommandEmpty>
+              <CommandGroup>
+                {clubs.map((club) => (
+                  <CommandItem
+                    key={club.id}
+                    value={club.name}
+                    onSelect={() => {
+                      onChange(club.id);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === club.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {club.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        )}
       </Popover>
     </div>
   );
