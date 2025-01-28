@@ -22,10 +22,15 @@ interface AFLClubSelectProps {
   onChange: (value: string) => void;
 }
 
+interface AFLClub {
+  id: string;
+  name: string;
+}
+
 export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
   const [open, setOpen] = useState(false);
 
-  const { data: clubs, isLoading } = useQuery({
+  const { data: clubs = [], isLoading, error } = useQuery({
     queryKey: ["afl-clubs"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -33,15 +38,16 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
         .select("id, name")
         .order("name");
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return data || [];
+      if (error) throw error;
+      return (data || []) as AFLClub[];
     },
   });
 
-  const selectedClub = clubs?.find((club) => club.id === value)?.name;
+  const selectedClub = clubs.find((club) => club.id === value)?.name;
+
+  if (error) {
+    console.error("Error loading AFL clubs:", error);
+  }
 
   return (
     <div className="w-full">
@@ -63,12 +69,12 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0">
+        <PopoverContent className="w-full p-0 bg-white">
           <Command>
             <CommandInput placeholder="Search AFL clubs..." />
             <CommandEmpty>No AFL club found.</CommandEmpty>
             <CommandGroup className="max-h-60 overflow-y-auto">
-              {clubs?.map((club) => (
+              {clubs.map((club) => (
                 <CommandItem
                   key={club.id}
                   value={club.name}
