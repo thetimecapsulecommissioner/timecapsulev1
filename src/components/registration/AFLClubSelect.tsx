@@ -43,15 +43,15 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
   }, [value]);
 
   return (
-    <div className="flex flex-col space-y-1.5">
-      <label className="text-sm font-medium text-gray-700">What AFL Club do you support?</label>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">What AFL Club do you support?</label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="justify-between w-full bg-white"
+            className="w-full bg-white border border-input px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {selectedClub || "Select AFL club..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
