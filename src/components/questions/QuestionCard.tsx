@@ -5,8 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface QuestionCardProps {
   id: number;
@@ -20,6 +19,27 @@ interface QuestionCardProps {
   onAnswerChange: (questionId: number, value: string[]) => void;
 }
 
+const AFL_CLUBS = [
+  "Adelaide Crows",
+  "Brisbane Lions",
+  "Carlton Blues",
+  "Collingwood Magpies",
+  "Essendon Bombers",
+  "Fremantle Dockers",
+  "Geelong Cats",
+  "Gold Coast Suns",
+  "GWS Giants",
+  "Hawthorn Hawks",
+  "Melbourne Demons",
+  "North Melbourne Kangaroos",
+  "Port Adelaide Power",
+  "Richmond Tigers",
+  "St Kilda Saints",
+  "Sydney Swans",
+  "West Coast Eagles",
+  "Western Bulldogs"
+];
+
 export const QuestionCard = ({ 
   id, 
   question, 
@@ -32,23 +52,6 @@ export const QuestionCard = ({
   onAnswerChange 
 }: QuestionCardProps) => {
   const [selected, setSelected] = useState<string[]>(selectedAnswer);
-  const [aflClubs, setAflClubs] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchAFLClubs = async () => {
-      if (responseCategory === "AFL Teams") {
-        const { data, error } = await supabase
-          .from('AFL Clubs')
-          .select('AFL Club Name');
-        
-        if (!error && data) {
-          setAflClubs(data.map(club => club['AFL Club Name']));
-        }
-      }
-    };
-
-    fetchAFLClubs();
-  }, [responseCategory]);
 
   const handleAnswerChange = (value: string[]) => {
     if (responseCategory === "Multiple Choice" || responseCategory === "AFL Teams") {
@@ -80,7 +83,7 @@ export const QuestionCard = ({
                   <SelectValue placeholder="Select AFL Club" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
-                  {aflClubs.map((club) => (
+                  {AFL_CLUBS.map((club) => (
                     <SelectItem 
                       key={club} 
                       value={club}
