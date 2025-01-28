@@ -6,7 +6,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { HelpCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
-import { AFLClubSelect } from "../registration/AFLClubSelect";
 
 interface QuestionCardProps {
   id: number;
@@ -59,7 +58,7 @@ export const QuestionCard = ({
                   handleAnswerChange(newSelected.filter(Boolean));
                 }}
               >
-                <SelectTrigger className="w-full bg-white text-gray-700">
+                <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
                   <SelectValue placeholder="Select AFL Club" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
@@ -104,7 +103,7 @@ export const QuestionCard = ({
           value={selected[0]}
           onValueChange={(value) => handleAnswerChange([value])}
         >
-          <SelectTrigger className="w-full bg-white text-gray-700">
+          <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
             <SelectValue placeholder="Select a number" />
           </SelectTrigger>
           <SelectContent className="bg-white">
@@ -141,27 +140,27 @@ export const QuestionCard = ({
 
   return (
     <Card className="p-6 bg-mystical-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start space-x-2 max-w-[90%]">
-          <h3 className="text-xl font-semibold text-gray-700">{question}</h3>
+      <div className="flex items-start space-x-2 mb-4">
+        <h3 className="text-xl font-semibold text-gray-700 flex-grow pr-2">{question}</h3>
+        <div className="flex items-start space-x-2">
           {helpText && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <HelpCircle className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                  <HelpCircle className="h-5 w-5 text-gray-500 mt-1" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs bg-white">
+                <TooltipContent className="bg-white">
                   <p className="text-gray-700">{helpText}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
+          {points !== undefined && (
+            <span className="text-sm font-medium text-gray-600 mt-1">
+              {points} Points
+            </span>
+          )}
         </div>
-        {points !== undefined && (
-          <span className="text-sm font-medium text-gray-600 flex-shrink-0">
-            {points} Points
-          </span>
-        )}
       </div>
       {requiredAnswers > 1 && (
         <p className="text-sm text-gray-500 mb-4">
