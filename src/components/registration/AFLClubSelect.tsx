@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -13,58 +11,42 @@ interface AFLClubSelectProps {
   onChange: (value: string) => void;
 }
 
-interface AFLClub {
-  id: string;
-  name: string;
-}
+const AFL_CLUBS = [
+  { id: "adelaide", name: "Adelaide Crows" },
+  { id: "brisbane", name: "Brisbane Lions" },
+  { id: "carlton", name: "Carlton Blues" },
+  { id: "collingwood", name: "Collingwood Magpies" },
+  { id: "essendon", name: "Essendon Bombers" },
+  { id: "fremantle", name: "Fremantle Dockers" },
+  { id: "geelong", name: "Geelong Cats" },
+  { id: "goldcoast", name: "Gold Coast Suns" },
+  { id: "gws", name: "GWS Giants" },
+  { id: "hawthorn", name: "Hawthorn Hawks" },
+  { id: "melbourne", name: "Melbourne Demons" },
+  { id: "north", name: "North Melbourne Kangaroos" },
+  { id: "port", name: "Port Adelaide Power" },
+  { id: "richmond", name: "Richmond Tigers" },
+  { id: "stkilda", name: "St Kilda Saints" },
+  { id: "sydney", name: "Sydney Swans" },
+  { id: "westcoast", name: "West Coast Eagles" },
+  { id: "bulldogs", name: "Western Bulldogs" },
+];
 
 export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
-  const { data: clubs = [], isLoading, error } = useQuery({
-    queryKey: ["afl-clubs"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("afl_clubs")
-        .select("id, name")
-        .order("name");
-
-      if (error) {
-        console.error("Error fetching AFL clubs:", error);
-        throw error;
-      }
-
-      return (data || []) as AFLClub[];
-    },
-  });
-
-  if (error) {
-    return (
-      <div className="w-full">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          What AFL Club do you support?
-        </label>
-        <div className="text-red-500 text-sm">Failed to load AFL clubs. Please try again later.</div>
-      </div>
-    );
-  }
-
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
         What AFL Club do you support?
       </label>
-      <Select
-        value={value}
-        onValueChange={onChange}
-        disabled={isLoading}
-      >
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-full bg-white">
           <SelectValue 
-            placeholder={isLoading ? "Loading clubs..." : "Select your AFL club"}
+            placeholder="Select your AFL club"
             className="text-gray-700"
           />
         </SelectTrigger>
         <SelectContent className="bg-white">
-          {clubs.map((club) => (
+          {AFL_CLUBS.map((club) => (
             <SelectItem 
               key={club.id} 
               value={club.id}

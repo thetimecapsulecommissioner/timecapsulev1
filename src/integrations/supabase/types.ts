@@ -9,21 +9,15 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      afl_clubs: {
+      "AFL Clubs": {
         Row: {
-          created_at: string
-          id: string
-          name: string
+          "AFL Club Name": string
         }
         Insert: {
-          created_at?: string
-          id?: string
-          name: string
+          "AFL Club Name": string
         }
         Update: {
-          created_at?: string
-          id?: string
-          name?: string
+          "AFL Club Name"?: string
         }
         Relationships: []
       }
