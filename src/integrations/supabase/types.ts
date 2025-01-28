@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      "2025 Pre-Season AFL Time Capsule Questions, Rules": {
+        Row: {
+          "If Multi-Choice": string | null
+          "Number of Responses able to be selected": number | null
+          Points: number | null
+          Question: string | null
+          "Question Reference": number
+          "Response Category": string | null
+          "Rules/Help": string | null
+        }
+        Insert: {
+          "If Multi-Choice"?: string | null
+          "Number of Responses able to be selected"?: number | null
+          Points?: number | null
+          Question?: string | null
+          "Question Reference": number
+          "Response Category"?: string | null
+          "Rules/Help"?: string | null
+        }
+        Update: {
+          "If Multi-Choice"?: string | null
+          "Number of Responses able to be selected"?: number | null
+          Points?: number | null
+          Question?: string | null
+          "Question Reference"?: number
+          "Response Category"?: string | null
+          "Rules/Help"?: string | null
+        }
+        Relationships: []
+      }
       "AFL Clubs": {
         Row: {
           "AFL Club Name": string
