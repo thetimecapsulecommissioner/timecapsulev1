@@ -111,6 +111,8 @@ export type Database = {
           last_name: string | null
           organization: string | null
           phone: string | null
+          player_reference: string | null
+          player_status: string | null
           state: string | null
           updated_at: string
         }
@@ -123,6 +125,8 @@ export type Database = {
           last_name?: string | null
           organization?: string | null
           phone?: string | null
+          player_reference?: string | null
+          player_status?: string | null
           state?: string | null
           updated_at?: string
         }
@@ -135,6 +139,8 @@ export type Database = {
           last_name?: string | null
           organization?: string | null
           phone?: string | null
+          player_reference?: string | null
+          player_status?: string | null
           state?: string | null
           updated_at?: string
         }
