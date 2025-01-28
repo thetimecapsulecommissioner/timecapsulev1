@@ -7,7 +7,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 interface RegistrationFieldsProps {
   formData: {
-    firstName:email: string;
+    firstName: string;
+    lastName: string;
+    email: string;
     password: string;
     phone: string;
     organization: string;
