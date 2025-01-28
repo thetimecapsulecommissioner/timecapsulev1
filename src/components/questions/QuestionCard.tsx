@@ -1,11 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import { AFLTeamSelect } from "./inputs/AFLTeamSelect";
+import { MultipleChoiceInput } from "./inputs/MultipleChoiceInput";
+import { NumberSelect } from "./inputs/NumberSelect";
+import { RadioInput } from "./inputs/RadioInput";
 
 interface QuestionCardProps {
   id: number;
@@ -18,27 +18,6 @@ interface QuestionCardProps {
   requiredAnswers?: number;
   onAnswerChange: (questionId: number, value: string[]) => void;
 }
-
-const AFL_CLUBS = [
-  "Adelaide Crows",
-  "Brisbane Lions",
-  "Carlton Blues",
-  "Collingwood Magpies",
-  "Essendon Bombers",
-  "Fremantle Dockers",
-  "Geelong Cats",
-  "Gold Coast Suns",
-  "GWS Giants",
-  "Hawthorn Hawks",
-  "Melbourne Demons",
-  "North Melbourne Kangaroos",
-  "Port Adelaide Power",
-  "Richmond Tigers",
-  "St Kilda Saints",
-  "Sydney Swans",
-  "West Coast Eagles",
-  "Western Bulldogs"
-];
 
 export const QuestionCard = ({ 
   id, 
@@ -68,93 +47,38 @@ export const QuestionCard = ({
   const renderAnswerInput = () => {
     if (responseCategory === "AFL Teams") {
       return (
-        <div className="space-y-3">
-          {Array.from({ length: requiredAnswers || 1 }).map((_, index) => (
-            <div key={index} className="w-full">
-              <Select
-                value={selected[index] || ""}
-                onValueChange={(value) => {
-                  const newSelected = [...selected];
-                  newSelected[index] = value;
-                  handleAnswerChange(newSelected.filter(Boolean));
-                }}
-              >
-                <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
-                  <SelectValue placeholder="Select AFL Club" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {AFL_CLUBS.map((club) => (
-                    <SelectItem 
-                      key={club} 
-                      value={club}
-                      className="text-gray-700 hover:bg-gray-100"
-                    >
-                      {club}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-        </div>
+        <AFLTeamSelect
+          selected={selected}
+          requiredAnswers={requiredAnswers}
+          onAnswerChange={handleAnswerChange}
+        />
       );
     } else if (responseCategory === "Multiple Choice") {
       return (
-        <div className="space-y-3">
-          {options.map((option) => (
-            <div key={option} className="flex items-center space-x-2">
-              <Checkbox
-                id={`${id}-${option}`}
-                checked={selected.includes(option)}
-                onCheckedChange={(checked) => {
-                  const newSelected = checked
-                    ? [...selected, option].slice(0, requiredAnswers)
-                    : selected.filter(item => item !== option);
-                  handleAnswerChange(newSelected);
-                }}
-              />
-              <Label htmlFor={`${id}-${option}`} className="text-gray-700">{option}</Label>
-            </div>
-          ))}
-        </div>
+        <MultipleChoiceInput
+          id={id}
+          options={options}
+          selected={selected}
+          requiredAnswers={requiredAnswers}
+          onAnswerChange={handleAnswerChange}
+        />
       );
     } else if (responseCategory === "Number") {
       return (
-        <Select
-          value={selected[0]}
-          onValueChange={(value) => handleAnswerChange([value])}
-        >
-          <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
-            <SelectValue placeholder="Select a number" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            {options.map((option) => (
-              <SelectItem 
-                key={option} 
-                value={option}
-                className="text-gray-700 hover:bg-gray-100"
-              >
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <NumberSelect
+          options={options}
+          selected={selected}
+          onAnswerChange={handleAnswerChange}
+        />
       );
     } else {
       return (
-        <RadioGroup
-          onValueChange={(value) => handleAnswerChange([value])}
-          value={selected[0]}
-        >
-          <div className="space-y-3">
-            {options.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`${id}-${option}`} />
-                <Label htmlFor={`${id}-${option}`} className="text-gray-700">{option}</Label>
-              </div>
-            ))}
-          </div>
-        </RadioGroup>
+        <RadioInput
+          id={id}
+          options={options}
+          selected={selected}
+          onAnswerChange={handleAnswerChange}
+        />
       );
     }
   };
