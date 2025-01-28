@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { StateSelect } from "./StateSelect";
 import { OrganizationSelect } from "./OrganizationSelect";
+import { AFLClubSelect } from "./AFLClubSelect";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -16,6 +17,7 @@ interface RegistrationFieldsProps {
     state: string;
     playerStatus: string;
     playerReference?: string;
+    aflClub: string;
   };
   onChange: (field: string, value: string) => void;
 }
@@ -74,7 +76,19 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Player Status</label>
+        <div className="flex items-center gap-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Player Status</label>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <HelpCircle className="h-4 w-4 text-gray-500" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs bg-white p-2 rounded-lg shadow-lg text-gray-700">
+                <p>New Players this year require a current player reference. Please contact us via our Instagram or the Contact page on the website if you have any concerns or issues.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <Select value={formData.playerStatus} onValueChange={(value) => onChange("playerStatus", value)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select your player status" className="text-gray-700" />
@@ -91,16 +105,6 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Name of Current Player Reference
             </label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <HelpCircle className="h-4 w-4 text-gray-500" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs bg-white p-2 rounded-lg shadow-lg text-gray-700">
-                  <p>New Players this year require a current player reference. Please contact us via our Instagram or the Contact page on the website if you have any concerns or issues.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
           <Input
             type="text"
@@ -111,6 +115,10 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
           />
         </div>
       )}
+      <AFLClubSelect
+        value={formData.aflClub}
+        onChange={(value) => onChange("aflClub", value)}
+      />
       <OrganizationSelect
         value={formData.organization}
         onChange={(value) => onChange("organization", value)}
