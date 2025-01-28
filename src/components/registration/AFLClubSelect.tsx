@@ -1,21 +1,12 @@
-import { useState } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AFLClubSelectProps {
   value: string;
@@ -28,8 +19,6 @@ interface AFLClub {
 }
 
 export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
-  const [open, setOpen] = useState(false);
-
   const { data: clubs = [], isLoading, error } = useQuery({
     queryKey: ["afl-clubs"],
     queryFn: async () => {
@@ -38,15 +27,16 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
         .select("id, name")
         .order("name");
 
-      if (error) throw error;
-      return data as AFLClub[];
+      if (error) {
+        console.error("Error fetching AFL clubs:", error);
+        throw error;
+      }
+
+      return (data || []) as AFLClub[];
     },
   });
 
-  const selectedClub = clubs.find((club) => club.id === value)?.name;
-
   if (error) {
-    console.error("Error loading AFL clubs:", error);
     return (
       <div className="w-full">
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -58,54 +48,33 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
   }
 
   return (
-    <div className="w-full">
+    <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
         What AFL Club do you support?
       </label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between bg-white text-gray-700 hover:bg-gray-50"
-            disabled={isLoading}
-          >
-            {isLoading
-              ? "Loading clubs..."
-              : selectedClub || "Select your AFL club..."}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        {!isLoading && (
-          <PopoverContent className="w-full p-0 bg-white">
-            <Command>
-              <CommandInput placeholder="Search AFL clubs..." />
-              <CommandEmpty>No AFL club found.</CommandEmpty>
-              <CommandGroup>
-                {clubs.map((club) => (
-                  <CommandItem
-                    key={club.id}
-                    value={club.name}
-                    onSelect={() => {
-                      onChange(club.id);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === club.id ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {club.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        )}
-      </Popover>
+      <Select
+        value={value}
+        onValueChange={onChange}
+        disabled={isLoading}
+      >
+        <SelectTrigger className="w-full bg-white">
+          <SelectValue 
+            placeholder={isLoading ? "Loading clubs..." : "Select your AFL club"}
+            className="text-gray-700"
+          />
+        </SelectTrigger>
+        <SelectContent className="bg-white">
+          {clubs.map((club) => (
+            <SelectItem 
+              key={club.id} 
+              value={club.id}
+              className="text-gray-700"
+            >
+              {club.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 };
