@@ -35,15 +35,10 @@ const AFL_CLUBS = [
 export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        What AFL Club do you support?
-      </label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">AFL Club</label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full bg-white">
-          <SelectValue 
-            placeholder="Select your AFL club"
-            className="text-gray-700"
-          />
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select your AFL club" className="text-gray-700" />
         </SelectTrigger>
         <SelectContent className="bg-white">
           {AFL_CLUBS.map((club) => (
