@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AFLClubSelectProps {
@@ -14,7 +12,9 @@ interface AFLClubSelectProps {
 }
 
 export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
+  const [open, setOpen] = useState(false);
   const [clubs, setClubs] = useState<{ id: string; name: string }[]>([]);
+  const [selectedClub, setSelectedClub] = useState<string>("");
 
   useEffect(() => {
     const fetchClubs = async () => {
@@ -29,26 +29,62 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
       }
 
       setClubs(data || []);
+      
+      // Set the selected club name if we have a value
+      if (value) {
+        const club = data?.find(c => c.id === value);
+        if (club) {
+          setSelectedClub(club.name);
+        }
+      }
     };
 
     fetchClubs();
-  }, []);
+  }, [value]);
 
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">What AFL Club do you support?</label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select your AFL club" className="text-gray-700" />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          {clubs.map((club) => (
-            <SelectItem key={club.id} value={club.id} className="text-gray-700">
-              {club.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="flex flex-col space-y-1.5">
+      <label className="text-sm font-medium text-gray-700">What AFL Club do you support?</label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="justify-between w-full bg-white"
+          >
+            {selectedClub || "Select AFL club..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0">
+          <Command>
+            <CommandInput placeholder="Search AFL club..." className="h-9" />
+            <CommandEmpty>No AFL club found.</CommandEmpty>
+            <CommandGroup className="max-h-60 overflow-auto">
+              {clubs.map((club) => (
+                <CommandItem
+                  key={club.id}
+                  value={club.name}
+                  onSelect={() => {
+                    setSelectedClub(club.name);
+                    onChange(club.id);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === club.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {club.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };
