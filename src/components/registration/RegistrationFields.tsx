@@ -77,11 +77,11 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
         <label className="block text-sm font-medium text-gray-700 mb-1">Player Status</label>
         <Select value={formData.playerStatus} onValueChange={(value) => onChange("playerStatus", value)}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select your player status" />
+            <SelectValue placeholder="Select your player status" className="text-gray-700" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="previous">Previous Player</SelectItem>
-            <SelectItem value="new">New Player</SelectItem>
+          <SelectContent className="bg-white">
+            <SelectItem value="previous" className="text-gray-700">Previous Player</SelectItem>
+            <SelectItem value="new" className="text-gray-700">New Player</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -96,7 +96,7 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
                 <TooltipTrigger>
                   <HelpCircle className="h-4 w-4 text-gray-500" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs bg-white p-2 rounded-lg shadow-lg">
+                <TooltipContent className="max-w-xs bg-white p-2 rounded-lg shadow-lg text-gray-700">
                   <p>New Players this year require a current player reference. Please contact us via our Instagram or the Contact page on the website if you have any concerns or issues.</p>
                 </TooltipContent>
               </Tooltip>
