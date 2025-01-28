@@ -18,7 +18,7 @@ interface QuestionCardProps {
   responseCategory?: string;
   points?: number;
   requiredAnswers?: number;
-  onAnswerChange: (questionId: number, value: string[]) => void;
+  onAnswerChange: (questionId: number, value: string[], responseOrder?: number) => void;
 }
 
 export const QuestionCard = ({ 
@@ -34,15 +34,15 @@ export const QuestionCard = ({
 }: QuestionCardProps) => {
   const [selected, setSelected] = useState<string[]>(selectedAnswer);
 
-  const handleAnswerChange = (value: string[]) => {
+  const handleAnswerChange = (value: string[], responseOrder?: number) => {
     if (["Multiple Choice", "AFL Teams", "AFL Players", "AFL Coaches"].includes(responseCategory || "")) {
       if (value.length <= requiredAnswers) {
         setSelected(value);
-        onAnswerChange(id, value);
+        onAnswerChange(id, value, responseOrder);
       }
     } else {
       setSelected(value);
-      onAnswerChange(id, value);
+      onAnswerChange(id, value, responseOrder);
     }
   };
 

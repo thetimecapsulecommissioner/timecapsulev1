@@ -6,7 +6,7 @@ interface MultipleChoiceInputProps {
   options: string[];
   selected: string[];
   requiredAnswers: number;
-  onAnswerChange: (value: string[]) => void;
+  onAnswerChange: (value: string[], responseOrder?: number) => void;
 }
 
 export const MultipleChoiceInput = ({ 
@@ -18,16 +18,24 @@ export const MultipleChoiceInput = ({
 }: MultipleChoiceInputProps) => {
   return (
     <div className="space-y-3">
-      {options.map((option) => (
+      {options.map((option, index) => (
         <div key={option} className="flex items-center space-x-2">
           <Checkbox
             id={`${id}-${option}`}
             checked={selected.includes(option)}
             onCheckedChange={(checked) => {
-              const newSelected = checked
-                ? [...selected, option].slice(0, requiredAnswers)
-                : selected.filter(item => item !== option);
-              onAnswerChange(newSelected);
+              const currentIndex = selected.indexOf(option);
+              let newSelected: string[];
+              
+              if (checked) {
+                if (currentIndex === -1) {
+                  newSelected = [...selected, option].slice(0, requiredAnswers);
+                  onAnswerChange(newSelected, selected.length + 1);
+                }
+              } else {
+                newSelected = selected.filter(item => item !== option);
+                onAnswerChange(newSelected);
+              }
             }}
           />
           <Label htmlFor={`${id}-${option}`} className="text-gray-700">{option}</Label>

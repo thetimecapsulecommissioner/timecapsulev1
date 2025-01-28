@@ -173,6 +173,7 @@ export type Database = {
           created_at: string
           id: string
           question_id: number
+          response_order: number
           submitted: boolean | null
           updated_at: string
           user_id: string
@@ -182,6 +183,7 @@ export type Database = {
           created_at?: string
           id?: string
           question_id: number
+          response_order?: number
           submitted?: boolean | null
           updated_at?: string
           user_id: string
@@ -191,6 +193,7 @@ export type Database = {
           created_at?: string
           id?: string
           question_id?: number
+          response_order?: number
           submitted?: boolean | null
           updated_at?: string
           user_id?: string
