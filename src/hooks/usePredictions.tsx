@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const usePredictions = () => {
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<number, string[]>>({});
   const queryClient = useQueryClient();
 
   const { data: predictions, isLoading: predictionsLoading } = useQuery({
@@ -19,16 +19,24 @@ export const usePredictions = () => {
   });
 
   const savePrediction = useMutation({
-    mutationFn: async ({ questionId, answer }: { questionId: number; answer: string }) => {
+    mutationFn: async ({ questionId, answers }: { questionId: number; answers: string[] }) => {
+      // Delete existing predictions for this question
+      await supabase
+        .from('predictions')
+        .delete()
+        .eq('question_id', questionId)
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+
+      // Insert new predictions
       const { data, error } = await supabase
         .from('predictions')
-        .upsert({
-          question_id: questionId,
-          answer,
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-        }, {
-          onConflict: 'user_id,question_id'
-        });
+        .insert(
+          answers.map(answer => ({
+            question_id: questionId,
+            answer,
+            user_id: (await supabase.auth.getUser()).data.user?.id,
+          }))
+        );
       if (error) throw error;
       return data;
     },
@@ -37,10 +45,10 @@ export const usePredictions = () => {
     },
   });
 
-  const handleAnswerChange = async (questionId: number, value: string) => {
+  const handleAnswerChange = async (questionId: number, value: string[]) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
     try {
-      await savePrediction.mutateAsync({ questionId, answer: value });
+      await savePrediction.mutateAsync({ questionId, answers: value });
       toast.success("Prediction saved!");
     } catch (error) {
       toast.error("Failed to save prediction");
@@ -48,11 +56,6 @@ export const usePredictions = () => {
   };
 
   const handleSubmit = async (questions: any[]) => {
-    if (!questions || Object.keys(answers).length !== questions.length) {
-      toast.error("Please answer all questions");
-      return;
-    }
-
     try {
       const { error } = await supabase
         .from('predictions')

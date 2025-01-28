@@ -191,21 +191,33 @@ export type Database = {
       questions: {
         Row: {
           created_at: string
+          help_text: string | null
           id: number
           options: string[]
+          points: number | null
           question: string
+          required_answers: number | null
+          response_category: string | null
         }
         Insert: {
           created_at?: string
+          help_text?: string | null
           id?: number
           options: string[]
+          points?: number | null
           question: string
+          required_answers?: number | null
+          response_category?: string | null
         }
         Update: {
           created_at?: string
+          help_text?: string | null
           id?: number
           options?: string[]
+          points?: number | null
           question?: string
+          required_answers?: number | null
+          response_category?: string | null
         }
         Relationships: []
       }

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { QuestionCard } from "./QuestionCard";
 import { usePredictions } from "@/hooks/usePredictions";
+import { toast } from "sonner";
 
 interface PredictionFormProps {
   competitionLabel?: string;
@@ -23,6 +24,19 @@ export const PredictionForm = ({ competitionLabel }: PredictionFormProps) => {
     },
   });
 
+  const validateAnswers = () => {
+    if (!questions) return false;
+    
+    for (const question of questions) {
+      const answer = answers[question.id] || [];
+      if (!answer.length || (question.required_answers && answer.length !== question.required_answers)) {
+        toast.error(`Please answer all questions with the required number of responses`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   if (questionsLoading) {
     return <div className="text-secondary">Loading...</div>;
   }
@@ -39,13 +53,21 @@ export const PredictionForm = ({ competitionLabel }: PredictionFormProps) => {
           id={q.id}
           question={q.question}
           options={q.options}
-          selectedAnswer={answers[q.id]}
+          selectedAnswer={answers[q.id] || []}
+          helpText={q.help_text}
+          responseCategory={q.response_category}
+          points={q.points}
+          requiredAnswers={q.required_answers}
           onAnswerChange={handleAnswerChange}
         />
       ))}
 
       <Button
-        onClick={() => handleSubmit(questions || [])}
+        onClick={() => {
+          if (validateAnswers()) {
+            handleSubmit(questions || []);
+          }
+        }}
         className="w-full bg-secondary hover:bg-secondary-light text-primary py-6 text-lg rounded-lg transition-all duration-300"
       >
         Seal Your Predictions
