@@ -5,28 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-
-const AFL_CLUBS = [
-  "Adelaide Crows",
-  "Brisbane Lions",
-  "Carlton Blues",
-  "Collingwood Magpies",
-  "Essendon Bombers",
-  "Fremantle Dockers",
-  "Geelong Cats",
-  "Gold Coast Suns",
-  "GWS Giants",
-  "Hawthorn Hawks",
-  "Melbourne Demons",
-  "North Melbourne Kangaroos",
-  "Port Adelaide Power",
-  "Richmond Tigers",
-  "St Kilda Saints",
-  "Sydney Swans",
-  "West Coast Eagles",
-  "Western Bulldogs"
-];
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QuestionCardProps {
   id: number;
@@ -52,9 +32,26 @@ export const QuestionCard = ({
   onAnswerChange 
 }: QuestionCardProps) => {
   const [selected, setSelected] = useState<string[]>(selectedAnswer);
+  const [aflClubs, setAflClubs] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchAFLClubs = async () => {
+      if (responseCategory === "AFL Teams") {
+        const { data, error } = await supabase
+          .from('AFL Clubs')
+          .select('AFL Club Name');
+        
+        if (!error && data) {
+          setAflClubs(data.map(club => club['AFL Club Name']));
+        }
+      }
+    };
+
+    fetchAFLClubs();
+  }, [responseCategory]);
 
   const handleAnswerChange = (value: string[]) => {
-    if (responseCategory === "Multiple Choice" || responseCategory === "AFL Clubs") {
+    if (responseCategory === "Multiple Choice" || responseCategory === "AFL Teams") {
       if (value.length <= requiredAnswers) {
         setSelected(value);
         onAnswerChange(id, value);
@@ -66,7 +63,7 @@ export const QuestionCard = ({
   };
 
   const renderAnswerInput = () => {
-    if (responseCategory === "AFL Clubs") {
+    if (responseCategory === "AFL Teams") {
       return (
         <div className="space-y-3">
           {Array.from({ length: requiredAnswers || 1 }).map((_, index) => (
@@ -83,7 +80,7 @@ export const QuestionCard = ({
                   <SelectValue placeholder="Select AFL Club" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
-                  {AFL_CLUBS.map((club) => (
+                  {aflClubs.map((club) => (
                     <SelectItem 
                       key={club} 
                       value={club}
