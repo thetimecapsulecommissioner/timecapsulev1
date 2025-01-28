@@ -11,9 +11,15 @@ interface AFLClubSelectProps {
   onChange: (value: string) => void;
 }
 
+interface AFLClub {
+  id: string;
+  name: string;
+}
+
 export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
   const [open, setOpen] = useState(false);
-  const [clubs, setClubs] = useState<{ id: string; name: string }[]>([]);
+  const [clubs, setClubs] = useState<AFLClub[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedClub, setSelectedClub] = useState<string>("");
 
   useEffect(() => {
@@ -42,6 +48,10 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
     fetchClubs();
   }, [value]);
 
+  const filteredClubs = clubs.filter(club =>
+    club.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -53,21 +63,25 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-white text-gray-700 border border-input px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full justify-between bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {selectedClub || "Select AFL club..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0 bg-white">
+        <PopoverContent className="w-full p-0 bg-white border border-gray-200">
           <Command>
             <CommandInput 
-              placeholder="Search AFL club..." 
-              className="h-9 text-gray-700"
+              placeholder="Search AFL club..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              className="h-9 text-gray-700 border-none focus:ring-0"
             />
-            <CommandEmpty className="text-gray-700">No AFL club found.</CommandEmpty>
+            <CommandEmpty className="p-2 text-sm text-gray-700">
+              No AFL club found.
+            </CommandEmpty>
             <CommandGroup className="max-h-60 overflow-auto">
-              {clubs.map((club) => (
+              {filteredClubs.map((club) => (
                 <CommandItem
                   key={club.id}
                   value={club.name}
@@ -75,8 +89,9 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
                     setSelectedClub(club.name);
                     onChange(club.id);
                     setOpen(false);
+                    setSearchQuery("");
                   }}
-                  className="text-gray-700 hover:bg-gray-100"
+                  className="text-gray-700 hover:bg-gray-100 cursor-pointer"
                 >
                   <Check
                     className={cn(
