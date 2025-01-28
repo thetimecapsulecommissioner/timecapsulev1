@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { HelpCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import { AFLClubSelect } from "../registration/AFLClubSelect";
 
 interface QuestionCardProps {
   id: number;
@@ -33,8 +34,7 @@ export const QuestionCard = ({
   const [selected, setSelected] = useState<string[]>(selectedAnswer);
 
   const handleAnswerChange = (value: string[]) => {
-    // Ensure we don't exceed the required number of answers for checkboxes
-    if (responseCategory === "Multiple Choice") {
+    if (responseCategory === "Multiple Choice" || responseCategory === "AFL Clubs") {
       if (value.length <= requiredAnswers) {
         setSelected(value);
         onAnswerChange(id, value);
@@ -46,7 +46,27 @@ export const QuestionCard = ({
   };
 
   const renderAnswerInput = () => {
-    if (responseCategory === "Multiple Choice") {
+    if (responseCategory === "AFL Clubs") {
+      return (
+        <div className="space-y-3">
+          {options.map((option) => (
+            <div key={option} className="flex items-center space-x-2">
+              <Checkbox
+                id={`${id}-${option}`}
+                checked={selected.includes(option)}
+                onCheckedChange={(checked) => {
+                  const newSelected = checked
+                    ? [...selected, option].slice(0, requiredAnswers)
+                    : selected.filter(item => item !== option);
+                  handleAnswerChange(newSelected);
+                }}
+              />
+              <Label htmlFor={`${id}-${option}`} className="text-gray-700">{option}</Label>
+            </div>
+          ))}
+        </div>
+      );
+    } else if (responseCategory === "Multiple Choice") {
       return (
         <div className="space-y-3">
           {options.map((option) => (
