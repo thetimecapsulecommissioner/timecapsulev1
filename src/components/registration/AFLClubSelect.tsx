@@ -44,23 +44,28 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">What AFL Club do you support?</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        What AFL Club do you support?
+      </label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full bg-white border border-input px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full justify-between bg-white text-gray-700 border border-input px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {selectedClub || "Select AFL club..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0">
+        <PopoverContent className="w-full p-0 bg-white">
           <Command>
-            <CommandInput placeholder="Search AFL club..." className="h-9" />
-            <CommandEmpty>No AFL club found.</CommandEmpty>
+            <CommandInput 
+              placeholder="Search AFL club..." 
+              className="h-9 text-gray-700"
+            />
+            <CommandEmpty className="text-gray-700">No AFL club found.</CommandEmpty>
             <CommandGroup className="max-h-60 overflow-auto">
               {clubs.map((club) => (
                 <CommandItem
@@ -71,6 +76,7 @@ export const AFLClubSelect = ({ value, onChange }: AFLClubSelectProps) => {
                     onChange(club.id);
                     setOpen(false);
                   }}
+                  className="text-gray-700 hover:bg-gray-100"
                 >
                   <Check
                     className={cn(
