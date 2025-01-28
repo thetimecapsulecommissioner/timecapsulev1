@@ -7,6 +7,27 @@ import { HelpCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 
+const AFL_CLUBS = [
+  "Adelaide Crows",
+  "Brisbane Lions",
+  "Carlton Blues",
+  "Collingwood Magpies",
+  "Essendon Bombers",
+  "Fremantle Dockers",
+  "Geelong Cats",
+  "Gold Coast Suns",
+  "GWS Giants",
+  "Hawthorn Hawks",
+  "Melbourne Demons",
+  "North Melbourne Kangaroos",
+  "Port Adelaide Power",
+  "Richmond Tigers",
+  "St Kilda Saints",
+  "Sydney Swans",
+  "West Coast Eagles",
+  "Western Bulldogs"
+];
+
 interface QuestionCardProps {
   id: number;
   question: string;
@@ -62,7 +83,7 @@ export const QuestionCard = ({
                   <SelectValue placeholder="Select AFL Club" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
-                  {options.map((club) => (
+                  {AFL_CLUBS.map((club) => (
                     <SelectItem 
                       key={club} 
                       value={club}
@@ -140,14 +161,14 @@ export const QuestionCard = ({
 
   return (
     <Card className="p-6 bg-mystical-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <div className="flex items-start space-x-2 mb-4">
-        <h3 className="text-xl font-semibold text-gray-700 flex-grow pr-2">{question}</h3>
-        <div className="flex items-start space-x-2">
+      <div className="flex items-start mb-4">
+        <h3 className="text-xl font-semibold text-gray-700 flex-grow">{question}</h3>
+        <div className="flex items-start space-x-2 ml-2 flex-shrink-0">
           {helpText && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <HelpCircle className="h-5 w-5 text-gray-500 mt-1" />
+                  <HelpCircle className="h-5 w-5 text-gray-500" />
                 </TooltipTrigger>
                 <TooltipContent className="bg-white">
                   <p className="text-gray-700">{helpText}</p>
@@ -156,7 +177,7 @@ export const QuestionCard = ({
             </TooltipProvider>
           )}
           {points !== undefined && (
-            <span className="text-sm font-medium text-gray-600 mt-1">
+            <span className="text-sm font-medium text-gray-600">
               {points} Points
             </span>
           )}
