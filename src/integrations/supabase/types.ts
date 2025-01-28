@@ -51,6 +51,60 @@ export type Database = {
         }
         Relationships: []
       }
+      afl_coaches: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          role: string | null
+          team: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          role?: string | null
+          team: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          role?: string | null
+          team?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      afl_players: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          position: string | null
+          team: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          position?: string | null
+          team: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          position?: string | null
+          team?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       competition_entries: {
         Row: {
           competition_id: string

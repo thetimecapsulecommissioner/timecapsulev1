@@ -6,6 +6,8 @@ import { AFLTeamSelect } from "./inputs/AFLTeamSelect";
 import { MultipleChoiceInput } from "./inputs/MultipleChoiceInput";
 import { NumberSelect } from "./inputs/NumberSelect";
 import { RadioInput } from "./inputs/RadioInput";
+import { AFLPlayerSelect } from "./inputs/AFLPlayerSelect";
+import { AFLCoachSelect } from "./inputs/AFLCoachSelect";
 
 interface QuestionCardProps {
   id: number;
@@ -33,7 +35,7 @@ export const QuestionCard = ({
   const [selected, setSelected] = useState<string[]>(selectedAnswer);
 
   const handleAnswerChange = (value: string[]) => {
-    if (responseCategory === "Multiple Choice" || responseCategory === "AFL Teams") {
+    if (["Multiple Choice", "AFL Teams", "AFL Players", "AFL Coaches"].includes(responseCategory || "")) {
       if (value.length <= requiredAnswers) {
         setSelected(value);
         onAnswerChange(id, value);
@@ -45,41 +47,58 @@ export const QuestionCard = ({
   };
 
   const renderAnswerInput = () => {
-    if (responseCategory === "AFL Teams") {
-      return (
-        <AFLTeamSelect
-          selected={selected}
-          requiredAnswers={requiredAnswers}
-          onAnswerChange={handleAnswerChange}
-        />
-      );
-    } else if (responseCategory === "Multiple Choice") {
-      return (
-        <MultipleChoiceInput
-          id={id}
-          options={options}
-          selected={selected}
-          requiredAnswers={requiredAnswers}
-          onAnswerChange={handleAnswerChange}
-        />
-      );
-    } else if (responseCategory === "Number") {
-      return (
-        <NumberSelect
-          options={options}
-          selected={selected}
-          onAnswerChange={handleAnswerChange}
-        />
-      );
-    } else {
-      return (
-        <RadioInput
-          id={id}
-          options={options}
-          selected={selected}
-          onAnswerChange={handleAnswerChange}
-        />
-      );
+    switch (responseCategory) {
+      case "AFL Teams":
+        return (
+          <AFLTeamSelect
+            selected={selected}
+            requiredAnswers={requiredAnswers}
+            onAnswerChange={handleAnswerChange}
+          />
+        );
+      case "AFL Players":
+        return (
+          <AFLPlayerSelect
+            selected={selected}
+            requiredAnswers={requiredAnswers}
+            onAnswerChange={handleAnswerChange}
+          />
+        );
+      case "AFL Coaches":
+        return (
+          <AFLCoachSelect
+            selected={selected}
+            requiredAnswers={requiredAnswers}
+            onAnswerChange={handleAnswerChange}
+          />
+        );
+      case "Multiple Choice":
+        return (
+          <MultipleChoiceInput
+            id={id}
+            options={options}
+            selected={selected}
+            requiredAnswers={requiredAnswers}
+            onAnswerChange={handleAnswerChange}
+          />
+        );
+      case "Number":
+        return (
+          <NumberSelect
+            options={options}
+            selected={selected}
+            onAnswerChange={handleAnswerChange}
+          />
+        );
+      default:
+        return (
+          <RadioInput
+            id={id}
+            options={options}
+            selected={selected}
+            onAnswerChange={handleAnswerChange}
+          />
+        );
     }
   };
 
