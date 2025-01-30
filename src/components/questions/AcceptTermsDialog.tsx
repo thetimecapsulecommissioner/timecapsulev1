@@ -29,7 +29,9 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
   const handlePayment = async () => {
     try {
       setIsProcessing(true);
-      const { data, error } = await supabase.functions.invoke('create-checkout', {});
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { competitionId }
+      });
       
       if (error) throw error;
       

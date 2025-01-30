@@ -39,9 +39,8 @@ serve(async (req) => {
       apiVersion: '2023-10-16',
     });
 
-    // Get competition ID from URL
-    const url = new URL(req.url);
-    const competitionId = url.searchParams.get('competitionId');
+    // Get competition ID from request body
+    const { competitionId } = await req.json();
     console.log('Competition ID:', competitionId);
 
     if (!competitionId) {
@@ -53,7 +52,7 @@ serve(async (req) => {
       customer_email: email,
       line_items: [
         {
-          price: 'price_1OyHvsDI8y21uYLJBPBVxPVw', // Use the actual price ID from your Stripe dashboard
+          price: 'price_1OyHvsDI8y21uYLJBPBVxPVw',
           quantity: 1,
         },
       ],
