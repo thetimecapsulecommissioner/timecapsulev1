@@ -6,6 +6,13 @@ import { toast } from "sonner";
 import { QuestionCard } from "./QuestionCard";
 import { useQuery } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface PredictionFormProps {
   questions: any[];
@@ -14,8 +21,11 @@ interface PredictionFormProps {
 
 export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormProps) => {
   const [isSaving, setIsSaving] = useState(false);
+  const [isSealing, setIsSealing] = useState(false);
+  const [showSealDialog, setShowSealDialog] = useState(false);
   const [comments, setComments] = useState<Record<number, string>>({});
   const { id: competitionId } = useParams();
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Fetch existing predictions
   const { data: predictions } = useQuery({
@@ -32,6 +42,11 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
 
       if (error) throw error;
       
+      // Check if predictions are submitted
+      if (data && data.length > 0) {
+        setIsSubmitted(data[0].submitted);
+      }
+
       // Group predictions by question_id
       const groupedPredictions: Record<number, string[]> = {};
       data?.forEach(prediction => {
@@ -96,7 +111,8 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
           .insert({
             competition_id: competitionId,
             user_id: user.id,
-            responses_saved: answeredQuestions
+            responses_saved: answeredQuestions,
+            status: 'In Progress'
           });
 
         if (insertError) throw insertError;
@@ -104,7 +120,10 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
         // Update existing entry
         const { error: updateError } = await supabase
           .from('competition_entries')
-          .update({ responses_saved: answeredQuestions })
+          .update({ 
+            responses_saved: answeredQuestions,
+            status: 'In Progress'
+          })
           .eq('user_id', user.id)
           .eq('competition_id', competitionId);
 
@@ -137,6 +156,40 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
     }
   };
 
+  const handleSealPredictions = async () => {
+    try {
+      setIsSealing(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !competitionId) return;
+
+      // Update predictions to submitted
+      const { error: predictionError } = await supabase
+        .from('predictions')
+        .update({ submitted: true })
+        .eq('user_id', user.id);
+
+      if (predictionError) throw predictionError;
+
+      // Update competition entry status
+      const { error: entryError } = await supabase
+        .from('competition_entries')
+        .update({ status: 'Submitted' })
+        .eq('user_id', user.id)
+        .eq('competition_id', competitionId);
+
+      if (entryError) throw entryError;
+
+      setIsSubmitted(true);
+      setShowSealDialog(false);
+      toast.success("Predictions sealed successfully!");
+    } catch (error) {
+      console.error('Error sealing predictions:', error);
+      toast.error("Failed to seal predictions");
+    } finally {
+      setIsSealing(false);
+    }
+  };
+
   const handleCommentChange = (questionId: number, comment: string) => {
     setComments(prev => ({
       ...prev,
@@ -146,6 +199,14 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
 
   return (
     <div className="space-y-8">
+      <Button 
+        onClick={handleSaveResponses}
+        disabled={isSaving || isSubmitted}
+        className="w-full max-w-md mx-auto mb-8"
+      >
+        {isSaving ? "Saving..." : "Save Responses"}
+      </Button>
+
       {questions?.map((question) => (
         <div key={question.id} className="space-y-4">
           <QuestionCard
@@ -160,24 +221,58 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
             onAnswerChange={(questionId, value, responseOrder) => {
               // Handle answer change logic
             }}
+            disabled={isSubmitted}
           />
           <Textarea
             placeholder="Add a comment about your response (optional)"
             value={comments[question.id] || ''}
             onChange={(e) => handleCommentChange(question.id, e.target.value)}
             className="mt-2"
+            disabled={isSubmitted}
           />
         </div>
       ))}
-      <div className="flex justify-center mt-8">
+
+      <div className="flex flex-col gap-4 items-center mt-8">
         <Button 
           onClick={handleSaveResponses}
-          disabled={isSaving}
+          disabled={isSaving || isSubmitted}
           className="w-full max-w-md"
         >
           {isSaving ? "Saving..." : "Save Responses"}
         </Button>
+
+        <Button 
+          onClick={() => setShowSealDialog(true)}
+          disabled={isSubmitted}
+          className="w-full max-w-md bg-green-600 hover:bg-green-700"
+        >
+          Seal Your Predictions
+        </Button>
       </div>
+
+      <Dialog open={showSealDialog} onOpenChange={setShowSealDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Warning</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            Once Predictions are sealed, you won't be able to edit them, so make sure your responses are final!
+          </div>
+          <DialogFooter className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowSealDialog(false)}>
+              Go back
+            </Button>
+            <Button 
+              onClick={handleSealPredictions}
+              disabled={isSealing}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isSealing ? "Sealing..." : "Seal my Predictions"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
