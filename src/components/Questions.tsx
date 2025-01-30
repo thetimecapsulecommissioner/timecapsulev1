@@ -20,7 +20,7 @@ export const Questions = () => {
   const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
   const { timeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
-  // Fetch questions from the correct table
+  // Updated to use the correct table name
   const { data: questions, isLoading: questionsLoading } = useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
