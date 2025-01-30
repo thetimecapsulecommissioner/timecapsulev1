@@ -37,13 +37,20 @@ export const CompetitionButtons = ({
 
         const { data: entries, error: fetchError } = await supabase
           .from('competition_entries')
-          .select('terms_accepted')
+          .select('terms_accepted, testing_mode')
           .eq('user_id', user.id)
           .eq('competition_id', competitionId);
 
         if (fetchError) throw fetchError;
 
         if (entries && entries.length > 0) {
+          // If in testing mode, automatically accept terms
+          if (entries[0].testing_mode) {
+            setTermsAccepted(true);
+            onEnterCompetition();
+            return;
+          }
+          
           if (entries[0].terms_accepted) {
             setTermsAccepted(true);
             onEnterCompetition();
@@ -55,7 +62,8 @@ export const CompetitionButtons = ({
               competition_id: competitionId,
               user_id: user.id,
               terms_accepted: false,
-              responses_saved: 0
+              responses_saved: 0,
+              testing_mode: true // Set testing mode for new entries
             });
 
           if (insertError) {
@@ -88,22 +96,6 @@ export const CompetitionButtons = ({
       setTermsAccepted(true);
       setShowAcceptTerms(false);
       onEnterCompetition();
-      
-      // Redirect to Stripe checkout
-      const { data, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
-        body: { competitionId },
-      });
-
-      if (checkoutError) {
-        console.error('Error creating checkout session:', checkoutError);
-        toast.error("Failed to create checkout session");
-        return;
-      }
-
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-
       toast.success("Terms and conditions accepted successfully!");
     } catch (error) {
       console.error('Error accepting terms:', error);
