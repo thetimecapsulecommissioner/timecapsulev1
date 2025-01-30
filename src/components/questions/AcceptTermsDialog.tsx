@@ -26,16 +26,28 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
   const [isProcessing, setIsProcessing] = useState(false);
   const { id: competitionId } = useParams();
 
-  const handleAcceptAndProceed = async () => {
+  const handlePayment = async () => {
     try {
       setIsProcessing(true);
-      onAcceptTerms();
-      setIsProcessing(false);
+      const { data, error } = await supabase.functions.invoke('create-checkout', {});
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('An error occurred. Please try again.');
+      console.error('Payment error:', error);
+      toast.error('Failed to initiate payment. Please try again.');
       setIsProcessing(false);
     }
+  };
+
+  const handleAcceptAndPay = async () => {
+    onAcceptTerms();
+    await handlePayment();
   };
 
   if (isLoading) {
@@ -94,11 +106,11 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
             </label>
           </div>
           <Button 
-            onClick={handleAcceptAndProceed}
+            onClick={handleAcceptAndPay}
             disabled={!accepted || isProcessing}
             className="bg-primary text-white hover:bg-primary-dark"
           >
-            {isProcessing ? "Processing..." : "Accept Terms"}
+            {isProcessing ? "Processing..." : "Accept and Proceed to Payment"}
           </Button>
         </div>
       </DialogContent>

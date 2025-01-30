@@ -114,7 +114,6 @@ export type Database = {
           responses_saved: number | null
           status: string | null
           terms_accepted: boolean | null
-          testing_mode: boolean | null
           updated_at: string
           user_id: string
         }
@@ -126,7 +125,6 @@ export type Database = {
           responses_saved?: number | null
           status?: string | null
           terms_accepted?: boolean | null
-          testing_mode?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -138,7 +136,6 @@ export type Database = {
           responses_saved?: number | null
           status?: string | null
           terms_accepted?: boolean | null
-          testing_mode?: boolean | null
           updated_at?: string
           user_id?: string
         }
