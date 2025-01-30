@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
+import { useQuery } from "@tanstack/react-query";
 
 interface Competition {
   id: string;
@@ -23,64 +24,62 @@ interface CompetitionWithStats extends Competition {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState<string>("");
-  const [competitions, setCompetitions] = useState<CompetitionWithStats[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserAndCompetitions = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          navigate("/login");
-          return;
-        }
-
-        // Fetch user profile
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("first_name")
-          .eq("id", user.id)
-          .single();
-
-        if (profile?.first_name) {
-          setFirstName(profile.first_name);
-        }
-
-        // Fetch competitions with entries
-        const { data: competitionsData } = await supabase
-          .from("competitions")
-          .select("*");
-
-        if (competitionsData) {
-          // Fetch entries for each competition
-          const enhancedCompetitions = await Promise.all(
-            competitionsData.map(async (comp) => {
-              const { data: entries } = await supabase
-                .from("competition_entries")
-                .select("*")
-                .eq("competition_id", comp.id);
-
-              const userEntry = entries?.find(entry => entry.user_id === user.id);
-
-              return {
-                ...comp,
-                questions_completed: userEntry?.questions_completed || 0,
-                total_entrants: entries?.length || 0
-              };
-            })
-          );
-
-          setCompetitions(enhancedCompetitions);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
+  const { data: competitions = [], isLoading } = useQuery({
+    queryKey: ['dashboard-competitions'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/login");
+        return [];
       }
-    };
 
-    fetchUserAndCompetitions();
-  }, [navigate]);
+      // Fetch user profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("first_name")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.first_name) {
+        setFirstName(profile.first_name);
+      }
+
+      // Fetch competitions
+      const { data: competitionsData } = await supabase
+        .from("competitions")
+        .select("*");
+
+      if (!competitionsData) return [];
+
+      // Fetch predictions count for each competition
+      const { data: predictions } = await supabase
+        .from("predictions")
+        .select("question_id")
+        .eq("user_id", user.id)
+        .not("answer", "eq", "");
+
+      const completedQuestions = predictions?.length || 0;
+
+      // Fetch total number of entries for each competition
+      const enhancedCompetitions = await Promise.all(
+        competitionsData.map(async (comp) => {
+          const { data: entries } = await supabase
+            .from("competition_entries")
+            .select("*")
+            .eq("competition_id", comp.id);
+
+          return {
+            ...comp,
+            questions_completed: completedQuestions,
+            total_entrants: entries?.length || 0
+          };
+        })
+      );
+
+      return enhancedCompetitions;
+    },
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -95,7 +94,7 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
