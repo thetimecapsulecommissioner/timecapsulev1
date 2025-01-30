@@ -3,10 +3,12 @@ import { useCompetition } from "@/hooks/useCompetition";
 import { PredictionForm } from "./questions/PredictionForm";
 import { LoadingState } from "./ui/LoadingState";
 import { Logo } from "./navigation/Logo";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CompetitionButtons } from "./questions/CompetitionButtons";
 import { CompetitionHeader } from "./questions/CompetitionHeader";
 import { useCompetitionData } from "./questions/hooks/useCompetitionData";
+import { supabase } from "@/integrations/supabase/client";
+import { useCountdown } from "@/hooks/useCountdown";
 
 export const Questions = () => {
   const navigate = useNavigate();
@@ -20,6 +22,10 @@ export const Questions = () => {
     hasEntered,
     setHasEntered
   } = useCompetitionData();
+
+  // Calculate preseason deadline
+  const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
+  const { timeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
   const handleLogoClick = async () => {
     const { data: { user } } = await supabase.auth.getUser();
