@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TermsDialog } from "./TermsDialog";
 import { AcceptTermsDialog } from "./AcceptTermsDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 interface CompetitionButtonsProps {
   hasEntered: boolean;
@@ -16,6 +19,83 @@ export const CompetitionButtons = ({
 }: CompetitionButtonsProps) => {
   const [showTerms, setShowTerms] = useState(false);
   const [showAcceptTerms, setShowAcceptTerms] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const { id: competitionId } = useParams();
+
+  useEffect(() => {
+    const checkTermsAcceptance = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && competitionId) {
+        const { data } = await supabase
+          .from('competition_entries')
+          .select('terms_accepted')
+          .eq('user_id', user.id)
+          .eq('competition_id', competitionId)
+          .single();
+        
+        if (data?.terms_accepted) {
+          setTermsAccepted(true);
+          onEnterCompetition();
+        }
+      }
+    };
+    
+    checkTermsAcceptance();
+  }, [competitionId, onEnterCompetition]);
+
+  const handleAcceptTerms = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !competitionId) return;
+
+      const { error } = await supabase
+        .from('competition_entries')
+        .upsert({
+          competition_id: competitionId,
+          user_id: user.id,
+          terms_accepted: true
+        });
+
+      if (error) throw error;
+
+      setTermsAccepted(true);
+      setShowAcceptTerms(false);
+      onEnterCompetition();
+      toast.success("Terms and conditions accepted successfully!");
+    } catch (error) {
+      console.error('Error accepting terms:', error);
+      toast.error("Failed to accept terms and conditions");
+    }
+  };
+
+  if (termsAccepted) {
+    return (
+      <div className="space-y-4 mt-12">
+        <Button
+          className="w-full h-16 flex justify-between items-center px-6 bg-green-100 hover:bg-green-200"
+        >
+          <span className="text-primary font-semibold w-48">Pre-Season Predictions</span>
+          <div className="flex-1 flex justify-center">
+            <span className="px-3 py-1 rounded bg-green-500 text-white">Open</span>
+          </div>
+          <span className="text-primary w-48 text-right">
+            {preSeasonTimeLeft}
+          </span>
+        </Button>
+
+        <Button
+          disabled
+          className="w-full h-16 flex justify-between items-center px-6 bg-gray-200"
+        >
+          <span className="text-primary font-semibold w-48">Mid-Season Predictions</span>
+          <div className="flex-1 flex justify-center">
+            <span className="px-3 py-1 rounded bg-gray-400 text-white">Closed</span>
+          </div>
+          <span className="w-48"></span>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -40,34 +120,8 @@ export const CompetitionButtons = ({
       <AcceptTermsDialog 
         open={showAcceptTerms} 
         onOpenChange={setShowAcceptTerms}
-        onAcceptTerms={onEnterCompetition}
+        onAcceptTerms={handleAcceptTerms}
       />
-
-      <div className="space-y-4 mt-12">
-        <Button
-          className={`w-full h-16 flex justify-between items-center px-6 
-            ${hasEntered ? 'bg-green-100 hover:bg-green-200' : 'bg-secondary hover:bg-secondary-light'}`}
-        >
-          <span className="text-primary font-semibold w-48">Pre-Season Predictions</span>
-          <div className="flex-1 flex justify-center">
-            <span className="px-3 py-1 rounded bg-green-500 text-white">Open</span>
-          </div>
-          <span className="text-primary w-48 text-right">
-            {preSeasonTimeLeft}
-          </span>
-        </Button>
-
-        <Button
-          disabled
-          className="w-full h-16 flex justify-between items-center px-6 bg-gray-200"
-        >
-          <span className="text-primary font-semibold w-48">Mid-Season Predictions</span>
-          <div className="flex-1 flex justify-center">
-            <span className="px-3 py-1 rounded bg-gray-400 text-white">Closed</span>
-          </div>
-          <span className="w-48"></span>
-        </Button>
-      </div>
     </>
   );
 };

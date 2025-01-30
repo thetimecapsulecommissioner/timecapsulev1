@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { QuestionCard } from "./QuestionCard";
 import { usePredictions } from "@/hooks/usePredictions";
 import { toast } from "sonner";
+import { useParams } from "react-router-dom";
 
 interface PredictionFormProps {
   competitionLabel?: string;
@@ -11,6 +12,7 @@ interface PredictionFormProps {
 
 export const PredictionForm = ({ competitionLabel }: PredictionFormProps) => {
   const { answers, handleAnswerChange, handleSubmit } = usePredictions();
+  const { id: competitionId } = useParams();
 
   const { data: questions, isLoading: questionsLoading } = useQuery({
     queryKey: ['questions'],
@@ -23,6 +25,29 @@ export const PredictionForm = ({ competitionLabel }: PredictionFormProps) => {
       return data;
     },
   });
+
+  const handleSaveResponses = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !competitionId) return;
+
+      const answeredQuestions = Object.keys(answers).length;
+
+      const { error } = await supabase
+        .from('competition_entries')
+        .upsert({
+          competition_id: competitionId,
+          user_id: user.id,
+          responses_saved: answeredQuestions
+        });
+
+      if (error) throw error;
+      toast.success("Responses saved successfully!");
+    } catch (error) {
+      console.error('Error saving responses:', error);
+      toast.error("Failed to save responses");
+    }
+  };
 
   const validateAnswers = () => {
     if (!questions) return false;
@@ -62,16 +87,25 @@ export const PredictionForm = ({ competitionLabel }: PredictionFormProps) => {
         />
       ))}
 
-      <Button
-        onClick={() => {
-          if (validateAnswers()) {
-            handleSubmit(questions || []);
-          }
-        }}
-        className="w-full bg-secondary hover:bg-secondary-light text-primary py-6 text-lg rounded-lg transition-all duration-300"
-      >
-        Seal Your Predictions
-      </Button>
+      <div className="space-y-4">
+        <Button
+          onClick={handleSaveResponses}
+          className="w-full bg-primary hover:bg-primary-dark text-white py-6 text-lg rounded-lg transition-all duration-300"
+        >
+          Save Responses
+        </Button>
+
+        <Button
+          onClick={() => {
+            if (validateAnswers()) {
+              handleSubmit(questions || []);
+            }
+          }}
+          className="w-full bg-secondary hover:bg-secondary-light text-primary py-6 text-lg rounded-lg transition-all duration-300"
+        >
+          Seal Your Predictions
+        </Button>
+      </div>
     </div>
   );
 };

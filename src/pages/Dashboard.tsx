@@ -52,16 +52,7 @@ const Dashboard = () => {
 
       if (!competitionsData) return [];
 
-      // Fetch predictions count for each competition
-      const { data: predictions } = await supabase
-        .from("predictions")
-        .select("question_id")
-        .eq("user_id", user.id)
-        .not("answer", "eq", "");
-
-      const completedQuestions = predictions?.length || 0;
-
-      // Fetch total number of entries for each competition
+      // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
         competitionsData.map(async (comp) => {
           const { data: entries } = await supabase
@@ -69,9 +60,16 @@ const Dashboard = () => {
             .select("*")
             .eq("competition_id", comp.id);
 
+          const { data: userEntry } = await supabase
+            .from("competition_entries")
+            .select("responses_saved")
+            .eq("competition_id", comp.id)
+            .eq("user_id", user.id)
+            .single();
+
           return {
             ...comp,
-            questions_completed: completedQuestions,
+            questions_completed: userEntry?.responses_saved || 0,
             total_entrants: entries?.length || 0
           };
         })
