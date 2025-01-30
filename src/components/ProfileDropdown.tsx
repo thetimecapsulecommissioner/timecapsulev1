@@ -56,10 +56,7 @@ export const ProfileDropdown = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update({ 
-          avatar_url: url,
-          id: user.id // Include the id in the update
-        })
+        .update({ avatar_url: url })
         .eq('id', user.id);
 
       if (error) throw error;

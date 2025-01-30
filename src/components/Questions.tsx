@@ -20,14 +20,14 @@ export const Questions = () => {
   const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
   const { timeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
-  // Updated to use the correct table name
+  // Fetch questions
   const { data: questions, isLoading: questionsLoading } = useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('2025 Pre-Season AFL Time Capsule Questions, Rules')
+        .from('questions')
         .select('*')
-        .order('Question Reference');
+        .order('id');
       if (error) throw error;
       return data;
     },

@@ -17,7 +17,7 @@ interface RegistrationFieldsProps {
     state: string;
     playerStatus: string;
     playerReference?: string;
-    aflClub?: string; // Made optional
+    aflClub: string;
   };
   onChange: (field: string, value: string) => void;
 }
@@ -116,7 +116,7 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
         </div>
       )}
       <AFLClubSelect
-        value={formData.aflClub || ""} // Handle undefined case
+        value={formData.aflClub}
         onChange={(value) => onChange("aflClub", value)}
       />
       <OrganizationSelect
