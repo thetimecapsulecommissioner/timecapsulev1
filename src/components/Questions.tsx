@@ -20,29 +20,26 @@ export const Questions = () => {
   const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
   const { timeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
-  // Fetch questions with help text
+  // Fetch questions with help text from the rules table
   const { data: questions, isLoading: questionsLoading } = useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
-      // First fetch questions
-      const { data: questionsData, error: questionsError } = await supabase
+      const { data, error } = await supabase
         .from('questions')
-        .select('*')
+        .select(`
+          *,
+          rules:2025 Pre-Season AFL Time Capsule Questions, Rules!inner (
+            "Rules/Help"
+          )
+        `)
         .order('id');
       
-      if (questionsError) throw questionsError;
+      if (error) throw error;
 
-      // Then fetch rules/help text
-      const { data: rulesData, error: rulesError } = await supabase
-        .from('"2025 Pre-Season AFL Time Capsule Questions, Rules"')
-        .select('*');
-
-      if (rulesError) throw rulesError;
-
-      // Map the help text to questions
-      return questionsData.map(question => ({
+      // Map the data to include help_text from rules
+      return data.map(question => ({
         ...question,
-        help_text: rulesData.find(rule => rule["Question Reference"] === question.id)?.[`Rules/Help`] || question.help_text
+        help_text: question.rules["Rules/Help"]
       }));
     },
   });
