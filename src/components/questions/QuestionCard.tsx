@@ -113,7 +113,7 @@ export const QuestionCard = ({
                 <TooltipTrigger>
                   <HelpCircle className="h-5 w-5 text-gray-500" />
                 </TooltipTrigger>
-                <TooltipContent className="bg-white">
+                <TooltipContent side="right" className="bg-white p-4 max-w-sm whitespace-pre-line">
                   <p className="text-gray-700">{helpText}</p>
                 </TooltipContent>
               </Tooltip>
