@@ -13,7 +13,6 @@ interface RegistrationFormData {
   state: string;
   playerStatus: string;
   playerReference?: string;
-  aflClub: string;
 }
 
 export const useRegistration = () => {
@@ -28,7 +27,6 @@ export const useRegistration = () => {
     state: "",
     playerStatus: "",
     playerReference: "",
-    aflClub: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,7 +34,7 @@ export const useRegistration = () => {
     e.preventDefault();
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || 
         !formData.phone || !formData.organization || !formData.state || !formData.playerStatus || 
-        (formData.playerStatus === "new" && !formData.playerReference) || !formData.aflClub) {
+        (formData.playerStatus === "new" && !formData.playerReference)) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -65,7 +63,7 @@ export const useRegistration = () => {
             state: formData.state,
             player_status: formData.playerStatus,
             player_reference: formData.playerReference,
-            afl_club: formData.aflClub,
+            id: authData.user.id
           })
           .eq('id', authData.user.id);
 
