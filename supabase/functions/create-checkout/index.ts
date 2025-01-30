@@ -37,6 +37,7 @@ serve(async (req) => {
       customer_email: email,
       line_items: [
         {
+          // Use the test price ID for development
           price: 'price_1QmqnPDI8y21uYLJ8z036zLA',
           quantity: 1,
         },
