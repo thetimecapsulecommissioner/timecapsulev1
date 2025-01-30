@@ -1,109 +1,73 @@
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { QuestionCard } from "./QuestionCard";
-import { usePredictions } from "@/hooks/usePredictions";
-import { toast } from "sonner";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 interface PredictionFormProps {
-  competitionLabel?: string;
+  questions: any[];
+  answeredQuestions: number;
 }
 
-export const PredictionForm = ({ competitionLabel }: PredictionFormProps) => {
-  const { answers, handleAnswerChange, handleSubmit } = usePredictions();
+export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormProps) => {
+  const [isSaving, setIsSaving] = useState(false);
   const { id: competitionId } = useParams();
-
-  const { data: questions, isLoading: questionsLoading } = useQuery({
-    queryKey: ['questions'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .order('id');
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const handleSaveResponses = async () => {
     try {
+      setIsSaving(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !competitionId) return;
 
-      const answeredQuestions = Object.keys(answers).length;
-
-      const { error } = await supabase
+      // First check if entry exists
+      const { data: entries, error: fetchError } = await supabase
         .from('competition_entries')
-        .update({ responses_saved: answeredQuestions })
+        .select('id')
         .eq('user_id', user.id)
         .eq('competition_id', competitionId);
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
+
+      if (!entries || entries.length === 0) {
+        // Create new entry if it doesn't exist
+        const { error: insertError } = await supabase
+          .from('competition_entries')
+          .insert({
+            competition_id: competitionId,
+            user_id: user.id,
+            responses_saved: answeredQuestions
+          });
+
+        if (insertError) throw insertError;
+      } else {
+        // Update existing entry
+        const { error: updateError } = await supabase
+          .from('competition_entries')
+          .update({ responses_saved: answeredQuestions })
+          .eq('user_id', user.id)
+          .eq('competition_id', competitionId);
+
+        if (updateError) throw updateError;
+      }
+
       toast.success("Responses saved successfully!");
     } catch (error) {
       console.error('Error saving responses:', error);
       toast.error("Failed to save responses");
+    } finally {
+      setIsSaving(false);
     }
   };
-
-  const validateAnswers = () => {
-    if (!questions) return false;
-    
-    for (const question of questions) {
-      const answer = answers[question.id] || [];
-      if (!answer.length || (question.required_answers && answer.length !== question.required_answers)) {
-        toast.error(`Please answer all questions with the required number of responses`);
-        return false;
-      }
-    }
-    return true;
-  };
-
-  if (questionsLoading) {
-    return <div className="text-secondary">Loading...</div>;
-  }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-fade-in py-12 px-4">
-      <h2 className="text-3xl font-bold text-secondary text-center mb-8">
-        {competitionLabel || 'Make Your Predictions'}
-      </h2>
-      
-      {questions?.map((q) => (
-        <QuestionCard
-          key={q.id}
-          id={q.id}
-          question={q.question}
-          options={q.options}
-          selectedAnswer={answers[q.id] || []}
-          helpText={q.help_text}
-          responseCategory={q.response_category}
-          points={q.points}
-          requiredAnswers={q.required_answers}
-          onAnswerChange={handleAnswerChange}
-        />
-      ))}
-
-      <div className="space-y-4">
-        <Button
-          onClick={handleSaveResponses}
-          className="w-full bg-primary hover:bg-primary-dark text-white py-6 text-lg rounded-lg transition-all duration-300"
-        >
-          Save Responses
-        </Button>
-
-        <Button
-          onClick={() => {
-            if (validateAnswers()) {
-              handleSubmit(questions || []);
-            }
-          }}
-          className="w-full bg-secondary hover:bg-secondary-light text-primary py-6 text-lg rounded-lg transition-all duration-300"
-        >
-          Seal Your Predictions
-        </Button>
-      </div>
+    <div className="flex justify-center mt-4">
+      <Button 
+        onClick={handleSaveResponses}
+        disabled={isSaving}
+        className="w-full max-w-md"
+      >
+        {isSaving ? "Saving..." : "Save Responses"}
+      </Button>
     </div>
   );
 };

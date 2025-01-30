@@ -26,33 +26,36 @@ export const CompetitionButtons = ({
     const checkTermsAcceptance = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (user && competitionId) {
-          // Try to get existing entry
-          const { data: entry } = await supabase
-            .from('competition_entries')
-            .select('terms_accepted')
-            .eq('user_id', user.id)
-            .eq('competition_id', competitionId)
-            .maybeSingle();
-          
-          if (entry?.terms_accepted) {
+        if (!user || !competitionId) return;
+
+        // Try to get existing entry
+        const { data: entries, error: fetchError } = await supabase
+          .from('competition_entries')
+          .select('terms_accepted')
+          .eq('user_id', user.id)
+          .eq('competition_id', competitionId);
+
+        if (fetchError) throw fetchError;
+
+        if (entries && entries.length > 0) {
+          if (entries[0].terms_accepted) {
             setTermsAccepted(true);
             onEnterCompetition();
-          } else if (!entry) {
-            // Create initial entry if it doesn't exist
-            const { error: insertError } = await supabase
-              .from('competition_entries')
-              .insert({
-                competition_id: competitionId,
-                user_id: user.id,
-                terms_accepted: false,
-                responses_saved: 0
-              });
-            
-            if (insertError) {
-              console.error('Error creating competition entry:', insertError);
-              toast.error("Failed to initialize competition entry");
-            }
+          }
+        } else {
+          // Create initial entry if it doesn't exist
+          const { error: insertError } = await supabase
+            .from('competition_entries')
+            .insert({
+              competition_id: competitionId,
+              user_id: user.id,
+              terms_accepted: false,
+              responses_saved: 0
+            });
+
+          if (insertError) {
+            console.error('Error creating competition entry:', insertError);
+            toast.error("Failed to initialize competition entry");
           }
         }
       } catch (error) {
@@ -71,12 +74,9 @@ export const CompetitionButtons = ({
 
       const { error } = await supabase
         .from('competition_entries')
-        .upsert({
-          competition_id: competitionId,
-          user_id: user.id,
-          terms_accepted: true,
-          responses_saved: 0
-        });
+        .update({ terms_accepted: true })
+        .eq('user_id', user.id)
+        .eq('competition_id', competitionId);
 
       if (error) throw error;
 
