@@ -88,6 +88,22 @@ export const CompetitionButtons = ({
       setTermsAccepted(true);
       setShowAcceptTerms(false);
       onEnterCompetition();
+      
+      // Redirect to Stripe checkout
+      const { data, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
+        body: { competitionId },
+      });
+
+      if (checkoutError) {
+        console.error('Error creating checkout session:', checkoutError);
+        toast.error("Failed to create checkout session");
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+
       toast.success("Terms and conditions accepted successfully!");
     } catch (error) {
       console.error('Error accepting terms:', error);

@@ -18,33 +18,48 @@ serve(async (req) => {
   );
 
   try {
+    console.log('Starting checkout process...');
+    
+    // Get user information
     const authHeader = req.headers.get('Authorization')!;
     const token = authHeader.replace('Bearer ', '');
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
     const email = user?.email;
 
+    console.log('User email:', email);
+
     if (!email) {
       throw new Error('No email found');
     }
 
+    // Initialize Stripe
+    console.log('Initializing Stripe...');
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
       apiVersion: '2023-10-16',
     });
+
+    // Get competition ID from URL
+    const url = new URL(req.url);
+    const competitionId = url.searchParams.get('competitionId');
+    console.log('Competition ID:', competitionId);
+
+    if (!competitionId) {
+      throw new Error('No competition ID provided');
+    }
 
     console.log('Creating payment session...');
     const session = await stripe.checkout.sessions.create({
       customer_email: email,
       line_items: [
         {
-          // Use the test price ID for development
-          price: 'price_1QmqnPDI8y21uYLJ8z036zLA',
+          price: 'price_1OyHvsDI8y21uYLJBPBVxPVw', // Use the actual price ID from your Stripe dashboard
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/questions/${req.headers.get('referer')?.split('/').pop()}`,
-      cancel_url: `${req.headers.get('origin')}/questions/${req.headers.get('referer')?.split('/').pop()}`,
+      success_url: `${req.headers.get('origin')}/questions/${competitionId}`,
+      cancel_url: `${req.headers.get('origin')}/questions/${competitionId}`,
     });
 
     console.log('Payment session created:', session.id);
