@@ -52,12 +52,12 @@ serve(async (req) => {
       customer_email: email,
       line_items: [
         {
-          // Using the updated price ID for the AFL Time Capsule product
+          // Using the provided price ID for one-time payment
           price: 'price_1QkbfoDI8y21uYLJ3bcWNfWg',
           quantity: 1,
         },
       ],
-      mode: 'payment',
+      mode: 'payment', // Changed to 'payment' for one-time payment
       success_url: `${req.headers.get('origin')}/questions/${competitionId}`,
       cancel_url: `${req.headers.get('origin')}/questions/${competitionId}`,
     });
