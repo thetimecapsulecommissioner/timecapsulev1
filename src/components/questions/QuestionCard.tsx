@@ -1,6 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
 import { useState } from "react";
 import { AFLTeamSelect } from "./inputs/AFLTeamSelect";
 import { MultipleChoiceInput } from "./inputs/MultipleChoiceInput";
@@ -8,6 +6,7 @@ import { NumberSelect } from "./inputs/NumberSelect";
 import { RadioInput } from "./inputs/RadioInput";
 import { AFLPlayerSelect } from "./inputs/AFLPlayerSelect";
 import { AFLCoachSelect } from "./inputs/AFLCoachSelect";
+import { QuestionHeader } from "./QuestionHeader";
 
 interface QuestionCardProps {
   id: number;
@@ -104,28 +103,11 @@ export const QuestionCard = ({
 
   return (
     <Card className="p-6 bg-mystical-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <div className="flex items-start mb-4">
-        <h3 className="text-xl font-semibold text-gray-700 flex-grow">{question}</h3>
-        <div className="flex items-start space-x-2 ml-2 flex-shrink-0">
-          {helpText && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <HelpCircle className="h-5 w-5 text-gray-500" />
-                </TooltipTrigger>
-                <TooltipContent side="right" className="bg-white p-4 max-w-sm whitespace-pre-line">
-                  <p className="text-gray-700">{helpText}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          {points !== undefined && (
-            <span className="text-sm font-medium text-gray-600">
-              {points} Points
-            </span>
-          )}
-        </div>
-      </div>
+      <QuestionHeader 
+        question={question}
+        helpText={helpText}
+        points={points}
+      />
       {requiredAnswers > 1 && (
         <p className="text-sm text-gray-500 mb-4">
           Select {requiredAnswers} answers
