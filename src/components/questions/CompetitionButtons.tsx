@@ -5,16 +5,15 @@ import { AcceptTermsDialog } from "./AcceptTermsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useCountdown } from "@/hooks/useCountdown";
 
 interface CompetitionButtonsProps {
   hasEntered: boolean;
-  preSeasonTimeLeft: string;
   onEnterCompetition: () => void;
 }
 
 export const CompetitionButtons = ({
   hasEntered,
-  preSeasonTimeLeft,
   onEnterCompetition,
 }: CompetitionButtonsProps) => {
   const [showTerms, setShowTerms] = useState(false);
@@ -22,13 +21,19 @@ export const CompetitionButtons = ({
   const [termsAccepted, setTermsAccepted] = useState(false);
   const { id: competitionId } = useParams();
 
+  // Define deadlines
+  const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
+  const midSeasonDeadline = new Date('2025-06-14T18:00:00+10:00');
+  
+  const { formattedTimeLeft: preSeasonTimeLeft, timeLeft: preSeasonTime } = useCountdown(preSeasonDeadline);
+  const { formattedTimeLeft: midSeasonTimeLeft, timeLeft: midSeasonTime } = useCountdown(midSeasonDeadline);
+
   useEffect(() => {
     const checkTermsAcceptance = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || !competitionId) return;
 
-        // Try to get existing entry
         const { data: entries, error: fetchError } = await supabase
           .from('competition_entries')
           .select('terms_accepted')
@@ -43,7 +48,6 @@ export const CompetitionButtons = ({
             onEnterCompetition();
           }
         } else {
-          // Create initial entry if it doesn't exist
           const { error: insertError } = await supabase
             .from('competition_entries')
             .insert({
@@ -94,11 +98,13 @@ export const CompetitionButtons = ({
     return (
       <div className="space-y-4 mt-12">
         <Button
-          className="w-full h-16 flex justify-between items-center px-6 bg-green-100 hover:bg-green-200"
+          className="w-full h-16 flex justify-between items-center px-6 bg-mystical-100 hover:bg-mystical-200"
         >
           <span className="text-primary font-semibold w-48">Pre-Season Predictions</span>
           <div className="flex-1 flex justify-center">
-            <span className="px-3 py-1 rounded bg-green-500 text-white">Open</span>
+            <span className={`px-3 py-1 rounded ${!preSeasonTime.expired ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
+              {!preSeasonTime.expired ? 'Open' : 'Closed'}
+            </span>
           </div>
           <span className="text-primary w-48 text-right">
             {preSeasonTimeLeft}
@@ -106,14 +112,18 @@ export const CompetitionButtons = ({
         </Button>
 
         <Button
-          disabled
-          className="w-full h-16 flex justify-between items-center px-6 bg-gray-200"
+          disabled={!midSeasonTime.expired}
+          className="w-full h-16 flex justify-between items-center px-6 bg-mystical-100 hover:bg-mystical-200"
         >
           <span className="text-primary font-semibold w-48">Mid-Season Predictions</span>
           <div className="flex-1 flex justify-center">
-            <span className="px-3 py-1 rounded bg-gray-400 text-white">Closed</span>
+            <span className={`px-3 py-1 rounded ${!midSeasonTime.expired ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
+              {!midSeasonTime.expired ? 'Open' : 'Closed'}
+            </span>
           </div>
-          <span className="w-48"></span>
+          <span className="text-primary w-48 text-right">
+            {midSeasonTimeLeft}
+          </span>
         </Button>
       </div>
     );
