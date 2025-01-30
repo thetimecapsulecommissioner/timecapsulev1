@@ -21,6 +21,15 @@ export const Questions = () => {
   const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
   const { timeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
+  // Get current user
+  const { data: userData } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    },
+  });
+
   // Fetch questions with staleTime to prevent unnecessary refetches
   const { data: questions, isLoading: questionsLoading } = useQuery({
     queryKey: ['questions'],
@@ -32,21 +41,21 @@ export const Questions = () => {
       if (error) throw error;
       return data;
     },
+    enabled: !!userData?.id,
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });
 
   // Check if user has already entered competition and get prediction count
   const { data: entry, isLoading: entryLoading } = useQuery({
-    queryKey: ['competition-entry', competitionId],
+    queryKey: ['competition-entry', competitionId, userData?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !competitionId) return null;
+      if (!userData?.id || !competitionId) return null;
 
       // Get competition entry
       const { data: entryData, error: entryError } = await supabase
         .from('competition_entries')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userData.id)
         .eq('competition_id', competitionId)
         .maybeSingle();
 
@@ -56,7 +65,7 @@ export const Questions = () => {
       const { count, error: countError } = await supabase
         .from('predictions')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', userData.id);
 
       if (countError) throw countError;
 
@@ -65,35 +74,10 @@ export const Questions = () => {
         predictions_count: count || 0
       };
     },
-    enabled: !!competitionId,
+    enabled: !!userData?.id && !!competitionId,
     staleTime: 0, // Always fetch fresh data for competition entry
     refetchInterval: 5000, // Refetch every 5 seconds
   });
-
-  // Prefetch predictions when the component mounts
-  useEffect(() => {
-    const prefetchPredictions = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      await queryClient.prefetchQuery({
-        queryKey: ['predictions', competitionId],
-        queryFn: async () => {
-          const { data, error } = await supabase
-            .from('predictions')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('response_order');
-          
-          if (error) throw error;
-          return data;
-        },
-        staleTime: 0 // Always fetch fresh data
-      });
-    };
-
-    prefetchPredictions();
-  }, [competitionId, queryClient]);
 
   useEffect(() => {
     if (entry?.terms_accepted) {
@@ -104,30 +88,27 @@ export const Questions = () => {
   // Update competition entry with prediction count
   useEffect(() => {
     const updatePredictionCount = async () => {
-      if (entry?.predictions_count !== undefined && competitionId) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
+      if (entry?.predictions_count !== undefined && competitionId && userData?.id) {
         await supabase
           .from('competition_entries')
           .update({ responses_saved: entry.predictions_count })
-          .eq('user_id', user.id)
+          .eq('user_id', userData.id)
           .eq('competition_id', competitionId);
 
         // Invalidate queries to refresh data
         queryClient.invalidateQueries({ 
-          queryKey: ['competition-entry'],
+          queryKey: ['competition-entry', competitionId, userData.id],
           exact: true 
         });
         queryClient.invalidateQueries({ 
-          queryKey: ['predictions'],
+          queryKey: ['predictions', competitionId, userData.id],
           exact: true 
         });
       }
     };
 
     updatePredictionCount();
-  }, [entry?.predictions_count, competitionId, queryClient]);
+  }, [entry?.predictions_count, competitionId, userData?.id, queryClient]);
 
   const handleLogoClick = async () => {
     const { data: { user } } = await supabase.auth.getUser();

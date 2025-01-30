@@ -30,17 +30,25 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
   const [isSubmitted, setIsSubmitted] = useState(false);
   const queryClient = useQueryClient();
 
-  // Fetch existing predictions
-  const { data: predictions } = useQuery({
-    queryKey: ['predictions', competitionId],
+  // Get current user
+  const { data: userData } = useQuery({
+    queryKey: ['current-user'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      return user;
+    },
+  });
+
+  // Fetch existing predictions
+  const { data: predictions } = useQuery({
+    queryKey: ['predictions', competitionId, userData?.id],
+    queryFn: async () => {
+      if (!userData?.id || !competitionId) return null;
 
       const { data, error } = await supabase
         .from('predictions')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userData.id)
         .order('response_order');
 
       if (error) throw error;
@@ -61,19 +69,20 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
       
       return groupedPredictions;
     },
+    enabled: !!userData?.id && !!competitionId,
+    staleTime: 0
   });
 
   // Fetch existing comments
   const { data: savedComments } = useQuery({
-    queryKey: ['prediction-comments', competitionId],
+    queryKey: ['prediction-comments', competitionId, userData?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!userData?.id || !competitionId) return null;
 
       const { data, error } = await supabase
         .from('prediction_comments')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', userData.id);
 
       if (error) throw error;
       
@@ -84,6 +93,8 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
       
       return commentMap;
     },
+    enabled: !!userData?.id && !!competitionId,
+    staleTime: 0
   });
 
   useEffect(() => {
