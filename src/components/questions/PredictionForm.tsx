@@ -104,26 +104,25 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
 
       if (fetchError) throw fetchError;
 
+      const entryData = {
+        competition_id: competitionId,
+        user_id: user.id,
+        responses_saved: answeredQuestions,
+        status: 'In Progress'
+      };
+
       if (!entries || entries.length === 0) {
         // Create new entry if it doesn't exist
         const { error: insertError } = await supabase
           .from('competition_entries')
-          .insert({
-            competition_id: competitionId,
-            user_id: user.id,
-            responses_saved: answeredQuestions,
-            status: 'In Progress'
-          });
+          .insert(entryData);
 
         if (insertError) throw insertError;
       } else {
         // Update existing entry
         const { error: updateError } = await supabase
           .from('competition_entries')
-          .update({ 
-            responses_saved: answeredQuestions,
-            status: 'In Progress'
-          })
+          .update(entryData)
           .eq('user_id', user.id)
           .eq('competition_id', competitionId);
 

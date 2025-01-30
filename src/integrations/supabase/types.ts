@@ -112,6 +112,7 @@ export type Database = {
           id: string
           questions_completed: number
           responses_saved: number | null
+          status: string | null
           terms_accepted: boolean | null
           updated_at: string
           user_id: string
@@ -122,6 +123,7 @@ export type Database = {
           id?: string
           questions_completed?: number
           responses_saved?: number | null
+          status?: string | null
           terms_accepted?: boolean | null
           updated_at?: string
           user_id: string
@@ -132,6 +134,7 @@ export type Database = {
           id?: string
           questions_completed?: number
           responses_saved?: number | null
+          status?: string | null
           terms_accepted?: boolean | null
           updated_at?: string
           user_id?: string
