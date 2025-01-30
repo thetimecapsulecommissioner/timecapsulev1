@@ -24,19 +24,40 @@ export const CompetitionButtons = ({
 
   useEffect(() => {
     const checkTermsAcceptance = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && competitionId) {
-        const { data } = await supabase
-          .from('competition_entries')
-          .select('terms_accepted')
-          .eq('user_id', user.id)
-          .eq('competition_id', competitionId)
-          .single();
-        
-        if (data?.terms_accepted) {
-          setTermsAccepted(true);
-          onEnterCompetition();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && competitionId) {
+          // Try to get existing entry
+          const { data: entry } = await supabase
+            .from('competition_entries')
+            .select('terms_accepted')
+            .eq('user_id', user.id)
+            .eq('competition_id', competitionId)
+            .maybeSingle();
+          
+          if (entry?.terms_accepted) {
+            setTermsAccepted(true);
+            onEnterCompetition();
+          } else if (!entry) {
+            // Create initial entry if it doesn't exist
+            const { error: insertError } = await supabase
+              .from('competition_entries')
+              .insert({
+                competition_id: competitionId,
+                user_id: user.id,
+                terms_accepted: false,
+                responses_saved: 0
+              });
+            
+            if (insertError) {
+              console.error('Error creating competition entry:', insertError);
+              toast.error("Failed to initialize competition entry");
+            }
+          }
         }
+      } catch (error) {
+        console.error('Error checking terms acceptance:', error);
+        toast.error("Failed to check terms acceptance status");
       }
     };
     
@@ -53,7 +74,8 @@ export const CompetitionButtons = ({
         .upsert({
           competition_id: competitionId,
           user_id: user.id,
-          terms_accepted: true
+          terms_accepted: true,
+          responses_saved: 0
         });
 
       if (error) throw error;

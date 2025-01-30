@@ -35,11 +35,9 @@ export const PredictionForm = ({ competitionLabel }: PredictionFormProps) => {
 
       const { error } = await supabase
         .from('competition_entries')
-        .upsert({
-          competition_id: competitionId,
-          user_id: user.id,
-          responses_saved: answeredQuestions
-        });
+        .update({ responses_saved: answeredQuestions })
+        .eq('user_id', user.id)
+        .eq('competition_id', competitionId);
 
       if (error) throw error;
       toast.success("Responses saved successfully!");
