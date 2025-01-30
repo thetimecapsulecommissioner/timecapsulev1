@@ -1,38 +1,46 @@
 import { useState } from "react";
-import { usePredictionForm } from "./usePredictionForm";
 import { PredictionFormHeader } from "./PredictionFormHeader";
 import { PredictionList } from "./PredictionList";
 import { PredictionFormFooter } from "./PredictionFormFooter";
 import { SealPredictionDialog } from "./SealPredictionDialog";
 import { TermsDialog } from "../TermsDialog";
+import { GroupedPredictions, PredictionComments } from "@/types/predictions";
 
-interface PredictionFormContainerProps {
+export interface PredictionFormContainerProps {
   questions: any[];
+  predictions: GroupedPredictions;
+  comments: PredictionComments;
   answeredQuestions: number;
+  isSaving: boolean;
+  isSealing: boolean;
+  showSealDialog: boolean;
+  setShowSealDialog: (show: boolean) => void;
+  onSave: () => void;
+  onSeal: () => void;
+  onAnswerChange: (questionId: number, answers: string[], responseOrder?: number) => void;
+  onCommentChange: (questionId: number, comment: string) => void;
 }
 
 export const PredictionFormContainer = ({ 
   questions,
-  answeredQuestions 
+  predictions,
+  comments,
+  answeredQuestions,
+  isSaving,
+  isSealing,
+  showSealDialog,
+  setShowSealDialog,
+  onSave,
+  onSeal,
+  onAnswerChange,
+  onCommentChange
 }: PredictionFormContainerProps) => {
   const [showTerms, setShowTerms] = useState(false);
-  const {
-    predictions,
-    comments,
-    isSaving,
-    isSealing,
-    showSealDialog,
-    setShowSealDialog,
-    handleSaveResponses,
-    handleSealPredictions,
-    handleAnswerChange,
-    handleCommentChange,
-  } = usePredictionForm(questions);
 
   return (
     <div className="space-y-8">
       <PredictionFormHeader
-        onSave={handleSaveResponses}
+        onSave={onSave}
         onShowTerms={() => setShowTerms(true)}
         isSaving={isSaving}
         isSubmitted={false}
@@ -40,15 +48,15 @@ export const PredictionFormContainer = ({
 
       <PredictionList
         questions={questions}
-        predictions={predictions || {}}
+        predictions={predictions}
         comments={comments}
-        onAnswerChange={handleAnswerChange}
-        onCommentChange={handleCommentChange}
+        onAnswerChange={onAnswerChange}
+        onCommentChange={onCommentChange}
         isSubmitted={false}
       />
 
       <PredictionFormFooter
-        onSave={handleSaveResponses}
+        onSave={onSave}
         onSeal={() => setShowSealDialog(true)}
         isSaving={isSaving}
         isSubmitted={false}
@@ -57,7 +65,7 @@ export const PredictionFormContainer = ({
       <SealPredictionDialog
         open={showSealDialog}
         onOpenChange={setShowSealDialog}
-        onConfirm={handleSealPredictions}
+        onConfirm={onSeal}
         isSealing={isSealing}
       />
 
