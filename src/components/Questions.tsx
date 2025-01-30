@@ -33,23 +33,37 @@ export const Questions = () => {
     },
   });
 
-  // Check if user has already entered competition
+  // Check if user has already entered competition and get prediction count
   const { data: entry, isLoading: entryLoading } = useQuery({
     queryKey: ['competition-entry', competitionId],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !competitionId) return null;
 
-      const { data, error } = await supabase
+      // Get competition entry
+      const { data: entryData, error: entryError } = await supabase
         .from('competition_entries')
         .select('*')
         .eq('user_id', user.id)
         .eq('competition_id', competitionId)
         .maybeSingle();
 
-      if (error) throw error;
-      return data;
+      if (entryError) throw entryError;
+
+      // Get prediction count
+      const { count, error: countError } = await supabase
+        .from('predictions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (countError) throw countError;
+
+      return {
+        ...entryData,
+        predictions_count: count || 0
+      };
     },
+    refetchInterval: 5000, // Refetch every 5 seconds to keep count updated
   });
 
   useEffect(() => {
@@ -57,6 +71,24 @@ export const Questions = () => {
       setHasEntered(true);
     }
   }, [entry]);
+
+  // Update competition entry with prediction count
+  useEffect(() => {
+    const updatePredictionCount = async () => {
+      if (entry?.predictions_count !== undefined && competitionId) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await supabase
+          .from('competition_entries')
+          .update({ responses_saved: entry.predictions_count })
+          .eq('user_id', user.id)
+          .eq('competition_id', competitionId);
+      }
+    };
+
+    updatePredictionCount();
+  }, [entry?.predictions_count, competitionId]);
 
   const handleLogoClick = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -109,7 +141,7 @@ export const Questions = () => {
             </h2>
             <PredictionForm 
               questions={questions} 
-              answeredQuestions={entry?.responses_saved || 0} 
+              answeredQuestions={entry?.predictions_count || 0}
             />
           </>
         )}

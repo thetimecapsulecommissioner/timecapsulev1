@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { QuestionCard } from "./QuestionCard";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
 import { Save, FileText } from "lucide-react";
 import {
@@ -28,6 +28,7 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
   const [comments, setComments] = useState<Record<number, string>>({});
   const { id: competitionId } = useParams();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const queryClient = useQueryClient();
 
   // Fetch existing predictions
   const { data: predictions } = useQuery({
@@ -148,6 +149,11 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
         }
       }
 
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['prediction-comments'] });
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
+
       toast.success("Responses and comments saved successfully!");
     } catch (error) {
       console.error('Error saving responses:', error);
@@ -183,6 +189,10 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
       setIsSubmitted(true);
       setShowSealDialog(false);
       toast.success("Predictions sealed successfully!");
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
     } catch (error) {
       console.error('Error sealing predictions:', error);
       toast.error("Failed to seal predictions");
@@ -196,6 +206,54 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
       ...prev,
       [questionId]: comment
     }));
+  };
+
+  const handleAnswerChange = async (questionId: number, answers: string[], responseOrder?: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      if (responseOrder !== undefined) {
+        // Save single answer
+        const { error } = await supabase
+          .from('predictions')
+          .upsert({
+            question_id: questionId,
+            user_id: user.id,
+            answer: answers[responseOrder - 1],
+            response_order: responseOrder
+          }, {
+            onConflict: 'user_id,question_id,response_order'
+          });
+
+        if (error) throw error;
+      } else {
+        // Save multiple answers
+        const upsertPromises = answers.map((answer, index) => 
+          supabase
+            .from('predictions')
+            .upsert({
+              question_id: questionId,
+              user_id: user.id,
+              answer,
+              response_order: index + 1
+            }, {
+              onConflict: 'user_id,question_id,response_order'
+            })
+        );
+
+        const results = await Promise.all(upsertPromises);
+        const errors = results.filter(result => result.error);
+        if (errors.length > 0) throw errors[0].error;
+      }
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
+    } catch (error) {
+      console.error('Error saving prediction:', error);
+      toast.error("Failed to save prediction");
+    }
   };
 
   return (
@@ -230,9 +288,7 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
             responseCategory={question.response_category}
             points={question.points}
             requiredAnswers={question.required_answers}
-            onAnswerChange={(questionId, value, responseOrder) => {
-              // Handle answer change logic
-            }}
+            onAnswerChange={handleAnswerChange}
             disabled={isSubmitted}
           />
           <Textarea
