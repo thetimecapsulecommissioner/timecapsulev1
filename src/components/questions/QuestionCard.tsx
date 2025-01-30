@@ -121,7 +121,6 @@ export const QuestionCard = ({
         question={question}
         helpText={helpText}
         points={points}
-        questionId={id}
       />
       {requiredAnswers > 1 && (
         <p className="text-sm text-gray-500 mb-4">
