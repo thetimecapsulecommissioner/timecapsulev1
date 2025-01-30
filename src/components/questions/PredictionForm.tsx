@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { QuestionCard } from "./QuestionCard";
 import { useQuery } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
+import { Save, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
   const [isSaving, setIsSaving] = useState(false);
   const [isSealing, setIsSealing] = useState(false);
   const [showSealDialog, setShowSealDialog] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [comments, setComments] = useState<Record<number, string>>({});
   const { id: competitionId } = useParams();
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -198,13 +200,24 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
 
   return (
     <div className="space-y-8">
-      <Button 
-        onClick={handleSaveResponses}
-        disabled={isSaving || isSubmitted}
-        className="w-full max-w-md mx-auto mb-8"
-      >
-        {isSaving ? "Saving..." : "Save Responses"}
-      </Button>
+      <div className="flex justify-center gap-4 mb-8">
+        <Button 
+          onClick={handleSaveResponses}
+          disabled={isSaving || isSubmitted}
+          className="bg-white text-green-600 hover:bg-green-50 border border-green-200"
+        >
+          <Save className="w-4 h-4 mr-2" />
+          {isSaving ? "Saving..." : "Save Responses"}
+        </Button>
+        <Button
+          onClick={() => setShowTerms(true)}
+          variant="outline"
+          className="bg-white text-green-600 hover:bg-green-50 border border-green-200"
+        >
+          <FileText className="w-4 h-4 mr-2" />
+          Terms and Conditions
+        </Button>
+      </div>
 
       {questions?.map((question) => (
         <div key={question.id} className="space-y-4">
@@ -236,8 +249,9 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
         <Button 
           onClick={handleSaveResponses}
           disabled={isSaving || isSubmitted}
-          className="w-full max-w-md"
+          className="w-full max-w-md bg-white text-green-600 hover:bg-green-50 border border-green-200"
         >
+          <Save className="w-4 h-4 mr-2" />
           {isSaving ? "Saving..." : "Save Responses"}
         </Button>
 

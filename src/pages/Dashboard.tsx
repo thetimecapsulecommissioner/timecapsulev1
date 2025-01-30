@@ -13,11 +13,11 @@ interface Competition {
 
 interface CompetitionEntry {
   competition_id: string;
-  questions_completed: number;
+  responses_saved: number;
 }
 
 interface CompetitionWithStats extends Competition {
-  questions_completed: number;
+  responses_saved: number;
   total_entrants: number;
 }
 
@@ -69,7 +69,7 @@ const Dashboard = () => {
 
           return {
             ...comp,
-            questions_completed: userEntry?.responses_saved || 0,
+            responses_saved: userEntry?.responses_saved || 0,
             total_entrants: entries?.length || 0
           };
         })
@@ -117,9 +117,11 @@ const Dashboard = () => {
                   p-4 rounded-lg cursor-pointer hover:opacity-90 transition-opacity
                   grid grid-cols-4 gap-4 items-center`}
               >
-                <div className="font-semibold text-gray-800">{competition.label}</div>
-                <div className="text-gray-600">
-                  {competition.questions_completed} / {competition.total_questions} Questions
+                <div className="font-semibold text-gray-800">
+                  {competition.label}
+                  <span className="ml-2 text-sm text-gray-600">
+                    ({competition.responses_saved} / {competition.total_questions})
+                  </span>
                 </div>
                 <div className="text-gray-600">
                   {competition.total_entrants} Entrants
