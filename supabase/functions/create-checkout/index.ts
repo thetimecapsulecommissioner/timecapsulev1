@@ -42,8 +42,8 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/questions`,
-      cancel_url: `${req.headers.get('origin')}/`,
+      success_url: `${req.headers.get('origin')}/questions/${req.headers.get('referer')?.split('/').pop()}`,
+      cancel_url: `${req.headers.get('origin')}/questions/${req.headers.get('referer')?.split('/').pop()}`,
     });
 
     console.log('Payment session created:', session.id);

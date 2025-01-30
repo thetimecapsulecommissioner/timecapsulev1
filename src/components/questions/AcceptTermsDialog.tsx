@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useParams } from "react-router-dom";
 
 interface AcceptTermsDialogProps {
   open: boolean;
@@ -23,6 +24,7 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
   const { data: termsAndConditions, isLoading } = useTermsAndConditions();
   const [accepted, setAccepted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { id: competitionId } = useParams();
 
   const handlePayment = async () => {
     try {
