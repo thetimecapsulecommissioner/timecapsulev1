@@ -65,12 +65,12 @@ const Dashboard = () => {
             .select("responses_saved")
             .eq("competition_id", comp.id)
             .eq("user_id", user.id)
-            .single();
+            .maybeSingle();
 
           return {
             ...comp,
             responses_saved: userEntry?.responses_saved || 0,
-            total_entrants: entries?.length || 0
+            total_entrants: entries?.length || 0,
           };
         })
       );
@@ -121,7 +121,7 @@ const Dashboard = () => {
                   {competition.label}
                 </div>
                 <div className="text-gray-600">
-                  {competition.responses_saved}/{competition.total_questions}
+                  {competition.responses_saved}/{competition.total_questions || 0}
                 </div>
                 <div className="text-gray-600">
                   {competition.total_entrants} Entrants
