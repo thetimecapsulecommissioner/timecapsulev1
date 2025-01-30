@@ -119,9 +119,9 @@ const Dashboard = () => {
               >
                 <div className="font-semibold text-gray-800">
                   {competition.label}
-                  <span className="ml-2 text-sm text-gray-600">
-                    ({competition.responses_saved} / {competition.total_questions})
-                  </span>
+                </div>
+                <div className="text-gray-600">
+                  {competition.responses_saved}/{competition.total_questions}
                 </div>
                 <div className="text-gray-600">
                   {competition.total_entrants} Entrants
