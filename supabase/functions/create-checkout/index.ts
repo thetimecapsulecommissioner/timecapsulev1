@@ -47,22 +47,31 @@ serve(async (req) => {
       throw new Error('No competition ID provided');
     }
 
+    // Create the checkout session
     console.log('Creating payment session...');
     const session = await stripe.checkout.sessions.create({
       customer_email: email,
       line_items: [
         {
-          // Using the provided price ID for one-time payment
           price: 'price_1QkbfoDI8y21uYLJ3bcWNfWg',
           quantity: 1,
         },
       ],
-      mode: 'payment', // Changed to 'payment' for one-time payment
+      mode: 'payment',
       success_url: `${req.headers.get('origin')}/questions/${competitionId}`,
       cancel_url: `${req.headers.get('origin')}/questions/${competitionId}`,
+      allow_promotion_codes: true,
+      billing_address_collection: 'auto',
+      submit_type: 'pay',
     });
 
     console.log('Payment session created:', session.id);
+    console.log('Checkout URL:', session.url);
+
+    if (!session.url) {
+      throw new Error('No checkout URL generated');
+    }
+
     return new Response(
       JSON.stringify({ url: session.url }),
       { 
