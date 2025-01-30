@@ -30,47 +30,28 @@ export const CompetitionButtons = ({
   const { formattedTimeLeft: midSeasonTimeLeft, timeLeft: midSeasonTime } = useCountdown(midSeasonDeadline);
 
   useEffect(() => {
-    const checkTermsAcceptance = async () => {
+    const resetTermsAndPayment = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || !competitionId) return;
 
-        const { data: entries, error: fetchError } = await supabase
+        // Reset terms_accepted to false for testing
+        const { error: updateError } = await supabase
           .from('competition_entries')
-          .select('terms_accepted')
+          .update({ terms_accepted: false })
           .eq('user_id', user.id)
           .eq('competition_id', competitionId);
 
-        if (fetchError) throw fetchError;
+        if (updateError) throw updateError;
 
-        if (entries && entries.length > 0) {
-          if (entries[0].terms_accepted) {
-            setTermsAccepted(true);
-            onEnterCompetition();
-          }
-        } else {
-          const { error: insertError } = await supabase
-            .from('competition_entries')
-            .insert({
-              competition_id: competitionId,
-              user_id: user.id,
-              terms_accepted: false,
-              responses_saved: 0
-            });
-
-          if (insertError) {
-            console.error('Error creating competition entry:', insertError);
-            toast.error("Failed to initialize competition entry");
-          }
-        }
       } catch (error) {
-        console.error('Error checking terms acceptance:', error);
-        toast.error("Failed to check terms acceptance status");
+        console.error('Error resetting terms:', error);
+        toast.error("Failed to reset terms acceptance status");
       }
     };
     
-    checkTermsAcceptance();
-  }, [competitionId, onEnterCompetition]);
+    resetTermsAndPayment();
+  }, [competitionId]);
 
   const handleAcceptTerms = async () => {
     try {
@@ -100,24 +81,6 @@ export const CompetitionButtons = ({
       toast.error("Failed to accept terms and conditions");
     }
   };
-
-  if (termsAccepted) {
-    return (
-      <div className="space-y-4 mt-12">
-        <CountdownButton
-          label="Pre-Season Predictions"
-          isOpen={!preSeasonTime.expired}
-          timeLeft={preSeasonTimeLeft}
-        />
-        <CountdownButton
-          label="Mid-Season Predictions"
-          isOpen={!midSeasonTime.expired}
-          timeLeft={midSeasonTimeLeft}
-          disabled={!midSeasonTime.expired}
-        />
-      </div>
-    );
-  }
 
   return (
     <>

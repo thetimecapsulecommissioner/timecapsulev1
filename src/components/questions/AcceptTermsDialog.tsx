@@ -40,9 +40,7 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
 
       if (error) throw error;
 
-      toast.success("Terms and conditions accepted successfully!");
       onAcceptTerms();
-      onOpenChange(false);
     } catch (error) {
       console.error('Error accepting terms:', error);
       toast.error("Failed to accept terms and conditions");
@@ -111,7 +109,7 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
             disabled={!accepted || isProcessing}
             className="bg-primary text-white hover:bg-primary-dark"
           >
-            {isProcessing ? "Processing..." : "Accept Terms and Conditions"}
+            {isProcessing ? "Processing..." : "Accept and Proceed to Payment"}
           </Button>
         </div>
       </DialogContent>
