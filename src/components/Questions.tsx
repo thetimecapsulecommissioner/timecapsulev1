@@ -9,18 +9,19 @@ import { useState, useEffect } from "react";
 import { useCountdown } from "@/hooks/useCountdown";
 import { supabase } from "@/integrations/supabase/client";
 import { CompetitionButtons } from "./questions/CompetitionButtons";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const Questions = () => {
   const { id: competitionId } = useParams();
   const { data: competition, isLoading: competitionLoading } = useCompetition(competitionId);
   const [hasEntered, setHasEntered] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
   const { timeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
-  // Fetch questions
+  // Fetch questions with staleTime to prevent unnecessary refetches
   const { data: questions, isLoading: questionsLoading } = useQuery({
     queryKey: ['questions'],
     queryFn: async () => {
@@ -31,6 +32,7 @@ export const Questions = () => {
       if (error) throw error;
       return data;
     },
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });
 
   // Check if user has already entered competition and get prediction count
@@ -63,8 +65,33 @@ export const Questions = () => {
         predictions_count: count || 0
       };
     },
-    refetchInterval: 5000, // Refetch every 5 seconds to keep count updated
+    staleTime: 0, // Always fetch fresh data for competition entry
+    refetchInterval: 5000, // Refetch every 5 seconds
   });
+
+  // Prefetch predictions when the component mounts
+  useEffect(() => {
+    const prefetchPredictions = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await queryClient.prefetchQuery({
+        queryKey: ['predictions', competitionId],
+        queryFn: async () => {
+          const { data, error } = await supabase
+            .from('predictions')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('response_order');
+          
+          if (error) throw error;
+          return data;
+        },
+      });
+    };
+
+    prefetchPredictions();
+  }, [competitionId, queryClient]);
 
   useEffect(() => {
     if (entry?.terms_accepted) {
@@ -84,11 +111,14 @@ export const Questions = () => {
           .update({ responses_saved: entry.predictions_count })
           .eq('user_id', user.id)
           .eq('competition_id', competitionId);
+
+        // Invalidate queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
       }
     };
 
     updatePredictionCount();
-  }, [entry?.predictions_count, competitionId]);
+  }, [entry?.predictions_count, competitionId, queryClient]);
 
   const handleLogoClick = async () => {
     const { data: { user } } = await supabase.auth.getUser();
