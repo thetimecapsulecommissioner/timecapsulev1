@@ -11,13 +11,8 @@ interface Competition {
   status: string;
 }
 
-interface CompetitionEntry {
-  competition_id: string;
-  responses_saved: number;
-}
-
 interface CompetitionWithStats extends Competition {
-  responses_saved: number;
+  predictions_made: number;
   total_entrants: number;
 }
 
@@ -39,7 +34,7 @@ const Dashboard = () => {
         .from("profiles")
         .select("first_name")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (profile?.first_name) {
         setFirstName(profile.first_name);
@@ -55,21 +50,30 @@ const Dashboard = () => {
       // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
         competitionsData.map(async (comp) => {
+          // Get total number of questions
+          const { count: totalQuestions } = await supabase
+            .from("questions")
+            .select("*", { count: 'exact', head: true });
+
+          // Get number of completed predictions for this user
+          const { data: predictions } = await supabase
+            .from("predictions")
+            .select("question_id")
+            .eq("user_id", user.id);
+
+          // Get unique question IDs that have been answered
+          const uniqueAnsweredQuestions = new Set(predictions?.map(p => p.question_id));
+          
+          // Get total number of entrants
           const { data: entries } = await supabase
             .from("competition_entries")
             .select("*")
             .eq("competition_id", comp.id);
 
-          const { data: userEntry } = await supabase
-            .from("competition_entries")
-            .select("responses_saved")
-            .eq("competition_id", comp.id)
-            .eq("user_id", user.id)
-            .maybeSingle();
-
           return {
             ...comp,
-            responses_saved: userEntry?.responses_saved || 0,
+            predictions_made: uniqueAnsweredQuestions.size,
+            total_questions: totalQuestions || 0,
             total_entrants: entries?.length || 0,
           };
         })
@@ -121,7 +125,7 @@ const Dashboard = () => {
                   {competition.label}
                 </div>
                 <div className="text-gray-600">
-                  {competition.responses_saved}/{competition.total_questions || 0}
+                  {competition.predictions_made}/{competition.total_questions} Predictions Made
                 </div>
                 <div className="text-gray-600">
                   {competition.total_entrants} Entrants
