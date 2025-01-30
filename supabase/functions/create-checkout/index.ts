@@ -52,8 +52,8 @@ serve(async (req) => {
       customer_email: email,
       line_items: [
         {
-          // Using the correct price ID for the AFL Time Capsule product
-          price: 'price_1OyHvsDI8y21uYLJBPBVxPVw',
+          // Using the updated price ID for the AFL Time Capsule product
+          price: 'price_1QkbfoDI8y21uYLJ3bcWNfWg',
           quantity: 1,
         },
       ],
