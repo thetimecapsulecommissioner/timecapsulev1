@@ -21,8 +21,8 @@ export const usePredictionForm = (questions: any[]) => {
     },
   });
 
-  // Fetch existing predictions
-  const { data: predictions } = useQuery({
+  // Fetch existing predictions with proper error handling
+  const { data: predictions, isLoading: predictionsLoading } = useQuery({
     queryKey: ['predictions', competitionId, userData?.id],
     queryFn: async () => {
       if (!userData?.id || !competitionId) return null;
@@ -33,8 +33,12 @@ export const usePredictionForm = (questions: any[]) => {
         .eq('user_id', userData.id)
         .order('response_order');
 
-      if (error) throw error;
-      
+      if (error) {
+        console.error('Error fetching predictions:', error);
+        toast.error("Failed to load your predictions");
+        return null;
+      }
+
       // Group predictions by question_id
       const groupedPredictions: Record<number, string[]> = {};
       data?.forEach(prediction => {
@@ -43,11 +47,12 @@ export const usePredictionForm = (questions: any[]) => {
         }
         groupedPredictions[prediction.question_id][prediction.response_order - 1] = prediction.answer;
       });
-      
+
       return groupedPredictions;
     },
     enabled: !!userData?.id && !!competitionId,
-    staleTime: 0
+    staleTime: 1000, // Reduce unnecessary refetches
+    retry: 2, // Retry failed requests
   });
 
   // Fetch existing comments
@@ -61,18 +66,27 @@ export const usePredictionForm = (questions: any[]) => {
         .select('*')
         .eq('user_id', userData.id);
 
-      if (error) throw error;
-      
+      if (error) {
+        console.error('Error fetching comments:', error);
+        return null;
+      }
+
       const commentMap: Record<number, string> = {};
       data?.forEach(comment => {
         commentMap[comment.question_id] = comment.comment || '';
       });
-      
+
       return commentMap;
     },
     enabled: !!userData?.id && !!competitionId,
-    staleTime: 0
   });
+
+  // Initialize comments when savedComments are loaded
+  useState(() => {
+    if (savedComments) {
+      setComments(savedComments);
+    }
+  }, [savedComments]);
 
   const handleSaveResponses = async () => {
     try {
@@ -205,7 +219,8 @@ export const usePredictionForm = (questions: any[]) => {
 
   return {
     predictions,
-    comments: savedComments || {},
+    predictionsLoading,
+    comments,
     isSaving,
     isSealing,
     showSealDialog,
