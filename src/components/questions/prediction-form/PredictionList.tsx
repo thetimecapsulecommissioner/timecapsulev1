@@ -8,6 +8,7 @@ interface PredictionListProps {
   onAnswerChange: (questionId: number, answers: string[], responseOrder?: number) => void;
   onCommentChange: (questionId: number, comment: string) => void;
   isSubmitted: boolean;
+  readOnly?: boolean;
 }
 
 export const PredictionList = ({
@@ -16,7 +17,8 @@ export const PredictionList = ({
   comments,
   onAnswerChange,
   onCommentChange,
-  isSubmitted
+  isSubmitted,
+  readOnly = false
 }: PredictionListProps) => {
   return (
     <div className="space-y-8">
@@ -32,15 +34,17 @@ export const PredictionList = ({
             points={question.points}
             requiredAnswers={question.required_answers}
             onAnswerChange={onAnswerChange}
-            disabled={isSubmitted}
+            disabled={isSubmitted || readOnly}
           />
-          <Textarea
-            placeholder="Add a comment about your response (optional)"
-            value={comments[question.id] || ''}
-            onChange={(e) => onCommentChange(question.id, e.target.value)}
-            className="mt-2"
-            disabled={isSubmitted}
-          />
+          {!readOnly && (
+            <Textarea
+              placeholder="Add a comment about your response (optional)"
+              value={comments[question.id] || ''}
+              onChange={(e) => onCommentChange(question.id, e.target.value)}
+              className="mt-2"
+              disabled={isSubmitted}
+            />
+          )}
         </div>
       ))}
     </div>

@@ -19,6 +19,7 @@ export interface PredictionFormContainerProps {
   onSeal: () => void;
   onAnswerChange: (questionId: number, answers: string[], responseOrder?: number) => void;
   onCommentChange: (questionId: number, comment: string) => void;
+  readOnly?: boolean;
 }
 
 export const PredictionFormContainer = ({ 
@@ -33,18 +34,21 @@ export const PredictionFormContainer = ({
   onSave,
   onSeal,
   onAnswerChange,
-  onCommentChange
+  onCommentChange,
+  readOnly = false
 }: PredictionFormContainerProps) => {
   const [showTerms, setShowTerms] = useState(false);
 
   return (
     <div className="space-y-8">
-      <PredictionFormHeader
-        onSave={onSave}
-        onShowTerms={() => setShowTerms(true)}
-        isSaving={isSaving}
-        isSubmitted={false}
-      />
+      {!readOnly && (
+        <PredictionFormHeader
+          onSave={onSave}
+          onShowTerms={() => setShowTerms(true)}
+          isSaving={isSaving}
+          isSubmitted={false}
+        />
+      )}
 
       <PredictionList
         questions={questions}
@@ -53,23 +57,28 @@ export const PredictionFormContainer = ({
         onAnswerChange={onAnswerChange}
         onCommentChange={onCommentChange}
         isSubmitted={false}
+        readOnly={readOnly}
       />
 
-      <PredictionFormFooter
-        onSave={onSave}
-        onSeal={() => setShowSealDialog(true)}
-        isSaving={isSaving}
-        isSubmitted={false}
-      />
+      {!readOnly && (
+        <>
+          <PredictionFormFooter
+            onSave={onSave}
+            onSeal={() => setShowSealDialog(true)}
+            isSaving={isSaving}
+            isSubmitted={false}
+          />
 
-      <SealPredictionDialog
-        open={showSealDialog}
-        onOpenChange={setShowSealDialog}
-        onConfirm={onSeal}
-        isSealing={isSealing}
-      />
+          <SealPredictionDialog
+            open={showSealDialog}
+            onOpenChange={setShowSealDialog}
+            onConfirm={onSeal}
+            isSealing={isSealing}
+          />
 
-      <TermsDialog open={showTerms} onOpenChange={setShowTerms} />
+          <TermsDialog open={showTerms} onOpenChange={setShowTerms} />
+        </>
+      )}
     </div>
   );
 };

@@ -48,10 +48,24 @@ export const Questions = () => {
         <CompetitionHeader label={competition?.label || ''} />
 
         {!hasEntered && (
-          <CompetitionButtons
-            hasEntered={hasEntered}
-            onEnterCompetition={() => setHasEntered(true)}
-          />
+          <>
+            <CompetitionButtons
+              hasEntered={hasEntered}
+              onEnterCompetition={() => setHasEntered(true)}
+            />
+            {questions && (
+              <>
+                <h2 className="text-2xl font-bold text-secondary mb-8 text-center mt-8">
+                  Preview Questions
+                </h2>
+                <PredictionForm 
+                  questions={questions}
+                  answeredQuestions={0}
+                  readOnly={true}
+                />
+              </>
+            )}
+          </>
         )}
 
         {hasEntered && questions && (
@@ -62,6 +76,7 @@ export const Questions = () => {
             <PredictionForm 
               questions={questions} 
               answeredQuestions={entry?.predictions_count || 0}
+              readOnly={false}
             />
           </>
         )}

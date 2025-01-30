@@ -5,11 +5,13 @@ import { usePredictionForm } from "./prediction-form/usePredictionForm";
 interface PredictionFormProps {
   questions: any[];
   answeredQuestions: number;
+  readOnly?: boolean;
 }
 
 export const PredictionForm = ({ 
   questions,
-  answeredQuestions 
+  answeredQuestions,
+  readOnly = false
 }: PredictionFormProps) => {
   const {
     predictions,
@@ -43,6 +45,7 @@ export const PredictionForm = ({
       onSeal={handleSealPredictions}
       onAnswerChange={handleAnswerChange}
       onCommentChange={handleCommentChange}
+      readOnly={readOnly}
     />
   );
 };
