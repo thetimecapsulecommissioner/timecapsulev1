@@ -77,19 +77,11 @@ export const CompetitionButtons = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !competitionId) return;
 
-      const { error } = await supabase
-        .from('competition_entries')
-        .update({ terms_accepted: true })
-        .eq('user_id', user.id)
-        .eq('competition_id', competitionId);
-
-      if (error) throw error;
-
       setTermsAccepted(true);
       setShowAcceptTerms(false);
       onEnterCompetition();
       
-      // Redirect to Stripe checkout
+      // Initiate payment process
       const { data, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
         body: { competitionId },
       });
@@ -103,8 +95,6 @@ export const CompetitionButtons = ({
       if (data?.url) {
         window.location.href = data.url;
       }
-
-      toast.success("Terms and conditions accepted successfully!");
     } catch (error) {
       console.error('Error accepting terms:', error);
       toast.error("Failed to accept terms and conditions");

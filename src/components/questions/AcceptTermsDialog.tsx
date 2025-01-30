@@ -26,30 +26,29 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
   const [isProcessing, setIsProcessing] = useState(false);
   const { id: competitionId } = useParams();
 
-  const handlePayment = async () => {
+  const handleAcceptTerms = async () => {
     try {
       setIsProcessing(true);
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { competitionId }
-      });
-      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !competitionId) return;
+
+      const { error } = await supabase
+        .from('competition_entries')
+        .update({ terms_accepted: true })
+        .eq('user_id', user.id)
+        .eq('competition_id', competitionId);
+
       if (error) throw error;
-      
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL received');
-      }
+
+      toast.success("Terms and conditions accepted successfully!");
+      onAcceptTerms();
+      onOpenChange(false);
     } catch (error) {
-      console.error('Payment error:', error);
-      toast.error('Failed to initiate payment. Please try again.');
+      console.error('Error accepting terms:', error);
+      toast.error("Failed to accept terms and conditions");
+    } finally {
       setIsProcessing(false);
     }
-  };
-
-  const handleAcceptAndPay = async () => {
-    onAcceptTerms();
-    await handlePayment();
   };
 
   if (isLoading) {
@@ -108,11 +107,11 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
             </label>
           </div>
           <Button 
-            onClick={handleAcceptAndPay}
+            onClick={handleAcceptTerms}
             disabled={!accepted || isProcessing}
             className="bg-primary text-white hover:bg-primary-dark"
           >
-            {isProcessing ? "Processing..." : "Accept and Proceed to Payment"}
+            {isProcessing ? "Processing..." : "Accept Terms and Conditions"}
           </Button>
         </div>
       </DialogContent>
