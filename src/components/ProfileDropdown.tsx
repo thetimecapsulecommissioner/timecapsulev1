@@ -89,7 +89,7 @@ export const ProfileDropdown = () => {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger disabled={isLoading}>
+        <DropdownMenuTrigger disabled={isLoading} className="bg-primary rounded-full">
           <Avatar>
             <AvatarImage 
               src={avatarUrl || "/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png"} 
@@ -103,27 +103,27 @@ export const ProfileDropdown = () => {
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => navigate("/profile")}>
+        <DropdownMenuContent className="bg-primary text-white">
+          <DropdownMenuItem onClick={() => navigate("/profile")} className="hover:bg-primary-light cursor-pointer">
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate("/competitions")}>
+          <DropdownMenuItem onClick={() => navigate("/competitions")} className="hover:bg-primary-light cursor-pointer">
             My Competitions
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="bg-primary-light" />
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Settings</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuItem onClick={() => setIsAvatarDialogOpen(true)}>
+            <DropdownMenuSubTrigger className="hover:bg-primary-light cursor-pointer">Settings</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="bg-primary text-white">
+              <DropdownMenuItem onClick={() => setIsAvatarDialogOpen(true)} className="hover:bg-primary-light cursor-pointer">
                 Update Avatar
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/profile")}>
+              <DropdownMenuItem onClick={() => navigate("/profile")} className="hover:bg-primary-light cursor-pointer">
                 Personal Details
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
+          <DropdownMenuSeparator className="bg-primary-light" />
+          <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="hover:bg-primary-light cursor-pointer">
             {isLoading ? "Logging out..." : "Logout"}
           </DropdownMenuItem>
         </DropdownMenuContent>

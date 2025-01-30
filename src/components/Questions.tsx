@@ -65,6 +65,7 @@ export const Questions = () => {
         predictions_count: count || 0
       };
     },
+    enabled: !!competitionId,
     staleTime: 0, // Always fetch fresh data for competition entry
     refetchInterval: 5000, // Refetch every 5 seconds
   });
@@ -87,6 +88,7 @@ export const Questions = () => {
           if (error) throw error;
           return data;
         },
+        staleTime: 0 // Always fetch fresh data
       });
     };
 
@@ -113,7 +115,14 @@ export const Questions = () => {
           .eq('competition_id', competitionId);
 
         // Invalidate queries to refresh data
-        queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
+        queryClient.invalidateQueries({ 
+          queryKey: ['competition-entry'],
+          exact: true 
+        });
+        queryClient.invalidateQueries({ 
+          queryKey: ['predictions'],
+          exact: true 
+        });
       }
     };
 
