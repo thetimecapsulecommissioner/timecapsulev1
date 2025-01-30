@@ -61,7 +61,7 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
       
       const commentMap: Record<number, string> = {};
       data?.forEach(comment => {
-        commentMap[comment.question_id] = comment.comment;
+        commentMap[comment.question_id] = comment.comment || '';
       });
       
       return commentMap;
@@ -113,13 +113,15 @@ export const PredictionForm = ({ questions, answeredQuestions }: PredictionFormP
 
       // Save comments
       for (const [questionId, comment] of Object.entries(comments)) {
-        if (comment) {
+        if (comment !== undefined) {
           const { error: commentError } = await supabase
             .from('prediction_comments')
             .upsert({
               user_id: user.id,
               question_id: parseInt(questionId),
               comment: comment
+            }, {
+              onConflict: 'user_id,question_id'
             });
 
           if (commentError) throw commentError;
