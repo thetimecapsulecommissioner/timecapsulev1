@@ -4,7 +4,6 @@ import { PredictionFormHeader } from "./PredictionFormHeader";
 import { PredictionList } from "./PredictionList";
 import { PredictionFormFooter } from "./PredictionFormFooter";
 import { SealPredictionDialog } from "./SealPredictionDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TermsDialog } from "../TermsDialog";
 
 interface PredictionFormContainerProps {
