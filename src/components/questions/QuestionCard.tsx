@@ -18,6 +18,7 @@ interface QuestionCardProps {
   points?: number;
   requiredAnswers?: number;
   onAnswerChange: (questionId: number, value: string[], responseOrder?: number) => void;
+  disabled?: boolean;
 }
 
 export const QuestionCard = ({ 
@@ -29,11 +30,14 @@ export const QuestionCard = ({
   responseCategory,
   points,
   requiredAnswers = 1,
-  onAnswerChange 
+  onAnswerChange,
+  disabled = false
 }: QuestionCardProps) => {
   const [selected, setSelected] = useState<string[]>(selectedAnswer);
 
   const handleAnswerChange = (value: string[], responseOrder?: number) => {
+    if (disabled) return;
+    
     if (["Multiple Choice", "AFL Teams", "AFL Players", "AFL Coaches"].includes(responseCategory || "")) {
       if (value.length <= requiredAnswers) {
         setSelected(value);
@@ -46,6 +50,10 @@ export const QuestionCard = ({
   };
 
   const renderAnswerInput = () => {
+    const commonProps = {
+      disabled: disabled
+    };
+
     switch (responseCategory) {
       case "AFL Teams":
         return (
@@ -53,6 +61,7 @@ export const QuestionCard = ({
             selected={selected}
             requiredAnswers={requiredAnswers}
             onAnswerChange={handleAnswerChange}
+            {...commonProps}
           />
         );
       case "AFL Players":
@@ -61,6 +70,7 @@ export const QuestionCard = ({
             selected={selected}
             requiredAnswers={requiredAnswers}
             onAnswerChange={handleAnswerChange}
+            {...commonProps}
           />
         );
       case "AFL Coaches":
@@ -69,6 +79,7 @@ export const QuestionCard = ({
             selected={selected}
             requiredAnswers={requiredAnswers}
             onAnswerChange={handleAnswerChange}
+            {...commonProps}
           />
         );
       case "Multiple Choice":
@@ -79,6 +90,7 @@ export const QuestionCard = ({
             selected={selected}
             requiredAnswers={requiredAnswers}
             onAnswerChange={handleAnswerChange}
+            {...commonProps}
           />
         );
       case "Number":
@@ -87,6 +99,7 @@ export const QuestionCard = ({
             options={options}
             selected={selected}
             onAnswerChange={handleAnswerChange}
+            {...commonProps}
           />
         );
       default:
@@ -96,6 +109,7 @@ export const QuestionCard = ({
             options={options}
             selected={selected}
             onAnswerChange={handleAnswerChange}
+            {...commonProps}
           />
         );
     }

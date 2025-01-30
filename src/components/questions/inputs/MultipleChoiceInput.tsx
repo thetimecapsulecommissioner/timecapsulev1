@@ -7,6 +7,7 @@ interface MultipleChoiceInputProps {
   selected: string[];
   requiredAnswers: number;
   onAnswerChange: (value: string[], responseOrder?: number) => void;
+  disabled?: boolean;
 }
 
 export const MultipleChoiceInput = ({ 
@@ -14,7 +15,8 @@ export const MultipleChoiceInput = ({
   options, 
   selected, 
   requiredAnswers,
-  onAnswerChange 
+  onAnswerChange,
+  disabled = false
 }: MultipleChoiceInputProps) => {
   return (
     <div className="space-y-3">
@@ -23,7 +25,10 @@ export const MultipleChoiceInput = ({
           <Checkbox
             id={`${id}-${option}`}
             checked={selected.includes(option)}
+            disabled={disabled}
             onCheckedChange={(checked) => {
+              if (disabled) return;
+              
               const currentIndex = selected.indexOf(option);
               let newSelected: string[];
               

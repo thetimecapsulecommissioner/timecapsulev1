@@ -6,13 +6,15 @@ interface RadioInputProps {
   options: string[];
   selected: string[];
   onAnswerChange: (value: string[]) => void;
+  disabled?: boolean;
 }
 
-export const RadioInput = ({ id, options, selected, onAnswerChange }: RadioInputProps) => {
+export const RadioInput = ({ id, options, selected, onAnswerChange, disabled = false }: RadioInputProps) => {
   return (
     <RadioGroup
       onValueChange={(value) => onAnswerChange([value])}
       value={selected[0]}
+      disabled={disabled}
     >
       <div className="space-y-3">
         {options.map((option) => (
