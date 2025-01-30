@@ -74,7 +74,12 @@ export const CompetitionButtons = ({
       }
 
       if (data?.url) {
+        console.log('Redirecting to checkout URL:', data.url);
+        // Use window.location.href for a full page redirect
         window.location.href = data.url;
+      } else {
+        console.error('No checkout URL received');
+        toast.error("Failed to start checkout process");
       }
     } catch (error) {
       console.error('Error accepting terms:', error);
