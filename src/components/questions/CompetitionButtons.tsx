@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { TermsDialog } from "./TermsDialog";
 import { AcceptTermsDialog } from "./AcceptTermsDialog";
@@ -6,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useCountdown } from "@/hooks/useCountdown";
+import { CountdownButton } from "./competition-buttons/CountdownButton";
+import { EntryButtons } from "./competition-buttons/EntryButtons";
 
 interface CompetitionButtonsProps {
   hasEntered: boolean;
@@ -97,56 +98,27 @@ export const CompetitionButtons = ({
   if (termsAccepted) {
     return (
       <div className="space-y-4 mt-12">
-        <Button
-          className="w-full h-16 flex justify-between items-center px-6 bg-mystical-100 hover:bg-mystical-200"
-        >
-          <span className="text-primary font-semibold w-48">Pre-Season Predictions</span>
-          <div className="flex-1 flex justify-center">
-            <span className={`px-3 py-1 rounded ${!preSeasonTime.expired ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
-              {!preSeasonTime.expired ? 'Open' : 'Closed'}
-            </span>
-          </div>
-          <span className="text-primary w-48 text-right">
-            {preSeasonTimeLeft}
-          </span>
-        </Button>
-
-        <Button
+        <CountdownButton
+          label="Pre-Season Predictions"
+          isOpen={!preSeasonTime.expired}
+          timeLeft={preSeasonTimeLeft}
+        />
+        <CountdownButton
+          label="Mid-Season Predictions"
+          isOpen={!midSeasonTime.expired}
+          timeLeft={midSeasonTimeLeft}
           disabled={!midSeasonTime.expired}
-          className="w-full h-16 flex justify-between items-center px-6 bg-mystical-100 hover:bg-mystical-200"
-        >
-          <span className="text-primary font-semibold w-48">Mid-Season Predictions</span>
-          <div className="flex-1 flex justify-center">
-            <span className={`px-3 py-1 rounded ${!midSeasonTime.expired ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
-              {!midSeasonTime.expired ? 'Open' : 'Closed'}
-            </span>
-          </div>
-          <span className="text-primary w-48 text-right">
-            {midSeasonTimeLeft}
-          </span>
-        </Button>
+        />
       </div>
     );
   }
 
   return (
     <>
-      <div className="flex gap-4 justify-center mb-12">
-        <Button
-          onClick={() => setShowAcceptTerms(true)}
-          variant="outline"
-          className="flex-1 border-secondary text-secondary hover:bg-secondary/10"
-        >
-          Enter this Competition
-        </Button>
-        <Button
-          onClick={() => setShowTerms(true)}
-          variant="outline"
-          className="flex-1 border-secondary text-secondary hover:bg-secondary/10"
-        >
-          Terms and Conditions
-        </Button>
-      </div>
+      <EntryButtons
+        onEnterClick={() => setShowAcceptTerms(true)}
+        onTermsClick={() => setShowTerms(true)}
+      />
 
       <TermsDialog open={showTerms} onOpenChange={setShowTerms} />
       <AcceptTermsDialog 

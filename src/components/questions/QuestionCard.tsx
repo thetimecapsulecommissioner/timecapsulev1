@@ -1,12 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
-import { AFLTeamSelect } from "./inputs/AFLTeamSelect";
-import { MultipleChoiceInput } from "./inputs/MultipleChoiceInput";
-import { NumberSelect } from "./inputs/NumberSelect";
-import { RadioInput } from "./inputs/RadioInput";
-import { AFLPlayerSelect } from "./inputs/AFLPlayerSelect";
-import { AFLCoachSelect } from "./inputs/AFLCoachSelect";
 import { QuestionHeader } from "./QuestionHeader";
+import { QuestionInput } from "./inputs/QuestionInput";
 
 interface QuestionCardProps {
   id: number;
@@ -49,72 +44,6 @@ export const QuestionCard = ({
     }
   };
 
-  const renderAnswerInput = () => {
-    const commonProps = {
-      disabled: disabled
-    };
-
-    switch (responseCategory) {
-      case "AFL Teams":
-        return (
-          <AFLTeamSelect
-            selected={selected}
-            requiredAnswers={requiredAnswers}
-            onAnswerChange={handleAnswerChange}
-            {...commonProps}
-          />
-        );
-      case "AFL Players":
-        return (
-          <AFLPlayerSelect
-            selected={selected}
-            requiredAnswers={requiredAnswers}
-            onAnswerChange={handleAnswerChange}
-            {...commonProps}
-          />
-        );
-      case "AFL Coaches":
-        return (
-          <AFLCoachSelect
-            selected={selected}
-            requiredAnswers={requiredAnswers}
-            onAnswerChange={handleAnswerChange}
-            {...commonProps}
-          />
-        );
-      case "Multiple Choice":
-        return (
-          <MultipleChoiceInput
-            id={id}
-            options={options}
-            selected={selected}
-            requiredAnswers={requiredAnswers}
-            onAnswerChange={handleAnswerChange}
-            {...commonProps}
-          />
-        );
-      case "Number":
-        return (
-          <NumberSelect
-            options={options}
-            selected={selected}
-            onAnswerChange={handleAnswerChange}
-            {...commonProps}
-          />
-        );
-      default:
-        return (
-          <RadioInput
-            id={id}
-            options={options}
-            selected={selected}
-            onAnswerChange={handleAnswerChange}
-            {...commonProps}
-          />
-        );
-    }
-  };
-
   return (
     <Card className="p-6 bg-mystical-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <QuestionHeader 
@@ -127,7 +56,15 @@ export const QuestionCard = ({
           Select {requiredAnswers} answers
         </p>
       )}
-      {renderAnswerInput()}
+      <QuestionInput
+        id={id}
+        responseCategory={responseCategory}
+        options={options}
+        selected={selected}
+        requiredAnswers={requiredAnswers}
+        onAnswerChange={handleAnswerChange}
+        disabled={disabled}
+      />
     </Card>
   );
 };
