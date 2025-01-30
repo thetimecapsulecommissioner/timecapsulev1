@@ -10,6 +10,8 @@ import { LoadingState } from "../ui/LoadingState";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AcceptTermsDialogProps {
   open: boolean;
@@ -20,6 +22,31 @@ interface AcceptTermsDialogProps {
 export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptTermsDialogProps) => {
   const { data: termsAndConditions, isLoading } = useTermsAndConditions();
   const [accepted, setAccepted] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePayment = async () => {
+    try {
+      setIsProcessing(true);
+      const { data, error } = await supabase.functions.invoke('create-checkout', {});
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Failed to initiate payment. Please try again.');
+      setIsProcessing(false);
+    }
+  };
+
+  const handleAcceptAndPay = async () => {
+    onAcceptTerms();
+    await handlePayment();
+  };
 
   if (isLoading) {
     return <LoadingState />;
@@ -77,11 +104,11 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
             </label>
           </div>
           <Button 
-            onClick={onAcceptTerms}
-            disabled={!accepted}
+            onClick={handleAcceptAndPay}
+            disabled={!accepted || isProcessing}
             className="bg-primary text-white hover:bg-primary-dark"
           >
-            Next
+            {isProcessing ? "Processing..." : "Accept and Proceed to Payment"}
           </Button>
         </div>
       </DialogContent>
