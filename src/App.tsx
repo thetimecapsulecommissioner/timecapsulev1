@@ -12,7 +12,14 @@ import About from "./pages/About";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -33,15 +40,19 @@ const App = () => {
   }, []);
 
   if (isLoggedIn === null) {
-    return null; // Initial loading state
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <BrowserRouter>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
           <Routes>
             {/* Public routes */}
             <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
@@ -61,8 +72,8 @@ const App = () => {
             {/* Root route */}
             <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
