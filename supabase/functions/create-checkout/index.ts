@@ -33,10 +33,11 @@ serve(async (req) => {
       throw new Error('No email found');
     }
 
-    // Initialize Stripe
+    // Initialize Stripe in test mode
     console.log('Initializing Stripe...');
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
       apiVersion: '2023-10-16',
+      typescript: true,
     });
 
     // Get competition ID from request body
@@ -47,7 +48,7 @@ serve(async (req) => {
       throw new Error('No competition ID provided');
     }
 
-    // Create the checkout session
+    // Create the checkout session with explicit test mode configuration
     console.log('Creating payment session...');
     const session = await stripe.checkout.sessions.create({
       customer_email: email,
@@ -63,6 +64,8 @@ serve(async (req) => {
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       submit_type: 'pay',
+      payment_method_types: ['card'],
+      currency: 'aud',
     });
 
     console.log('Payment session created:', session.id);
