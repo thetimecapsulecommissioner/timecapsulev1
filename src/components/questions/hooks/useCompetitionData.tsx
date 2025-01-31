@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export const useCompetitionData = () => {
   const { id: competitionId } = useParams();
@@ -9,12 +10,17 @@ export const useCompetitionData = () => {
   const queryClient = useQueryClient();
 
   // Get current user
-  const { data: userData } = useQuery({
+  const { data: userData, isError: userError } = useQuery({
     queryKey: ['current-user'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) {
+        toast.error("Authentication error. Please try logging in again.");
+        throw error;
+      }
       return user;
     },
+    retry: 1,
   });
 
   // Fetch questions
@@ -25,11 +31,15 @@ export const useCompetitionData = () => {
         .from('questions')
         .select('*')
         .order('id');
-      if (error) throw error;
+      if (error) {
+        toast.error("Failed to load questions");
+        throw error;
+      }
       return data;
     },
     enabled: !!userData?.id,
     staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 
   // Check competition entry
@@ -45,14 +55,20 @@ export const useCompetitionData = () => {
         .eq('competition_id', competitionId)
         .maybeSingle();
 
-      if (entryError) throw entryError;
+      if (entryError) {
+        toast.error("Failed to load competition entry");
+        throw entryError;
+      }
 
       const { count, error: countError } = await supabase
         .from('predictions')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userData.id);
 
-      if (countError) throw countError;
+      if (countError) {
+        toast.error("Failed to load predictions count");
+        throw countError;
+      }
 
       return {
         ...entryData,
@@ -62,6 +78,7 @@ export const useCompetitionData = () => {
     enabled: !!userData?.id && !!competitionId,
     staleTime: 0,
     refetchInterval: 5000,
+    retry: 2,
   });
 
   useEffect(() => {
@@ -74,20 +91,25 @@ export const useCompetitionData = () => {
   useEffect(() => {
     const updatePredictionCount = async () => {
       if (entry?.predictions_count !== undefined && competitionId && userData?.id) {
-        await supabase
-          .from('competition_entries')
-          .update({ responses_saved: entry.predictions_count })
-          .eq('user_id', userData.id)
-          .eq('competition_id', competitionId);
+        try {
+          await supabase
+            .from('competition_entries')
+            .update({ responses_saved: entry.predictions_count })
+            .eq('user_id', userData.id)
+            .eq('competition_id', competitionId);
 
-        queryClient.invalidateQueries({ 
-          queryKey: ['competition-entry', competitionId, userData.id],
-          exact: true 
-        });
-        queryClient.invalidateQueries({ 
-          queryKey: ['predictions', competitionId, userData.id],
-          exact: true 
-        });
+          queryClient.invalidateQueries({ 
+            queryKey: ['competition-entry', competitionId, userData.id],
+            exact: true 
+          });
+          queryClient.invalidateQueries({ 
+            queryKey: ['predictions', competitionId, userData.id],
+            exact: true 
+          });
+        } catch (error) {
+          console.error('Error updating prediction count:', error);
+          toast.error("Failed to update prediction count");
+        }
       }
     };
 
