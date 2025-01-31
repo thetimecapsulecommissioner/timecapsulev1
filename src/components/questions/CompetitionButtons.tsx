@@ -37,24 +37,9 @@ export const CompetitionButtons = ({
       setShowAcceptTerms(false);
       onEnterCompetition();
       
-      // Initiate payment process
-      const { data, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
-        body: { competitionId },
-      });
-
-      if (checkoutError) {
-        console.error('Error creating checkout session:', checkoutError);
-        toast.error("Failed to create checkout session");
-        return;
-      }
-
-      if (data?.url) {
-        console.log('Redirecting to checkout URL:', data.url);
-        window.location.href = data.url;
-      } else {
-        console.error('No checkout URL received');
-        toast.error("Failed to start checkout process");
-      }
+      // Temporarily skip payment process
+      toast.success("Terms accepted successfully");
+      
     } catch (error) {
       console.error('Error accepting terms:', error);
       toast.error("Failed to accept terms and conditions");
