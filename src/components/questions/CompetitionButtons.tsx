@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TermsDialog } from "./TermsDialog";
 import { AcceptTermsDialog } from "./AcceptTermsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useCountdown } from "@/hooks/useCountdown";
-import { CountdownButton } from "./competition-buttons/CountdownButton";
 import { EntryButtons } from "./competition-buttons/EntryButtons";
 
 interface CompetitionButtonsProps {
@@ -29,30 +28,6 @@ export const CompetitionButtons = ({
   const { formattedTimeLeft: preSeasonTimeLeft, timeLeft: preSeasonTime } = useCountdown(preSeasonDeadline);
   const { formattedTimeLeft: midSeasonTimeLeft, timeLeft: midSeasonTime } = useCountdown(midSeasonDeadline);
 
-  useEffect(() => {
-    const resetTermsAndPayment = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !competitionId) return;
-
-        // Reset terms_accepted to false for testing
-        const { error: updateError } = await supabase
-          .from('competition_entries')
-          .update({ terms_accepted: false })
-          .eq('user_id', user.id)
-          .eq('competition_id', competitionId);
-
-        if (updateError) throw updateError;
-
-      } catch (error) {
-        console.error('Error resetting terms:', error);
-        toast.error("Failed to reset terms acceptance status");
-      }
-    };
-    
-    resetTermsAndPayment();
-  }, [competitionId]);
-
   const handleAcceptTerms = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -75,7 +50,6 @@ export const CompetitionButtons = ({
 
       if (data?.url) {
         console.log('Redirecting to checkout URL:', data.url);
-        // Use window.location.href for a full page redirect
         window.location.href = data.url;
       } else {
         console.error('No checkout URL received');

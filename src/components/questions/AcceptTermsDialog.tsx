@@ -34,9 +34,14 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
 
       const { error } = await supabase
         .from('competition_entries')
-        .update({ terms_accepted: true })
-        .eq('user_id', user.id)
-        .eq('competition_id', competitionId);
+        .upsert({
+          user_id: user.id,
+          competition_id: competitionId,
+          terms_accepted: true,
+          testing_mode: false
+        }, {
+          onConflict: 'user_id,competition_id'
+        });
 
       if (error) throw error;
 
