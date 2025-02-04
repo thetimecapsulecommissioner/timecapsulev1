@@ -1,16 +1,15 @@
 import { ProfileDropdown } from "./ProfileDropdown";
 import { useCompetition } from "@/hooks/useCompetition";
-import { PredictionForm } from "./questions/PredictionForm";
 import { LoadingState } from "./ui/LoadingState";
 import { Logo } from "./navigation/Logo";
 import { useNavigate, useParams } from "react-router-dom";
-import { CompetitionButtons } from "./questions/CompetitionButtons";
 import { CompetitionHeader } from "./questions/CompetitionHeader";
 import { useCompetitionData } from "./questions/hooks/useCompetitionData";
 import { supabase } from "@/integrations/supabase/client";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useState } from "react";
-import { PredictionPhaseButtons } from "./questions/prediction-phase/PredictionPhaseButtons";
+import { PreEntryState } from "./questions/pre-entry/PreEntryState";
+import { PostEntryState } from "./questions/post-entry/PostEntryState";
 
 export const Questions = () => {
   const navigate = useNavigate();
@@ -53,50 +52,20 @@ export const Questions = () => {
         <div className="max-w-4xl mx-auto pt-20 px-4">
           <CompetitionHeader label={competition?.label || ''} />
 
-          {!hasEntered && (
-            <>
-              <CompetitionButtons
-                hasEntered={hasEntered}
-                onEnterCompetition={() => setHasEntered(true)}
-              />
-              <PredictionPhaseButtons
-                onPhaseSelect={(phase) => setSelectedPhase(phase)}
-                selectedPhase={selectedPhase}
-              />
-              {selectedPhase === 'pre-season' && questions && (
-                <>
-                  <h2 className="text-2xl font-bold text-secondary mb-8 text-center mt-8">
-                    Preview Questions
-                  </h2>
-                  <PredictionForm 
-                    questions={questions}
-                    answeredQuestions={0}
-                    readOnly={true}
-                  />
-                </>
-              )}
-            </>
-          )}
-
-          {hasEntered && (
-            <>
-              <PredictionPhaseButtons
-                onPhaseSelect={(phase) => setSelectedPhase(phase)}
-                selectedPhase={selectedPhase}
-              />
-              {selectedPhase === 'pre-season' && questions && (
-                <div className="mt-12">
-                  <h2 className="text-2xl font-bold text-secondary mb-8 text-center">
-                    Pre-Season Predictions
-                  </h2>
-                  <PredictionForm 
-                    questions={questions} 
-                    answeredQuestions={entry?.predictions_count || 0}
-                    readOnly={false}
-                  />
-                </div>
-              )}
-            </>
+          {!hasEntered ? (
+            <PreEntryState
+              questions={questions}
+              selectedPhase={selectedPhase}
+              onPhaseSelect={setSelectedPhase}
+              onEnterCompetition={() => setHasEntered(true)}
+            />
+          ) : (
+            <PostEntryState
+              questions={questions}
+              selectedPhase={selectedPhase}
+              onPhaseSelect={setSelectedPhase}
+              entry={entry}
+            />
           )}
         </div>
       </div>
