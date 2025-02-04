@@ -98,7 +98,7 @@ export const AFLPlayerSelect = ({
                   setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
-                className="w-full bg-white"
+                className="w-full bg-white placeholder:text-gray-500"
                 autoComplete="off"
                 disabled={disabled}
               />
