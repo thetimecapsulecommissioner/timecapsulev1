@@ -48,15 +48,21 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
             <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
               <SelectValue placeholder={isLoading ? "Loading players..." : "Select Player"} />
             </SelectTrigger>
-            <SelectContent className="bg-white">
-              <div className="p-2" onMouseDown={(e) => e.preventDefault()}>
+            <SelectContent 
+              className="bg-white"
+              onPointerDownOutside={(e) => e.preventDefault()}
+            >
+              <div 
+                className="p-2 sticky top-0 bg-white z-10" 
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.preventDefault()}
+              >
                 <Input
                   placeholder="Search players..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="mb-2"
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
+                  autoComplete="off"
                 />
               </div>
               <div className="max-h-[300px] overflow-y-auto">
