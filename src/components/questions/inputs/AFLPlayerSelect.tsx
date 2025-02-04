@@ -33,6 +33,10 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
     player.team.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleSearchClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <div className="space-y-3">
       {Array.from({ length: requiredAnswers }).map((_, index) => (
@@ -43,20 +47,22 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
               const newSelected = [...selected];
               newSelected[index] = value;
               onAnswerChange(newSelected.filter(Boolean));
+              setSearchTerm("");
             }}
           >
             <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
               <SelectValue placeholder={isLoading ? "Loading players..." : "Select Player"} />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              <div className="p-2" onMouseDown={(e) => e.preventDefault()}>
+              <div className="sticky top-0 p-2 bg-white z-10">
                 <Input
                   placeholder="Search players..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="mb-2"
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={handleSearchClick}
+                  onMouseDown={handleSearchClick}
+                  autoComplete="off"
                 />
               </div>
               <div className="max-h-[300px] overflow-y-auto">
