@@ -15,9 +15,12 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers, onAnswerChange }: A
       const { data, error } = await supabase
         .from('afl_players')
         .select('*')
-        .order('name');
+        .order('firstname');
       if (error) throw error;
-      return data;
+      return data.map(player => ({
+        ...player,
+        fullName: `${player.firstname} ${player.surname}`
+      }));
     },
   });
 
@@ -40,10 +43,10 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers, onAnswerChange }: A
               {players?.map((player) => (
                 <SelectItem 
                   key={player.id} 
-                  value={player.name}
+                  value={player.fullName}
                   className="text-gray-700 hover:bg-gray-100"
                 >
-                  {player.name} - {player.team} ({player.position || 'N/A'})
+                  {player.fullName} - {player.team} ({player.position || 'N/A'})
                 </SelectItem>
               ))}
             </SelectContent>

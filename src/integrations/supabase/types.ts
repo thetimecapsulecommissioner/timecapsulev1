@@ -53,26 +53,23 @@ export type Database = {
       }
       afl_coaches: {
         Row: {
-          created_at: string
+          firstname: string
           id: string
-          name: string
-          role: string | null
+          surname: string | null
           team: string
           updated_at: string
         }
         Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          role?: string | null
+          firstname: string
+          id: string
+          surname?: string | null
           team: string
-          updated_at?: string
+          updated_at: string
         }
         Update: {
-          created_at?: string
+          firstname?: string
           id?: string
-          name?: string
-          role?: string | null
+          surname?: string | null
           team?: string
           updated_at?: string
         }
@@ -80,26 +77,26 @@ export type Database = {
       }
       afl_players: {
         Row: {
-          created_at: string
+          firstname: string
           id: string
-          name: string
           position: string | null
+          surname: string
           team: string
           updated_at: string
         }
         Insert: {
-          created_at?: string
-          id?: string
-          name: string
+          firstname: string
+          id: string
           position?: string | null
+          surname: string
           team: string
           updated_at?: string
         }
         Update: {
-          created_at?: string
+          firstname?: string
           id?: string
-          name?: string
           position?: string | null
+          surname?: string
           team?: string
           updated_at?: string
         }

@@ -15,9 +15,12 @@ export const AFLCoachSelect = ({ selected, requiredAnswers, onAnswerChange }: AF
       const { data, error } = await supabase
         .from('afl_coaches')
         .select('*')
-        .order('name');
+        .order('firstname');
       if (error) throw error;
-      return data;
+      return data.map(coach => ({
+        ...coach,
+        fullName: `${coach.firstname} ${coach.surname}`
+      }));
     },
   });
 
@@ -40,10 +43,10 @@ export const AFLCoachSelect = ({ selected, requiredAnswers, onAnswerChange }: AF
               {coaches?.map((coach) => (
                 <SelectItem 
                   key={coach.id} 
-                  value={coach.name}
+                  value={coach.fullName}
                   className="text-gray-700 hover:bg-gray-100"
                 >
-                  {coach.name} - {coach.team} ({coach.role || 'N/A'})
+                  {coach.fullName} - {coach.team} ({coach.role || 'N/A'})
                 </SelectItem>
               ))}
             </SelectContent>
