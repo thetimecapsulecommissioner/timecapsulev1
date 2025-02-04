@@ -15,15 +15,24 @@ interface AFLPlayerSelectProps {
   disabled?: boolean;
 }
 
+interface Player {
+  id: string;
+  firstname: string;
+  surname: string;
+  team: string;
+  position: string | null;
+  fullName: string;
+}
+
 export const AFLPlayerSelect = ({ 
   selected = [], 
   requiredAnswers, 
   onAnswerChange,
   disabled = false 
 }: AFLPlayerSelectProps) => {
-  const [open, setOpen] = useState<boolean[]>(Array(requiredAnswers).fill(false));
+  const [openStates, setOpenStates] = useState<boolean[]>(Array(requiredAnswers).fill(false));
   
-  const { data: players = [], isLoading, error } = useQuery({
+  const { data: players, isLoading, error } = useQuery<Player[]>({
     queryKey: ['afl-players'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -36,18 +45,28 @@ export const AFLPlayerSelect = ({
         throw error;
       }
       
-      return data?.map(player => ({
+      return (data || []).map(player => ({
         ...player,
         fullName: `${player.firstname} ${player.surname}`
-      })) || [];
+      }));
     },
+    initialData: [],
   });
 
-  const toggleOpen = (index: number) => {
+  const handleToggle = (index: number) => {
     if (disabled || isLoading) return;
-    const newOpen = [...open];
-    newOpen[index] = !newOpen[index];
-    setOpen(newOpen);
+    setOpenStates(prev => {
+      const newStates = [...prev];
+      newStates[index] = !newStates[index];
+      return newStates;
+    });
+  };
+
+  const handleSelect = (index: number, playerName: string) => {
+    const newSelected = [...selected];
+    newSelected[index] = playerName;
+    onAnswerChange(newSelected.filter(Boolean));
+    handleToggle(index);
   };
 
   if (error) {
@@ -57,24 +76,24 @@ export const AFLPlayerSelect = ({
   return (
     <div className="space-y-3">
       {Array.from({ length: requiredAnswers }).map((_, index) => (
-        <Popover key={index} open={open[index]} onOpenChange={() => toggleOpen(index)}>
+        <Popover 
+          key={index} 
+          open={openStates[index]} 
+          onOpenChange={() => handleToggle(index)}
+        >
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               role="combobox"
-              aria-expanded={open[index]}
+              aria-expanded={openStates[index]}
               className="w-full justify-between"
               disabled={disabled || isLoading}
             >
-              {isLoading ? (
-                "Loading players..."
-              ) : (
-                selected[index] ? selected[index] : "Select player..."
-              )}
+              {selected[index] || "Select player..."}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
+          <PopoverContent className="w-full p-0" align="start">
             <Command>
               <CommandInput placeholder="Search players..." />
               <CommandEmpty>No player found.</CommandEmpty>
@@ -83,12 +102,7 @@ export const AFLPlayerSelect = ({
                   <CommandItem
                     key={player.id}
                     value={player.fullName}
-                    onSelect={() => {
-                      const newSelected = [...(selected || [])];
-                      newSelected[index] = player.fullName;
-                      onAnswerChange(newSelected.filter(Boolean));
-                      toggleOpen(index);
-                    }}
+                    onSelect={() => handleSelect(index, player.fullName)}
                   >
                     <Check
                       className={cn(
@@ -96,7 +110,7 @@ export const AFLPlayerSelect = ({
                         selected[index] === player.fullName ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    {player.fullName} - {player.team} ({player.position || 'N/A'})
+                    {player.fullName} - {player.team} {player.position ? `(${player.position})` : ''}
                   </CommandItem>
                 ))}
               </CommandGroup>
