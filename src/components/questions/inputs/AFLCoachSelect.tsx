@@ -46,7 +46,7 @@ export const AFLCoachSelect = ({ selected, requiredAnswers, onAnswerChange }: AF
                   value={coach.fullName}
                   className="text-gray-700 hover:bg-gray-100"
                 >
-                  {coach.fullName} - {coach.team} ({coach.role || 'N/A'})
+                  {coach.fullName} - {coach.team}
                 </SelectItem>
               ))}
             </SelectContent>
