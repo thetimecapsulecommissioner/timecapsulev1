@@ -1,4 +1,3 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -23,7 +22,7 @@ export const AFLPlayerSelect = ({
 }: AFLPlayerSelectProps) => {
   const [open, setOpen] = useState<boolean[]>(Array(requiredAnswers).fill(false));
   
-  const { data: players, isLoading } = useQuery({
+  const { data: players = [], isLoading } = useQuery({
     queryKey: ['afl-players'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -54,9 +53,13 @@ export const AFLPlayerSelect = ({
               role="combobox"
               aria-expanded={open[index]}
               className="w-full justify-between"
-              disabled={disabled}
+              disabled={disabled || isLoading}
             >
-              {selected[index] ? selected[index] : "Select player..."}
+              {isLoading ? (
+                "Loading players..."
+              ) : (
+                selected[index] ? selected[index] : "Select player..."
+              )}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -65,7 +68,7 @@ export const AFLPlayerSelect = ({
               <CommandInput placeholder="Search players..." />
               <CommandEmpty>No player found.</CommandEmpty>
               <CommandGroup className="max-h-[300px] overflow-y-auto">
-                {players?.map((player) => (
+                {players.map((player) => (
                   <CommandItem
                     key={player.id}
                     value={player.fullName}
