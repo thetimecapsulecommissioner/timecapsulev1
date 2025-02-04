@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface AFLPlayerSelectProps {
   selected: string[];
@@ -15,33 +16,43 @@ interface AFLPlayerSelectProps {
 }
 
 export const AFLPlayerSelect = ({ 
-  selected, 
+  selected = [], 
   requiredAnswers, 
   onAnswerChange,
   disabled = false 
 }: AFLPlayerSelectProps) => {
   const [open, setOpen] = useState<boolean[]>(Array(requiredAnswers).fill(false));
   
-  const { data: players = [], isLoading } = useQuery({
+  const { data: players = [], isLoading, error } = useQuery({
     queryKey: ['afl-players'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('afl_players')
         .select('*')
         .order('firstname');
-      if (error) throw error;
-      return data.map(player => ({
+      
+      if (error) {
+        toast.error("Failed to load players");
+        throw error;
+      }
+      
+      return data?.map(player => ({
         ...player,
         fullName: `${player.firstname} ${player.surname}`
-      }));
+      })) || [];
     },
   });
 
   const toggleOpen = (index: number) => {
+    if (disabled || isLoading) return;
     const newOpen = [...open];
     newOpen[index] = !newOpen[index];
     setOpen(newOpen);
   };
+
+  if (error) {
+    return <div className="text-red-500">Error loading players</div>;
+  }
 
   return (
     <div className="space-y-3">
@@ -73,7 +84,7 @@ export const AFLPlayerSelect = ({
                     key={player.id}
                     value={player.fullName}
                     onSelect={() => {
-                      const newSelected = [...selected];
+                      const newSelected = [...(selected || [])];
                       newSelected[index] = player.fullName;
                       onAnswerChange(newSelected.filter(Boolean));
                       toggleOpen(index);
