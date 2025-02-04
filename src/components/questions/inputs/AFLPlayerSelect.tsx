@@ -13,7 +13,7 @@ interface AFLPlayerSelectProps {
 export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange }: AFLPlayerSelectProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: players, isLoading } = useQuery({
+  const { data: players } = useQuery({
     queryKey: ['afl-players'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -47,7 +47,7 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
             }}
           >
             <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
-              <SelectValue placeholder={isLoading ? "Loading players..." : "Select Player"} />
+              <SelectValue placeholder="Select Player" />
             </SelectTrigger>
             <SelectContent 
               position="popper" 
@@ -61,6 +61,7 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full"
+                  autoComplete="off"
                 />
               </div>
               <div className="max-h-[300px] overflow-y-auto p-1">

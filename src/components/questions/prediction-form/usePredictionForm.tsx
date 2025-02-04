@@ -16,27 +16,33 @@ export const usePredictionForm = (questions: any[]) => {
   const { predictions, predictionsLoading, userData } = usePredictions();
   const { comments, handleCommentChange } = useComments(userData?.id);
 
+  const saveComment = async (questionId: number, comment: string) => {
+    if (!userData?.id) return;
+
+    const { error } = await supabase
+      .from('prediction_comments')
+      .upsert({
+        user_id: userData.id,
+        question_id: questionId,
+        comment: comment
+      }, {
+        onConflict: 'user_id,question_id'
+      });
+
+    if (error) throw error;
+  };
+
   const handleSaveResponses = async () => {
     try {
       setIsSaving(true);
       if (!userData?.id || !competitionId) return;
 
       // Save comments
-      for (const [questionId, comment] of Object.entries(comments)) {
-        if (comment !== undefined) {
-          const { error: commentError } = await supabase
-            .from('prediction_comments')
-            .upsert({
-              user_id: userData.id,
-              question_id: parseInt(questionId),
-              comment: comment
-            }, {
-              onConflict: 'user_id,question_id'
-            });
+      const commentPromises = Object.entries(comments).map(([questionId, comment]) => 
+        saveComment(parseInt(questionId), comment)
+      );
 
-          if (commentError) throw commentError;
-        }
-      }
+      await Promise.all(commentPromises);
 
       queryClient.invalidateQueries({ queryKey: ['predictions'] });
       queryClient.invalidateQueries({ queryKey: ['prediction-comments'] });
