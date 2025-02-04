@@ -33,11 +33,6 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
     player.team.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-    setSearchTerm(e.target.value);
-  };
-
   return (
     <div className="space-y-3">
       {Array.from({ length: requiredAnswers }).map((_, index) => (
@@ -54,12 +49,14 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
               <SelectValue placeholder={isLoading ? "Loading players..." : "Select Player"} />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              <div className="p-2" onClick={(e) => e.stopPropagation()}>
+              <div className="p-2" onMouseDown={(e) => e.preventDefault()}>
                 <Input
                   placeholder="Search players..."
                   value={searchTerm}
-                  onChange={handleSearchChange}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="mb-2"
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
                 />
               </div>
               <div className="max-h-[300px] overflow-y-auto">
