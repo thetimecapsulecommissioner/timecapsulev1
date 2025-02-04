@@ -85,7 +85,7 @@ export const Questions = () => {
                 selectedPhase={selectedPhase}
               />
               {selectedPhase === 'pre-season' && questions && (
-                <>
+                <div className="mt-12">
                   <h2 className="text-2xl font-bold text-secondary mb-8 text-center">
                     Pre-Season Predictions
                   </h2>
@@ -94,7 +94,7 @@ export const Questions = () => {
                     answeredQuestions={entry?.predictions_count || 0}
                     readOnly={false}
                   />
-                </>
+                </div>
               )}
             </>
           )}
