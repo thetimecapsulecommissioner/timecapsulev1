@@ -33,10 +33,6 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
     player.team.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSearchClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
   return (
     <div className="space-y-3">
       {Array.from({ length: requiredAnswers }).map((_, index) => (
@@ -53,24 +49,26 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers = 1, onAnswerChange 
             <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
               <SelectValue placeholder={isLoading ? "Loading players..." : "Select Player"} />
             </SelectTrigger>
-            <SelectContent className="bg-white">
-              <div className="sticky top-0 p-2 bg-white z-10">
+            <SelectContent 
+              position="popper" 
+              className="w-full bg-white"
+              sideOffset={5}
+            >
+              <div className="p-2 bg-white border-b">
                 <Input
+                  type="text"
                   placeholder="Search players..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="mb-2"
-                  onClick={handleSearchClick}
-                  onMouseDown={handleSearchClick}
-                  autoComplete="off"
+                  className="w-full"
                 />
               </div>
-              <div className="max-h-[300px] overflow-y-auto">
+              <div className="max-h-[300px] overflow-y-auto p-1">
                 {filteredPlayers?.map((player) => (
                   <SelectItem 
                     key={player.id} 
                     value={player.fullName}
-                    className="text-gray-700 hover:bg-gray-100"
+                    className="text-gray-700 hover:bg-gray-100 cursor-pointer"
                   >
                     {player.fullName} - {player.team}
                   </SelectItem>
