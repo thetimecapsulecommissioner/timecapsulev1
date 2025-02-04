@@ -75,7 +75,7 @@ export const AFLPlayerSelect = ({
         <div key={index} className="relative" ref={containerRef}>
           {selected[index] ? (
             <div className="flex items-center gap-2 p-2 bg-white border rounded-md">
-              <span className="flex-1">{selected[index]}</span>
+              <span className="flex-1 text-gray-900">{selected[index]}</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -98,7 +98,7 @@ export const AFLPlayerSelect = ({
                   setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
-                className="w-full bg-white placeholder:text-gray-500"
+                className="w-full bg-white text-gray-900 placeholder:text-gray-500 cursor-text p-3"
                 autoComplete="off"
                 disabled={disabled}
               />
@@ -109,7 +109,7 @@ export const AFLPlayerSelect = ({
                       {filteredPlayers.map((player) => (
                         <button
                           key={player.id}
-                          className="w-full px-2 py-1.5 text-left hover:bg-gray-100 rounded-sm"
+                          className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded-sm text-gray-900"
                           onClick={() => handlePlayerSelect(player.fullName, index)}
                           disabled={disabled}
                         >
