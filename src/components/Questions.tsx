@@ -9,6 +9,8 @@ import { CompetitionHeader } from "./questions/CompetitionHeader";
 import { useCompetitionData } from "./questions/hooks/useCompetitionData";
 import { supabase } from "@/integrations/supabase/client";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useState } from "react";
+import { PredictionPhaseButtons } from "./questions/prediction-phase/PredictionPhaseButtons";
 
 export const Questions = () => {
   const navigate = useNavigate();
@@ -22,6 +24,8 @@ export const Questions = () => {
     hasEntered,
     setHasEntered
   } = useCompetitionData();
+
+  const [selectedPhase, setSelectedPhase] = useState<'pre-season' | 'mid-season' | null>(null);
 
   const handleLogoClick = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -55,7 +59,11 @@ export const Questions = () => {
                 hasEntered={hasEntered}
                 onEnterCompetition={() => setHasEntered(true)}
               />
-              {questions && (
+              <PredictionPhaseButtons
+                onPhaseSelect={(phase) => setSelectedPhase(phase)}
+                selectedPhase={selectedPhase}
+              />
+              {selectedPhase === 'pre-season' && questions && (
                 <>
                   <h2 className="text-2xl font-bold text-secondary mb-8 text-center mt-8">
                     Preview Questions
@@ -70,16 +78,24 @@ export const Questions = () => {
             </>
           )}
 
-          {hasEntered && questions && (
+          {hasEntered && (
             <>
-              <h2 className="text-2xl font-bold text-secondary mb-8 text-center">
-                2025 AFL Time Capsule
-              </h2>
-              <PredictionForm 
-                questions={questions} 
-                answeredQuestions={entry?.predictions_count || 0}
-                readOnly={false}
+              <PredictionPhaseButtons
+                onPhaseSelect={(phase) => setSelectedPhase(phase)}
+                selectedPhase={selectedPhase}
               />
+              {selectedPhase === 'pre-season' && questions && (
+                <>
+                  <h2 className="text-2xl font-bold text-secondary mb-8 text-center">
+                    Pre-Season Predictions
+                  </h2>
+                  <PredictionForm 
+                    questions={questions} 
+                    answeredQuestions={entry?.predictions_count || 0}
+                    readOnly={false}
+                  />
+                </>
+              )}
             </>
           )}
         </div>
