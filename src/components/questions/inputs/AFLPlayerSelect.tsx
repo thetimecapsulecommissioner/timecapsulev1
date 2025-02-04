@@ -1,14 +1,28 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface AFLPlayerSelectProps {
   selected: string[];
   requiredAnswers: number;
   onAnswerChange: (value: string[]) => void;
+  disabled?: boolean;
 }
 
-export const AFLPlayerSelect = ({ selected, requiredAnswers, onAnswerChange }: AFLPlayerSelectProps) => {
+export const AFLPlayerSelect = ({ 
+  selected, 
+  requiredAnswers, 
+  onAnswerChange,
+  disabled = false 
+}: AFLPlayerSelectProps) => {
+  const [open, setOpen] = useState<boolean[]>(Array(requiredAnswers).fill(false));
+  
   const { data: players, isLoading } = useQuery({
     queryKey: ['afl-players'],
     queryFn: async () => {
@@ -24,34 +38,57 @@ export const AFLPlayerSelect = ({ selected, requiredAnswers, onAnswerChange }: A
     },
   });
 
+  const toggleOpen = (index: number) => {
+    const newOpen = [...open];
+    newOpen[index] = !newOpen[index];
+    setOpen(newOpen);
+  };
+
   return (
     <div className="space-y-3">
-      {Array.from({ length: requiredAnswers || 1 }).map((_, index) => (
-        <div key={index} className="w-full">
-          <Select
-            value={selected[index] || ""}
-            onValueChange={(value) => {
-              const newSelected = [...selected];
-              newSelected[index] = value;
-              onAnswerChange(newSelected.filter(Boolean));
-            }}
-          >
-            <SelectTrigger className="w-full bg-white text-gray-700 border-gray-300">
-              <SelectValue placeholder={isLoading ? "Loading players..." : "Select Player"} />
-            </SelectTrigger>
-            <SelectContent className="bg-white max-h-[300px]">
-              {players?.map((player) => (
-                <SelectItem 
-                  key={player.id} 
-                  value={player.fullName}
-                  className="text-gray-700 hover:bg-gray-100"
-                >
-                  {player.fullName} - {player.team} ({player.position || 'N/A'})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      {Array.from({ length: requiredAnswers }).map((_, index) => (
+        <Popover key={index} open={open[index]} onOpenChange={() => toggleOpen(index)}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open[index]}
+              className="w-full justify-between"
+              disabled={disabled}
+            >
+              {selected[index] ? selected[index] : "Select player..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0">
+            <Command>
+              <CommandInput placeholder="Search players..." />
+              <CommandEmpty>No player found.</CommandEmpty>
+              <CommandGroup className="max-h-[300px] overflow-y-auto">
+                {players?.map((player) => (
+                  <CommandItem
+                    key={player.id}
+                    value={player.fullName}
+                    onSelect={() => {
+                      const newSelected = [...selected];
+                      newSelected[index] = player.fullName;
+                      onAnswerChange(newSelected.filter(Boolean));
+                      toggleOpen(index);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selected[index] === player.fullName ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {player.fullName} - {player.team} ({player.position || 'N/A'})
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
       ))}
     </div>
   );
