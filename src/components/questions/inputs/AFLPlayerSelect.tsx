@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 
 interface AFLPlayerSelectProps {
@@ -89,32 +89,33 @@ export const AFLPlayerSelect = ({
               className="w-full justify-between"
               disabled={disabled || isLoading}
             >
-              {selected[index] || "Select player..."}
+              {isLoading ? "Loading players..." : (selected[index] || "Select player...")}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-full p-0" align="start">
-            <Command>
-              <CommandInput placeholder="Search players..." />
-              <CommandEmpty>No player found.</CommandEmpty>
-              <CommandGroup className="max-h-[300px] overflow-y-auto">
+          <PopoverContent className="w-[300px] p-0" align="start">
+            <ScrollArea className="h-[300px] p-1">
+              <div className="space-y-1">
                 {players.map((player) => (
-                  <CommandItem
+                  <Button
                     key={player.id}
-                    value={player.fullName}
-                    onSelect={() => handleSelect(index, player.fullName)}
+                    variant="ghost"
+                    className="w-full justify-start gap-2"
+                    onClick={() => handleSelect(index, player.fullName)}
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "h-4 w-4",
                         selected[index] === player.fullName ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    {player.fullName} - {player.team} {player.position ? `(${player.position})` : ''}
-                  </CommandItem>
+                    <span className="truncate">
+                      {player.fullName} - {player.team} {player.position ? `(${player.position})` : ''}
+                    </span>
+                  </Button>
                 ))}
-              </CommandGroup>
-            </Command>
+              </div>
+            </ScrollArea>
           </PopoverContent>
         </Popover>
       ))}
