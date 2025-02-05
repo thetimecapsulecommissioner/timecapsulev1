@@ -49,25 +49,25 @@ export const Navigation = () => {
             <NavigationLinks />
           </div>
           
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 items-center">
             {!isLoading && (
               isLoggedIn ? (
                 <ProfileDropdown />
               ) : (
-                <>
+                <div className="flex gap-2 flex-wrap justify-end">
                   <Button 
                     onClick={() => navigate("/register")}
-                    className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold whitespace-nowrap"
+                    className="bg-secondary hover:bg-secondary-light text-primary px-3 py-1.5 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold whitespace-nowrap"
                   >
-                    Begin Your Journey
+                    Begin Journey
                   </Button>
                   <Button 
                     onClick={() => navigate("/login")}
-                    className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
+                    className="bg-secondary hover:bg-secondary-light text-primary px-3 py-1.5 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
                   >
                     Log in
                   </Button>
-                </>
+                </div>
               )
             )}
           </div>

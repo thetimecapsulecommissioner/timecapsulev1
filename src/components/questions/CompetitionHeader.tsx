@@ -18,9 +18,9 @@ export const CompetitionHeader = ({ label, hasEntered }: CompetitionHeaderProps)
       <div className="bg-mystical-100 p-6 rounded-lg mb-8">
         <p className="text-primary text-lg text-center">
           {hasEntered ? (
-            "The Original AFL Time Capsule, focussed on finding out who truly is the biggest footy nuff! See the Pre-Season and Mid-Season Question buttons and instructions below. Pre-Season Questions due Wednesday 5th of March"
+            "The Original AFL Time Capsule, focussed on finding out who truly is the biggest footy nuff! See the Pre-Season and Mid-Season Question buttons and instructions below. Pre-Season Questions due Wednesday 5th of March."
           ) : (
-            "The Original AFL Time Capsule, focussed on finding out who truly is the biggest footy nuff! Click below to read the terms and conditions and enter this competition, to start making your predictions and put yourself in with a chance to win the prize-money and coveted Time Capsule Shield!"
+            "The Original AFL Time Capsule, focussed on finding out who truly is the biggest footy nuff! Click below to read the terms and conditions and enter this competition, to put yourself in with a chance to win the prize-money and coveted Time Capsule Shield!"
           )}
         </p>
       </div>
