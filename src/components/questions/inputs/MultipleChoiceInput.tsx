@@ -18,6 +18,16 @@ export const MultipleChoiceInput = ({
   onAnswerChange,
   disabled = false
 }: MultipleChoiceInputProps) => {
+  const isOptionDisabled = (option: string) => {
+    // Special handling for questions 25, 26, and 27
+    if ([25, 26, 27].includes(id)) {
+      // If the option is already selected and not in the current selection
+      return disabled || (selected.includes(option) ? false : selected.length >= requiredAnswers);
+    }
+    // Default behavior for other questions
+    return disabled || (selected.length >= requiredAnswers && !selected.includes(option));
+  };
+
   return (
     <div className="space-y-3">
       {options.map((option) => (
@@ -25,7 +35,7 @@ export const MultipleChoiceInput = ({
           <Checkbox
             id={`${id}-${option}`}
             checked={selected.includes(option)}
-            disabled={disabled || (selected.length >= requiredAnswers && !selected.includes(option))}
+            disabled={isOptionDisabled(option)}
             onCheckedChange={(checked) => {
               if (disabled) return;
               
