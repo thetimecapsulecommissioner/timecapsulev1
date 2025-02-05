@@ -21,8 +21,17 @@ export const MultipleChoiceInput = ({
   const isOptionDisabled = (option: string) => {
     // Special handling for questions 25, 26, and 27
     if ([25, 26, 27].includes(id)) {
-      // If the option is already selected and not in the current selection
-      return disabled || (selected.includes(option) ? false : selected.length >= requiredAnswers);
+      // Check if this option is already selected in the current selection
+      const isCurrentlySelected = selected.includes(option);
+      // If it's currently selected, allow it to be unchecked
+      if (isCurrentlySelected) {
+        return disabled;
+      }
+      // If we've reached the required number of answers, disable unselected options
+      if (selected.length >= requiredAnswers) {
+        return true;
+      }
+      return disabled;
     }
     // Default behavior for other questions
     return disabled || (selected.length >= requiredAnswers && !selected.includes(option));

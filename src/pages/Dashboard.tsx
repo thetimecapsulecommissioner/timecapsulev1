@@ -14,6 +14,7 @@ interface Competition {
 interface CompetitionWithStats extends Competition {
   predictions_made: number;
   total_entrants: number;
+  predictions_sealed: boolean;
 }
 
 const Dashboard = () => {
@@ -50,20 +51,18 @@ const Dashboard = () => {
       // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
         competitionsData.map(async (comp) => {
-          // Get total number of questions
-          const { count: totalQuestions } = await supabase
-            .from("questions")
-            .select("*", { count: 'exact', head: true });
-
-          // Get number of completed predictions for this user
+          // Get predictions for this user
           const { data: predictions } = await supabase
             .from("predictions")
-            .select("question_id")
+            .select("question_id, submitted")
             .eq("user_id", user.id);
 
           // Get unique question IDs that have been answered
           const uniqueAnsweredQuestions = new Set(predictions?.map(p => p.question_id));
           
+          // Check if predictions are sealed
+          const predictionsSealed = predictions?.some(p => p.submitted) || false;
+
           // Get total number of entrants
           const { data: entries } = await supabase
             .from("competition_entries")
@@ -73,8 +72,9 @@ const Dashboard = () => {
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
-            total_questions: totalQuestions || 0,
+            total_questions: comp.total_questions,
             total_entrants: entries?.length || 0,
+            predictions_sealed: predictionsSealed
           };
         })
       );
@@ -83,17 +83,24 @@ const Dashboard = () => {
     },
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Completed":
-        return "bg-green-100";
-      case "In Progress":
-        return "bg-yellow-100";
-      case "Not Started":
-        return "bg-red-100";
-      default:
-        return "bg-gray-100";
+  const getStatusColor = (competition: CompetitionWithStats) => {
+    if (competition.predictions_sealed) {
+      return "bg-green-100";
     }
+    if (competition.predictions_made > 0) {
+      return "bg-yellow-100";
+    }
+    return "bg-red-100";
+  };
+
+  const getStatusText = (competition: CompetitionWithStats) => {
+    if (competition.predictions_sealed) {
+      return "Completed";
+    }
+    if (competition.predictions_made > 0) {
+      return "In Progress";
+    }
+    return "Not Started";
   };
 
   if (isLoading) {
@@ -117,7 +124,7 @@ const Dashboard = () => {
               <div
                 key={competition.id}
                 onClick={() => navigate(`/competition/${competition.id}`)}
-                className={`${getStatusColor(competition.status)} 
+                className={`${getStatusColor(competition)} 
                   p-4 rounded-lg cursor-pointer hover:opacity-90 transition-opacity
                   grid grid-cols-4 gap-4 items-center`}
               >
@@ -131,7 +138,7 @@ const Dashboard = () => {
                   {competition.total_entrants} Entrants
                 </div>
                 <div className="text-gray-600">
-                  {competition.status}
+                  {getStatusText(competition)}
                 </div>
               </div>
             ))}
