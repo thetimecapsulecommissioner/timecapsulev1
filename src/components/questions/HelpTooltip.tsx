@@ -1,23 +1,44 @@
 import { HelpCircle } from "lucide-react";
 import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HelpTooltipProps {
   helpText: string;
 }
 
 export const HelpTooltip = ({ helpText }: HelpTooltipProps) => {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <Dialog>
+        <DialogTrigger>
+          <HelpCircle className="h-4 w-4 text-primary" />
+        </DialogTrigger>
+        <DialogContent className="w-[90vw] max-w-lg bg-white p-4">
+          <p className="text-sm text-gray-700 whitespace-pre-line">{helpText}</p>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Tooltip>
       <TooltipTrigger>
-        <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
+        <HelpCircle className="h-4 w-4 text-primary" />
       </TooltipTrigger>
       <TooltipContent 
         side="right" 
-        className="bg-white p-3 sm:p-4 max-w-[280px] sm:max-w-sm text-sm sm:text-base whitespace-pre-line"
+        className="bg-white p-3 max-w-[280px] text-sm whitespace-pre-line"
         sideOffset={5}
         align="start"
       >

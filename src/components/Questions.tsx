@@ -10,6 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { PreEntryState } from "./questions/pre-entry/PreEntryState";
 import { PostEntryState } from "./questions/post-entry/PostEntryState";
+import { KeyTile } from "./questions/KeyTile";
 
 export const Questions = () => {
   const navigate = useNavigate();
@@ -49,8 +50,9 @@ export const Questions = () => {
           <ProfileDropdown />
         </div>
         
-        <div className="max-w-4xl mx-auto pt-20 px-4">
+        <div className="max-w-4xl mx-auto pt-28 px-4 sm:pt-20">
           <CompetitionHeader label={competition?.label || ''} />
+          <KeyTile className="mb-8" />
 
           {!hasEntered ? (
             <PreEntryState
