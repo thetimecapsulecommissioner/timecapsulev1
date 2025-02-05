@@ -51,8 +51,10 @@ export const Questions = () => {
         </div>
         
         <div className="max-w-4xl mx-auto pt-28 px-4 sm:pt-20">
-          <CompetitionHeader label={competition?.label || ''} />
-          <KeyTile className="mb-8" />
+          <CompetitionHeader 
+            label={competition?.label || ''} 
+            hasEntered={hasEntered}
+          />
 
           {!hasEntered ? (
             <PreEntryState
@@ -68,6 +70,10 @@ export const Questions = () => {
               onPhaseSelect={setSelectedPhase}
               entry={entry}
             />
+          )}
+
+          {selectedPhase && (
+            <KeyTile className="mt-8 mb-8" />
           )}
         </div>
       </div>

@@ -10,11 +10,11 @@ export const PredictionPhaseButtons = ({
   onPhaseSelect,
   selectedPhase
 }: PredictionPhaseButtonsProps) => {
-  const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
+  const preSeasonDeadline = new Date('2025-03-05T18:00:00+11:00');
   const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
   const isPreSeasonOpen = !preSeasonTime.expired;
-  const isMidSeasonOpen = false; // Hardcoded to false until mid-season is ready
+  const isMidSeasonOpen = false;
 
   return (
     <div className="space-y-4 mt-8">

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { NavigationLinks } from "./navigation/NavigationLinks";
 import { Logo } from "./navigation/Logo";
+import { ScrollArea } from "./ui/scroll-area";
 
 export const Navigation = () => {
   const navigate = useNavigate();
@@ -41,35 +42,37 @@ export const Navigation = () => {
 
   return (
     <div className="fixed top-0 left-0 right-0 bg-primary z-50 shadow-md">
-      <div className="container mx-auto px-4 py-1 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <Logo onClick={handleLogoClick} />
-          <NavigationLinks />
+      <ScrollArea className="container mx-auto px-4 py-1">
+        <div className="flex justify-between items-center min-w-max">
+          <div className="flex items-center gap-4">
+            <Logo onClick={handleLogoClick} />
+            <NavigationLinks />
+          </div>
+          
+          <div className="flex gap-4 items-center">
+            {!isLoading && (
+              isLoggedIn ? (
+                <ProfileDropdown />
+              ) : (
+                <>
+                  <Button 
+                    onClick={() => navigate("/register")}
+                    className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold whitespace-nowrap"
+                  >
+                    Begin Your Journey
+                  </Button>
+                  <Button 
+                    onClick={() => navigate("/login")}
+                    className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
+                  >
+                    Log in
+                  </Button>
+                </>
+              )
+            )}
+          </div>
         </div>
-        
-        <div className="flex gap-4 items-center">
-          {!isLoading && (
-            isLoggedIn ? (
-              <ProfileDropdown />
-            ) : (
-              <>
-                <Button 
-                  onClick={() => navigate("/register")}
-                  className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
-                >
-                  Begin Your Journey
-                </Button>
-                <Button 
-                  onClick={() => navigate("/login")}
-                  className="bg-secondary hover:bg-secondary-light text-primary px-4 py-2 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold"
-                >
-                  Log in
-                </Button>
-              </>
-            )
-          )}
-        </div>
-      </div>
+      </ScrollArea>
     </div>
   );
 };
