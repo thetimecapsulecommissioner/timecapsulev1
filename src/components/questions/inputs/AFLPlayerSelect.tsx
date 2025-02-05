@@ -20,9 +20,8 @@ export const AFLPlayerSelect = ({
   disabled = false 
 }: AFLPlayerSelectProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const { data: players } = useQuery({
     queryKey: ['afl-players'],
@@ -40,14 +39,14 @@ export const AFLPlayerSelect = ({
   });
 
   const filteredPlayers = players?.filter(player => 
-    player.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    player.team.toLowerCase().includes(searchTerm.toLowerCase())
+    player.fullName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    !selected.includes(player.fullName) // Filter out already selected players
   );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+      if (!containerRefs.current.some(ref => ref?.contains(event.target as Node))) {
+        setActiveIndex(null);
       }
     };
 
@@ -56,11 +55,13 @@ export const AFLPlayerSelect = ({
   }, []);
 
   const handlePlayerSelect = (playerName: string, index: number) => {
-    const newSelected = [...selected];
-    newSelected[index] = playerName;
-    onAnswerChange(newSelected.filter(Boolean));
+    if (!selected.includes(playerName)) {
+      const newSelected = [...selected];
+      newSelected[index] = playerName;
+      onAnswerChange(newSelected.filter(Boolean));
+    }
     setSearchTerm("");
-    setIsOpen(false);
+    setActiveIndex(null);
   };
 
   const handleRemovePlayer = (index: number) => {
@@ -69,10 +70,20 @@ export const AFLPlayerSelect = ({
     onAnswerChange(newSelected);
   };
 
+  const handleInputFocus = (index: number) => {
+    if (!disabled) {
+      setActiveIndex(index);
+    }
+  };
+
   return (
     <div className="space-y-3">
       {Array.from({ length: requiredAnswers }).map((_, index) => (
-        <div key={index} className="relative" ref={containerRef}>
+        <div 
+          key={index} 
+          className="relative" 
+          ref={el => containerRefs.current[index] = el}
+        >
           {selected[index] ? (
             <div className="flex items-center gap-2 p-2 bg-white border rounded-md">
               <span className="flex-1 text-gray-900">{selected[index]}</span>
@@ -89,20 +100,16 @@ export const AFLPlayerSelect = ({
           ) : (
             <>
               <Input
-                ref={inputRef}
                 type="text"
                 placeholder="Search players..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setIsOpen(true);
-                }}
-                onFocus={() => setIsOpen(true)}
+                value={activeIndex === index ? searchTerm : ""}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => handleInputFocus(index)}
                 className="w-full bg-white text-gray-900 placeholder:text-gray-500 cursor-text p-3"
                 autoComplete="off"
                 disabled={disabled}
               />
-              {isOpen && filteredPlayers && filteredPlayers.length > 0 && (
+              {activeIndex === index && filteredPlayers && filteredPlayers.length > 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg">
                   <ScrollArea className="h-[200px]">
                     <div className="p-1">
