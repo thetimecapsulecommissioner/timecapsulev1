@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { useQuery } from "@tanstack/react-query";
+import { CompetitionCard } from "@/components/dashboard/CompetitionCard";
 
 interface Competition {
   id: string;
@@ -57,8 +58,12 @@ const Dashboard = () => {
             .select("question_id, submitted")
             .eq("user_id", user.id);
 
-          // Get unique question IDs that have been answered
-          const uniqueAnsweredQuestions = new Set(predictions?.map(p => p.question_id));
+          // Get unique question IDs that have been answered and not null
+          const uniqueAnsweredQuestions = new Set(
+            predictions
+              ?.filter(p => p.question_id !== null)
+              .map(p => p.question_id)
+          );
           
           // Check if predictions are sealed
           const predictionsSealed = predictions?.some(p => p.submitted) || false;
@@ -72,7 +77,7 @@ const Dashboard = () => {
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
-            total_questions: 29, // Set to the actual number of questions
+            total_questions: 29,
             total_entrants: entries?.length || 0,
             predictions_sealed: predictionsSealed
           };
@@ -83,26 +88,6 @@ const Dashboard = () => {
     },
   });
 
-  const getStatusColor = (competition: CompetitionWithStats) => {
-    if (competition.predictions_sealed) {
-      return "bg-green-100";
-    }
-    if (competition.predictions_made > 0) {
-      return "bg-yellow-100";
-    }
-    return "bg-red-100";
-  };
-
-  const getStatusText = (competition: CompetitionWithStats) => {
-    if (competition.predictions_sealed) {
-      return "Completed";
-    }
-    if (competition.predictions_made > 0) {
-      return "In Progress";
-    }
-    return "Not Started";
-  };
-
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
@@ -110,37 +95,26 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 pt-28">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-secondary">
+      <div className="container mx-auto px-4 pt-20 md:pt-28">
+        <div className="flex justify-between items-center mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-secondary">
             Hi, {firstName}
           </h1>
         </div>
         
-        <div className="bg-primary/10 rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-secondary">Competitions</h2>
-          <div className="space-y-4">
+        <div className="bg-primary/10 rounded-lg p-4 md:p-6">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-secondary">Competitions</h2>
+          <div className="space-y-3 md:space-y-4">
             {competitions.map((competition) => (
-              <div
+              <CompetitionCard
                 key={competition.id}
-                onClick={() => navigate(`/competition/${competition.id}`)}
-                className={`${getStatusColor(competition)} 
-                  p-4 rounded-lg cursor-pointer hover:opacity-90 transition-opacity
-                  grid grid-cols-4 gap-4 items-center`}
-              >
-                <div className="font-semibold text-gray-800">
-                  {competition.label}
-                </div>
-                <div className="text-gray-600">
-                  {competition.predictions_made}/{competition.total_questions} Predictions Made
-                </div>
-                <div className="text-gray-600">
-                  {competition.total_entrants} Entrants
-                </div>
-                <div className="text-gray-600">
-                  {getStatusText(competition)}
-                </div>
-              </div>
+                id={competition.id}
+                label={competition.label}
+                predictionsCount={competition.predictions_made}
+                totalQuestions={competition.total_questions}
+                totalEntrants={competition.total_entrants}
+                isSealed={competition.predictions_sealed}
+              />
             ))}
           </div>
         </div>
