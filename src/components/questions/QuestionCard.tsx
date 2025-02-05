@@ -56,6 +56,19 @@ export const QuestionCard = ({
           Select {requiredAnswers} answers
         </p>
       )}
+      {id === 14 && (
+        <div className="mb-4 text-gray-700">
+          <p>This is a complete list of all AFL Players, confirm whether they have made the All Australian Team before at the below link.</p>
+          <a 
+            href="https://www.afl.com.au/all-australian/history" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            All Previous All Australian Players
+          </a>
+        </div>
+      )}
       <QuestionInput
         id={id}
         responseCategory={responseCategory}
