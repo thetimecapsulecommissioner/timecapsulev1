@@ -5,8 +5,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface QuestionHeaderProps {
   question: string;
@@ -18,24 +18,17 @@ export const QuestionHeader = ({ question, helpText, points }: QuestionHeaderPro
   const isMobile = useIsMobile();
 
   const PointsDisplay = () => {
-    if (!points) return null;
-
-    const content = (
-      <div className="flex items-center space-x-1">
-        <div className="bg-primary text-white rounded-full h-5 w-5 flex items-center justify-center">
-          <Star className="h-3 w-3" />
-        </div>
-      </div>
-    );
-
-    const tooltipContent = `${points} Points`;
-
     if (isMobile) {
       return (
         <Dialog>
-          <DialogTrigger>{content}</DialogTrigger>
+          <DialogTrigger>
+            <div className="flex items-center gap-1">
+              <Star className="h-3 w-3" />
+              <span className="text-xs">{points}</span>
+            </div>
+          </DialogTrigger>
           <DialogContent className="w-[90vw] max-w-lg bg-white p-4">
-            <p className="text-sm text-gray-700">{tooltipContent}</p>
+            <p className="text-sm text-gray-700">Points available: {points}</p>
           </DialogContent>
         </Dialog>
       );
@@ -43,24 +36,27 @@ export const QuestionHeader = ({ question, helpText, points }: QuestionHeaderPro
 
     return (
       <Tooltip>
-        <TooltipTrigger>{content}</TooltipTrigger>
-        <TooltipContent 
-          side="right" 
-          className="bg-white p-3"
-          sideOffset={5}
-        >
-          <p className="text-sm text-gray-700">{tooltipContent}</p>
+        <TooltipTrigger>
+          <div className="flex items-center gap-1">
+            <Star className="h-3 w-3" />
+            <span className="text-xs">{points}</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="bg-white p-2">
+          <p className="text-sm text-gray-700">Points available: {points}</p>
         </TooltipContent>
       </Tooltip>
     );
   };
 
   return (
-    <div className="flex items-start mb-4">
-      <h3 className="text-xl font-semibold text-gray-700 flex-grow">{question}</h3>
-      <div className="flex items-start space-x-2 ml-2 flex-shrink-0">
+    <div className="flex items-start gap-2 mb-4">
+      <div className="flex-grow">
+        <h3 className="text-lg font-semibold text-gray-900">{question}</h3>
+      </div>
+      <div className="flex flex-col items-end gap-2">
         {helpText && <HelpTooltip helpText={helpText} />}
-        <PointsDisplay />
+        {points && <PointsDisplay />}
       </div>
     </div>
   );
