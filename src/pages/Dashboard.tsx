@@ -72,7 +72,7 @@ const Dashboard = () => {
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
-            total_questions: comp.total_questions,
+            total_questions: 29, // Set to the actual number of questions
             total_entrants: entries?.length || 0,
             predictions_sealed: predictionsSealed
           };

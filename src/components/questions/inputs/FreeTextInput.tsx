@@ -17,7 +17,7 @@ export const FreeTextInput = ({
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
       placeholder="Enter your response..."
-      className="w-full min-h-[100px]"
+      className="w-full min-h-[100px] bg-white text-gray-700 placeholder:text-gray-400"
     />
   );
 };
