@@ -41,6 +41,19 @@ export const PredictionList = ({
             onAnswerChange={onAnswerChange}
             disabled={isSubmitted || readOnly}
           />
+          {question.id === 14 && (
+            <div className="mt-2 text-gray-700">
+              <p>This is a complete list of all AFL Players, confirm whether they have made the All Australian Team before at the below link.</p>
+              <a 
+                href="https://www.afl.com.au/all-australian/history" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline"
+              >
+                All Previous All Australian Players
+              </a>
+            </div>
+          )}
           {!readOnly && (
             <Textarea
               placeholder="Add a comment about your response (optional)"
