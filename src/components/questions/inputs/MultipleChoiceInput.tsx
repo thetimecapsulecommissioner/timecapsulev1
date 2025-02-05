@@ -8,6 +8,7 @@ interface MultipleChoiceInputProps {
   requiredAnswers: number;
   onAnswerChange: (value: string[], responseOrder?: number) => void;
   disabled?: boolean;
+  allSelectedAnswers?: string[];
 }
 
 export const MultipleChoiceInput = ({ 
@@ -16,18 +17,21 @@ export const MultipleChoiceInput = ({
   selected, 
   requiredAnswers,
   onAnswerChange,
-  disabled = false
+  disabled = false,
+  allSelectedAnswers = []
 }: MultipleChoiceInputProps) => {
   const isOptionDisabled = (option: string) => {
     // Special handling for questions 25, 26, and 27
     if ([25, 26, 27].includes(id)) {
-      // Check if this option is already selected in the current selection
-      const isCurrentlySelected = selected.includes(option);
-      // If it's currently selected, allow it to be unchecked
-      if (isCurrentlySelected) {
+      // If this option is already selected in current selection, allow unchecking
+      if (selected.includes(option)) {
         return disabled;
       }
-      // If we've reached the required number of answers, disable unselected options
+      // If this option is selected in another response set, disable it
+      if (allSelectedAnswers.includes(option) && !selected.includes(option)) {
+        return true;
+      }
+      // If we've reached the required number of answers for this response set
       if (selected.length >= requiredAnswers) {
         return true;
       }

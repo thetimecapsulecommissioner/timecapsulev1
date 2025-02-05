@@ -4,6 +4,8 @@ import { NumberSelect } from "./NumberSelect";
 import { RadioInput } from "./RadioInput";
 import { AFLPlayerSelect } from "./AFLPlayerSelect";
 import { AFLCoachSelect } from "./AFLCoachSelect";
+import { FreeTextInput } from "./FreeTextInput";
+import { usePredictions } from "@/hooks/usePredictions";
 
 interface QuestionInputProps {
   id: number;
@@ -24,6 +26,14 @@ export const QuestionInput = ({
   onAnswerChange,
   disabled = false
 }: QuestionInputProps) => {
+  const { predictions } = usePredictions();
+  
+  // Get all selected answers for this question across all response orders
+  const getAllSelectedAnswers = (questionId: number): string[] => {
+    if (!predictions || !predictions[questionId]) return [];
+    return Object.values(predictions[questionId]).filter(Boolean) as string[];
+  };
+
   const commonProps = {
     disabled: disabled
   };
@@ -64,6 +74,7 @@ export const QuestionInput = ({
           selected={selected}
           requiredAnswers={requiredAnswers}
           onAnswerChange={onAnswerChange}
+          allSelectedAnswers={getAllSelectedAnswers(id)}
           {...commonProps}
         />
       );
@@ -73,6 +84,14 @@ export const QuestionInput = ({
           options={options}
           selected={selected}
           onAnswerChange={onAnswerChange}
+          {...commonProps}
+        />
+      );
+    case "Free Text":
+      return (
+        <FreeTextInput
+          value={selected[0] || ''}
+          onChange={(value) => onAnswerChange([value])}
           {...commonProps}
         />
       );
