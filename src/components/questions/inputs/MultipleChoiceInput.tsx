@@ -20,12 +20,12 @@ export const MultipleChoiceInput = ({
 }: MultipleChoiceInputProps) => {
   return (
     <div className="space-y-3">
-      {options.map((option, index) => (
+      {options.map((option) => (
         <div key={option} className="flex items-center space-x-2">
           <Checkbox
             id={`${id}-${option}`}
             checked={selected.includes(option)}
-            disabled={disabled}
+            disabled={disabled || (selected.length >= requiredAnswers && !selected.includes(option))}
             onCheckedChange={(checked) => {
               if (disabled) return;
               
@@ -33,8 +33,8 @@ export const MultipleChoiceInput = ({
               let newSelected: string[];
               
               if (checked) {
-                if (currentIndex === -1) {
-                  newSelected = [...selected, option].slice(0, requiredAnswers);
+                if (currentIndex === -1 && selected.length < requiredAnswers) {
+                  newSelected = [...selected, option];
                   onAnswerChange(newSelected, selected.length + 1);
                 }
               } else {
@@ -43,7 +43,12 @@ export const MultipleChoiceInput = ({
               }
             }}
           />
-          <Label htmlFor={`${id}-${option}`} className="text-gray-700">{option}</Label>
+          <Label 
+            htmlFor={`${id}-${option}`} 
+            className={`text-gray-700 ${disabled ? 'opacity-50' : ''}`}
+          >
+            {option}
+          </Label>
         </div>
       ))}
     </div>

@@ -109,6 +109,13 @@ export const usePredictionForm = (questions: any[]) => {
 
         if (error) throw error;
       } else {
+        // Delete existing predictions for this question
+        await supabase
+          .from('predictions')
+          .delete()
+          .eq('user_id', userData.id)
+          .eq('question_id', questionId);
+
         // Save multiple answers
         const upsertPromises = answers.map((answer, index) => 
           supabase
@@ -118,8 +125,6 @@ export const usePredictionForm = (questions: any[]) => {
               user_id: userData.id,
               answer,
               response_order: index + 1
-            }, {
-              onConflict: 'user_id,question_id,response_order'
             })
         );
 
