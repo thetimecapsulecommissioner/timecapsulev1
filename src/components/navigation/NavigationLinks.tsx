@@ -25,7 +25,7 @@ export const NavigationLinks = () => {
   }, []);
   
   const buttonClass = isMobile 
-    ? "text-secondary hover:text-secondary-light transition-colors text-sm w-full text-left py-2"
+    ? "text-secondary hover:text-secondary-light transition-colors text-sm w-full text-left py-2 pl-4"
     : "text-secondary hover:text-secondary-light transition-colors";
 
   return (

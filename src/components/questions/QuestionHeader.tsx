@@ -34,7 +34,7 @@ export const QuestionHeader = ({ question, helpText, points }: QuestionHeaderPro
           </DialogTrigger>
           <DialogContent className="w-[90vw] max-w-lg bg-white p-4">
             <div className="flex justify-end mb-2">
-              <X className="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer" />
+              <X className="h-5 w-5 text-gray-500 hover:text-gray-700 cursor-pointer" />
             </div>
             <p className="text-sm text-gray-700">{tooltipContent}</p>
           </DialogContent>
@@ -63,7 +63,7 @@ export const QuestionHeader = ({ question, helpText, points }: QuestionHeaderPro
   return (
     <div className="flex items-start mb-4">
       <h3 className="text-xl font-semibold text-gray-700 flex-grow">{question}</h3>
-      <div className="flex flex-col items-end space-y-2 ml-2">
+      <div className="flex flex-col items-center space-y-2 ml-2">
         {helpText && <HelpTooltip helpText={helpText} />}
         <PointsDisplay />
       </div>
