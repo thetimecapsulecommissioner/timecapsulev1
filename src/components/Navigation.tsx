@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -5,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { NavigationLinks } from "./navigation/NavigationLinks";
 import { Logo } from "./navigation/Logo";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "./ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Menu } from "lucide-react";
 import {
@@ -68,13 +69,36 @@ export const Navigation = () => {
               </div>
               {!isLoading && (
                 <div className="p-4">
-                  {isLoggedIn && <ProfileDropdown />}
+                  {isLoggedIn ? (
+                    <ProfileDropdown />
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <Button 
+                        onClick={() => {
+                          setIsOpen(false);
+                          navigate("/register");
+                        }}
+                        className="bg-secondary hover:bg-secondary-light text-primary px-3 py-1.5 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold whitespace-nowrap w-full"
+                      >
+                        Begin Journey
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          setIsOpen(false);
+                          navigate("/login");
+                        }}
+                        className="bg-secondary hover:bg-secondary-light text-primary px-3 py-1.5 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold w-full"
+                      >
+                        Log in
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           </SheetContent>
         </Sheet>
-        <div className="flex-1 flex justify-center -ml-8">
+        <div className="flex-1 flex justify-center">
           <Logo onClick={handleLogoClick} />
         </div>
         {isLoggedIn && (
