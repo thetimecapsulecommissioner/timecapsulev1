@@ -73,14 +73,24 @@ export const ProfileDropdown = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-primary text-white">
-        <DropdownMenuItem onClick={() => navigate("/profile")} className="hover:bg-primary-light cursor-pointer">
+        <DropdownMenuItem 
+          onClick={() => navigate("/profile")} 
+          className="hover:bg-primary-light cursor-pointer"
+        >
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/competitions")} className="hover:bg-primary-light cursor-pointer">
+        <DropdownMenuItem 
+          onClick={() => navigate("/competitions")} 
+          className="hover:bg-primary-light cursor-pointer"
+        >
           My Competitions
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-primary-light" />
-        <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="hover:bg-primary-light cursor-pointer">
+        <DropdownMenuItem 
+          onClick={handleLogout} 
+          disabled={isLoading} 
+          className="hover:bg-primary-light cursor-pointer"
+        >
           {isLoading ? "Logging out..." : "Logout"}
         </DropdownMenuItem>
       </DropdownMenuContent>
