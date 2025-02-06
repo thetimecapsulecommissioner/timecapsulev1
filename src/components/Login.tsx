@@ -43,9 +43,18 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-primary px-4">
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-sm mx-4 animate-fade-in">
-        <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-6 text-center">Login to Time Capsule</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-primary">Login</h2>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/")}
+            className="text-primary hover:text-primary-dark"
+          >
+            Return Home
+          </Button>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>

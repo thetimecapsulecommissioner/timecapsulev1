@@ -10,6 +10,7 @@ import { Login } from "./components/Login";
 import { Questions } from "./components/Questions";
 import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
+import Contact from "./pages/Contact";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -59,6 +60,8 @@ const App = () => {
             <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
             <Route path="/login" element={!isLoggedIn ? <Login /> : <Navigate to="/dashboard" />} />
             <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/sporting-clubs" element={<div>Sporting Clubs (Coming Soon)</div>} />
             
             {/* Protected routes */}
             <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
@@ -66,8 +69,6 @@ const App = () => {
             <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
             <Route path="/profile" element={isLoggedIn ? <div>Profile Page (Coming Soon)</div> : <Navigate to="/login" />} />
             <Route path="/competitions" element={isLoggedIn ? <div>Competitions Page (Coming Soon)</div> : <Navigate to="/login" />} />
-            <Route path="/sporting-clubs" element={isLoggedIn ? <div>Sporting Clubs (Coming Soon)</div> : <Navigate to="/login" />} />
-            <Route path="/contact" element={isLoggedIn ? <div>Contact (Coming Soon)</div> : <Navigate to="/login" />} />
             
             {/* Root route */}
             <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />

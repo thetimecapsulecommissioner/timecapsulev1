@@ -39,6 +39,24 @@ export type Database = {
         }
         Relationships: []
       }
+      administrators: {
+        Row: {
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       "AFL Clubs": {
         Row: {
           "AFL Club Name": string
@@ -173,6 +191,24 @@ export type Database = {
           status?: string
           total_questions?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      instagram_credentials: {
+        Row: {
+          api_key: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string | null
+          id?: string
         }
         Relationships: []
       }
