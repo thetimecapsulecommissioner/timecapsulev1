@@ -1,3 +1,4 @@
+
 import { HelpCircle, X } from "lucide-react";
 import {
   Dialog,
@@ -26,7 +27,7 @@ export const HelpTooltip = ({ helpText }: HelpTooltipProps) => {
         </DialogTrigger>
         <DialogContent className="w-[90vw] max-w-lg bg-white p-4">
           <div className="flex justify-end mb-2">
-            <X className="h-5 w-5 text-primary hover:text-primary-dark transition-colors cursor-pointer" />
+            <X className="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer" />
           </div>
           <p className="text-sm text-gray-700 whitespace-pre-line">{helpText}</p>
         </DialogContent>

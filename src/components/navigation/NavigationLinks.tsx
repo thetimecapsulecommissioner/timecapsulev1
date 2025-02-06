@@ -1,10 +1,13 @@
+
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const NavigationLinks = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -21,35 +24,27 @@ export const NavigationLinks = () => {
     return () => subscription.unsubscribe();
   }, []);
   
+  const buttonClass = isMobile 
+    ? "text-secondary hover:text-secondary-light transition-colors text-sm w-full text-left py-2"
+    : "text-secondary hover:text-secondary-light transition-colors";
+
   return (
-    <nav className="flex gap-6 ml-5">
-      <button 
-        onClick={() => navigate(isLoggedIn ? "/dashboard" : "/")} 
-        className="text-secondary hover:text-secondary-light transition-colors"
-      >
-        Home
-      </button>
+    <nav className={`flex ${isMobile ? 'flex-col' : 'gap-6 ml-5'}`}>
       <button 
         onClick={() => navigate("/about")} 
-        className="text-secondary hover:text-secondary-light transition-colors"
+        className={buttonClass}
       >
         About
       </button>
       <button 
-        onClick={() => navigate("/leaderboard")} 
-        className="text-secondary hover:text-secondary-light transition-colors"
+        onClick={() => navigate("/sporting-clubs")} 
+        className={buttonClass}
       >
-        Leaderboard
-      </button>
-      <button 
-        onClick={() => navigate("/community-groups")} 
-        className="text-secondary hover:text-secondary-light transition-colors"
-      >
-        Community Groups
+        Sporting Clubs
       </button>
       <button 
         onClick={() => navigate("/contact")} 
-        className="text-secondary hover:text-secondary-light transition-colors"
+        className={buttonClass}
       >
         Contact
       </button>

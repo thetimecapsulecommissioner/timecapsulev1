@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRegistration } from "@/hooks/useRegistration";
@@ -11,9 +12,9 @@ export const RegisterForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md animate-fade-in">
-        <h2 className="text-3xl font-bold text-primary mb-6 text-center">Join Time Capsule</h2>
+    <div className="min-h-screen flex items-center justify-center bg-primary px-4">
+      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-sm mx-4 animate-fade-in">
+        <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-6 text-center">Join Time Capsule</h2>
         <ScrollArea className="h-[400px] pr-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <RegistrationFields

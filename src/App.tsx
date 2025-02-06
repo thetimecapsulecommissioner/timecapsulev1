@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -65,8 +66,7 @@ const App = () => {
             <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
             <Route path="/profile" element={isLoggedIn ? <div>Profile Page (Coming Soon)</div> : <Navigate to="/login" />} />
             <Route path="/competitions" element={isLoggedIn ? <div>Competitions Page (Coming Soon)</div> : <Navigate to="/login" />} />
-            <Route path="/leaderboard" element={isLoggedIn ? <div>Leaderboard (Coming Soon)</div> : <Navigate to="/login" />} />
-            <Route path="/community-groups" element={isLoggedIn ? <div>Community Groups (Coming Soon)</div> : <Navigate to="/login" />} />
+            <Route path="/sporting-clubs" element={isLoggedIn ? <div>Sporting Clubs (Coming Soon)</div> : <Navigate to="/login" />} />
             <Route path="/contact" element={isLoggedIn ? <div>Contact (Coming Soon)</div> : <Navigate to="/login" />} />
             
             {/* Root route */}
