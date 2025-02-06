@@ -274,8 +274,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          afl_team: string | null
           avatar_url: string | null
           created_at: string
+          display_name: string
           email: string | null
           first_name: string | null
           id: string
@@ -288,8 +290,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          afl_team?: string | null
           avatar_url?: string | null
           created_at?: string
+          display_name: string
           email?: string | null
           first_name?: string | null
           id: string
@@ -302,8 +306,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          afl_team?: string | null
           avatar_url?: string | null
           created_at?: string
+          display_name?: string
           email?: string | null
           first_name?: string | null
           id?: string
