@@ -12,6 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import SportingClubs from "./pages/SportingClubs";
+import Profile from "./pages/Profile";
+import Competitions from "./pages/Competitions";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -68,8 +70,8 @@ const App = () => {
             <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
             <Route path="/questions" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
             <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
-            <Route path="/profile" element={isLoggedIn ? <div>Profile Page (Coming Soon)</div> : <Navigate to="/login" />} />
-            <Route path="/competitions" element={isLoggedIn ? <div>Competitions Page (Coming Soon)</div> : <Navigate to="/login" />} />
+            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
+            <Route path="/competitions" element={isLoggedIn ? <Competitions /> : <Navigate to="/login" />} />
             
             {/* Root route */}
             <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
