@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -15,7 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-export const Navigation = () => {
+const Navigation = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -129,7 +128,7 @@ export const Navigation = () => {
                     onClick={() => navigate("/register")}
                     className="bg-secondary hover:bg-secondary-light text-primary px-3 py-1.5 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold whitespace-nowrap"
                   >
-                    Begin Journey
+                    Begin your Journey
                   </Button>
                   <Button 
                     onClick={() => navigate("/login")}
@@ -146,3 +145,5 @@ export const Navigation = () => {
     </div>
   );
 };
+
+export { Navigation };

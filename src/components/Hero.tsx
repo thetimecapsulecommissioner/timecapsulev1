@@ -14,12 +14,12 @@ export const Hero = () => {
       <Navigation />
       
       {isMobile && (
-        <div className="w-full px-4 pt-20 flex justify-center gap-4">
+        <div className="w-full px-4 mt-24 mb-8 flex justify-center gap-4">
           <Button 
             onClick={() => navigate("/register")}
             className="bg-secondary hover:bg-secondary-light text-primary px-3 py-1.5 text-sm rounded-lg transition-all duration-300 animate-slide-up font-bold whitespace-nowrap"
           >
-            Begin Journey
+            Begin your Journey
           </Button>
           <Button 
             onClick={() => navigate("/login")}
