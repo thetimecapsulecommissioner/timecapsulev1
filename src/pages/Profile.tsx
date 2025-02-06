@@ -83,6 +83,7 @@ const Profile = () => {
               url={profile.avatar_url}
               onUpload={(url) => {
                 setProfile({ ...profile, avatar_url: url });
+                handleUpdate();
               }}
             />
           </div>

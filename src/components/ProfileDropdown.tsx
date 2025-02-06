@@ -61,8 +61,8 @@ export const ProfileDropdown = () => {
       <DropdownMenuTrigger disabled={isLoading} className="bg-primary rounded-full">
         <Avatar>
           <AvatarImage 
-            src={avatarUrl || "/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png"} 
-            alt="Profile" 
+            src={avatarUrl} 
+            alt="Profile"
           />
           <AvatarFallback>
             <img 
