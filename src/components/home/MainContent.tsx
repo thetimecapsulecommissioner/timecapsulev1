@@ -6,7 +6,7 @@ export const MainContent = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex-1 text-center px-4 max-w-4xl mx-auto">
+    <div className="flex-1 text-center px-4 max-w-4xl mx-auto mt-16 sm:mt-0">
       <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-secondary mb-6">
         The Time Capsule
       </h1>
