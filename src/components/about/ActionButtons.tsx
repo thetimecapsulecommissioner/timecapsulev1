@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -23,9 +24,9 @@ export const ActionButtons = () => {
       <Button 
         variant="secondary" 
         className="text-primary font-semibold"
-        onClick={() => navigate('/register-group')}
+        onClick={() => navigate('/sporting-clubs')}
       >
-        Register your community group
+        Register your sporting club
       </Button>
     </div>
   );
