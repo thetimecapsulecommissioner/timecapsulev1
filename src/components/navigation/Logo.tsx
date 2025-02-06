@@ -11,3 +11,4 @@ export const Logo = ({ onClick }: LogoProps) => (
     onClick={onClick}
   />
 );
+

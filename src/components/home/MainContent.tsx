@@ -9,7 +9,7 @@ export const MainContent = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex-1 px-4 max-w-7xl mx-auto mt-1 sm:mt-[125px]">
+    <div className="flex-1 px-4 max-w-7xl mx-auto mt-1 sm:mt-[150px]">
       <div className="flex flex-col sm:flex-row gap-8">
         <div className="flex-1 text-center sm:text-left sm:w-2/3">
           <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-secondary mb-6">
@@ -35,4 +35,3 @@ export const MainContent = () => {
     </div>
   );
 };
-
