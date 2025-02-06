@@ -14,11 +14,13 @@ const SportingClubs = () => {
           <h1 className="text-4xl font-bold text-secondary mb-8 text-center">Sporting Clubs</h1>
           
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img 
-              src="/lovable-uploads/27ba3fc3-f308-4053-a44a-840ea83e01f4.png" 
-              alt="Community Sports Event"
-              className="w-full h-96 object-cover"
-            />
+            <div className="relative h-[500px] w-full">
+              <img 
+                src="/lovable-uploads/42fc1dc7-689f-44cd-ae5b-e0c872c19f05.png" 
+                alt="Community Sports Event"
+                className="w-full h-full object-cover"
+              />
+            </div>
             
             <div className="p-6">
               <div className="prose prose-lg max-w-none text-gray-700">
