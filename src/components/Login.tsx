@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { X } from "lucide-react";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -52,9 +51,8 @@ export const Login = () => {
             variant="ghost" 
             onClick={() => navigate("/")}
             className="text-primary hover:text-primary-dark"
-            size="icon"
           >
-            <X className="h-5 w-5" />
+            Return Home
           </Button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
