@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -34,11 +35,20 @@ export const useDashboardData = () => {
       // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
         competitionsData.map(async (comp) => {
+          // Get competition entry status
+          const { data: entry } = await supabase
+            .from("competition_entries")
+            .select("status")
+            .eq("user_id", user.id)
+            .eq("competition_id", comp.id)
+            .maybeSingle();
+
           // Get predictions for this user
           const { data: predictions } = await supabase
             .from("predictions")
-            .select("question_id, submitted")
+            .select("question_id")
             .eq("user_id", user.id)
+            .eq("submitted", true)
             .not('question_id', 'is', null);
 
           // Get unique question IDs that have been answered
@@ -46,8 +56,8 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
           
-          // Check if predictions are sealed
-          const predictionsSealed = predictions?.some(p => p.submitted) || false;
+          // Check if entry is in submitted state
+          const isSealed = entry?.status === 'Submitted';
 
           // Get total number of entrants
           const { data: entries } = await supabase
@@ -60,7 +70,7 @@ export const useDashboardData = () => {
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
             total_entrants: entries?.length || 0,
-            predictions_sealed: predictionsSealed
+            predictions_sealed: isSealed
           };
         })
       );
