@@ -1,9 +1,9 @@
+
 import { useState } from "react";
 import { TermsDialog } from "./TermsDialog";
 import { AcceptTermsDialog } from "./AcceptTermsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useParams } from "react-router-dom";
-import { toast } from "sonner";
 import { useCountdown } from "@/hooks/useCountdown";
 import { EntryButtons } from "./competition-buttons/EntryButtons";
 
@@ -18,7 +18,6 @@ export const CompetitionButtons = ({
 }: CompetitionButtonsProps) => {
   const [showTerms, setShowTerms] = useState(false);
   const [showAcceptTerms, setShowAcceptTerms] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const { id: competitionId } = useParams();
 
   // Define deadlines
@@ -33,16 +32,10 @@ export const CompetitionButtons = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !competitionId) return;
 
-      setTermsAccepted(true);
       setShowAcceptTerms(false);
       onEnterCompetition();
-      
-      // Temporarily skip payment process
-      toast.success("Terms accepted successfully");
-      
     } catch (error) {
       console.error('Error accepting terms:', error);
-      toast.error("Failed to accept terms and conditions");
     }
   };
 

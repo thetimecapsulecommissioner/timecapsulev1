@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -32,7 +33,8 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !competitionId) return;
 
-      const { error } = await supabase
+      // Create competition entry with terms accepted
+      const { error: entryError } = await supabase
         .from('competition_entries')
         .upsert({
           user_id: user.id,
@@ -43,12 +45,29 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
           onConflict: 'user_id,competition_id'
         });
 
-      if (error) throw error;
+      if (entryError) throw entryError;
+
+      // Create Stripe checkout session
+      const { data: sessionData, error: checkoutError } = await supabase.functions.invoke(
+        'create-checkout',
+        {
+          body: { competitionId }
+        }
+      );
+
+      if (checkoutError) throw checkoutError;
+
+      if (sessionData?.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = sessionData.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
 
       onAcceptTerms();
     } catch (error) {
-      console.error('Error accepting terms:', error);
-      toast.error("Failed to accept terms and conditions");
+      console.error('Error processing terms and payment:', error);
+      toast.error("Failed to process terms and payment");
     } finally {
       setIsProcessing(false);
     }
