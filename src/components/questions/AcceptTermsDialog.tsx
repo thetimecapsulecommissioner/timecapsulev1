@@ -31,23 +31,43 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
     try {
       setIsProcessing(true);
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !competitionId) return;
+      if (!user || !competitionId) {
+        toast.error("User or competition not found");
+        return;
+      }
 
-      // Create competition entry with terms accepted
+      // First, check if entry exists and get its status
+      const { data: existingEntry, error: entryCheckError } = await supabase
+        .from('competition_entries')
+        .select('status')
+        .eq('user_id', user.id)
+        .eq('competition_id', competitionId)
+        .maybeSingle();
+
+      if (entryCheckError) {
+        console.error('Error checking competition entry:', entryCheckError);
+        throw entryCheckError;
+      }
+
+      // Create or update competition entry
       const { error: entryError } = await supabase
         .from('competition_entries')
         .upsert({
           user_id: user.id,
           competition_id: competitionId,
           terms_accepted: true,
-          testing_mode: false
+          testing_mode: false,
+          status: existingEntry?.status || 'Not Started'
         }, {
           onConflict: 'user_id,competition_id'
         });
 
-      if (entryError) throw entryError;
+      if (entryError) {
+        console.error('Error creating/updating entry:', entryError);
+        throw entryError;
+      }
 
-      // Create Stripe checkout session
+      console.log('Creating Stripe checkout session...');
       const { data: sessionData, error: checkoutError } = await supabase.functions.invoke(
         'create-checkout',
         {
@@ -55,10 +75,12 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
         }
       );
 
-      if (checkoutError) throw checkoutError;
+      if (checkoutError) {
+        console.error('Checkout error:', checkoutError);
+        throw checkoutError;
+      }
 
       if (sessionData?.url) {
-        // Redirect to Stripe Checkout
         window.location.href = sessionData.url;
       } else {
         throw new Error('No checkout URL received');
@@ -67,7 +89,7 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
       onAcceptTerms();
     } catch (error) {
       console.error('Error processing terms and payment:', error);
-      toast.error("Failed to process terms and payment");
+      toast.error("Failed to process terms and payment. Please try again.");
     } finally {
       setIsProcessing(false);
     }
