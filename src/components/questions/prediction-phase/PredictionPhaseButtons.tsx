@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CountdownButton } from "../competition-buttons/CountdownButton";
+import { usePredictions } from "@/hooks/usePredictions";
 
 interface PredictionPhaseButtonsProps {
   onPhaseSelect: (phase: 'pre-season' | 'mid-season') => void;
@@ -17,6 +18,7 @@ export const PredictionPhaseButtons = ({
 }: PredictionPhaseButtonsProps) => {
   const navigate = useNavigate();
   const { id: competitionId } = useParams();
+  const { isSubmitted } = usePredictions();
   const preSeasonDeadline = new Date('2025-03-05T18:00:00+11:00');
   const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
@@ -24,27 +26,6 @@ export const PredictionPhaseButtons = ({
   const isMidSeasonOpen = false;
 
   const handlePreSeasonSelect = async () => {
-    if (!isPreSeasonOpen) {
-      toast.error("Pre-season predictions are now closed");
-      return;
-    }
-
-    if (preSeasonTime.expired) {
-      // Auto-seal any unsaved predictions
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && competitionId) {
-        await supabase
-          .from('competition_entries')
-          .update({ status: 'Submitted' })
-          .eq('user_id', user.id)
-          .eq('competition_id', competitionId);
-        
-        toast.success("Pre-season predictions have been automatically sealed as the deadline has passed");
-        navigate("/dashboard");
-        return;
-      }
-    }
-
     onPhaseSelect('pre-season');
   };
 
@@ -55,7 +36,8 @@ export const PredictionPhaseButtons = ({
         isOpen={isPreSeasonOpen}
         timeLeft={preSeasonTimeLeft}
         onClick={handlePreSeasonSelect}
-        disabled={!isPreSeasonOpen}
+        disabled={false}
+        isSubmitted={isSubmitted}
       />
 
       <CountdownButton

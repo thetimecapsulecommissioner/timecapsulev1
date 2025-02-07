@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 
 interface CompetitionCardProps {
@@ -26,8 +27,8 @@ export const CompetitionCard = ({
   };
 
   const getStatusText = () => {
-    if (isSealed) return "Completed";
-    if (predictionsCount > 0) return "In Progress";
+    if (isSealed) return "Submitted";
+    if (predictionsCount > 0) return "Draft";
     return "Not Started";
   };
 

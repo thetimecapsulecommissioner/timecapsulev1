@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 
 interface CountdownButtonProps {
@@ -6,6 +7,7 @@ interface CountdownButtonProps {
   timeLeft: string;
   onClick?: () => void;
   disabled?: boolean;
+  isSubmitted?: boolean;
 }
 
 export const CountdownButton = ({
@@ -13,8 +15,19 @@ export const CountdownButton = ({
   isOpen,
   timeLeft,
   onClick,
-  disabled = false
+  disabled = false,
+  isSubmitted = false
 }: CountdownButtonProps) => {
+  const getStatusText = () => {
+    if (isSubmitted) return 'Submitted';
+    return isOpen ? 'Open' : 'Closed';
+  };
+
+  const getStatusClass = () => {
+    if (isSubmitted) return 'bg-blue-500 text-white';
+    return isOpen ? 'bg-green-500 text-white' : 'bg-gray-400 text-white';
+  };
+
   return (
     <Button
       onClick={onClick}
@@ -23,8 +36,8 @@ export const CountdownButton = ({
     >
       <span className="text-primary font-semibold w-48">{label}</span>
       <div className="flex-1 flex justify-center">
-        <span className={`px-3 py-1 rounded ${isOpen ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
-          {isOpen ? 'Open' : 'Closed'}
+        <span className={`px-3 py-1 rounded ${getStatusClass()}`}>
+          {getStatusText()}
         </span>
       </div>
       <span className="text-primary w-48 text-right">
