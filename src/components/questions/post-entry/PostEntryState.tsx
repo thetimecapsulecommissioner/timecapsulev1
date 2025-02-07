@@ -1,5 +1,7 @@
+
 import { PredictionPhaseButtons } from "../prediction-phase/PredictionPhaseButtons";
 import { PredictionForm } from "../PredictionForm";
+import { KeyTile } from "../KeyTile";
 
 interface PostEntryStateProps {
   questions: any[];
@@ -25,6 +27,7 @@ export const PostEntryState = ({
           <h2 className="text-2xl font-bold text-secondary mb-8 text-center">
             Pre-Season Predictions
           </h2>
+          <KeyTile className="mb-8" />
           <PredictionForm 
             questions={questions} 
             answeredQuestions={entry?.predictions_count || 0}
