@@ -24,7 +24,7 @@ export const ActionButtons = () => {
       <Button 
         variant="secondary" 
         className="text-primary font-semibold w-full"
-        onClick={() => navigate('/sporting-clubs')}
+        onClick={() => navigate('/register-group')}
       >
         Register your sporting club
       </Button>

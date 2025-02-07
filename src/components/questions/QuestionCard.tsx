@@ -1,8 +1,7 @@
 import { Card } from "@/components/ui/card";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { QuestionHeader } from "./QuestionHeader";
 import { QuestionInput } from "./inputs/QuestionInput";
-import { supabase } from "@/integrations/supabase/client";
 
 interface QuestionCardProps {
   id: number;
@@ -30,27 +29,6 @@ export const QuestionCard = ({
   disabled = false
 }: QuestionCardProps) => {
   const [selected, setSelected] = useState<string[]>(selectedAnswer);
-  const [userAFLTeam, setUserAFLTeam] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (id === 24) {
-      const loadUserAFLTeam = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('afl_team')
-            .eq('id', user.id)
-            .single();
-          
-          if (data) {
-            setUserAFLTeam(data.afl_team);
-          }
-        }
-      };
-      loadUserAFLTeam();
-    }
-  }, [id]);
 
   const handleAnswerChange = (value: string[], responseOrder?: number) => {
     if (disabled) return;
@@ -77,11 +55,6 @@ export const QuestionCard = ({
         <p className="text-sm text-gray-500 mb-4">
           Select {requiredAnswers} answers
         </p>
-      )}
-      {id === 24 && userAFLTeam && (
-        <div className="mb-4 text-gray-700">
-          <p>Your registered AFL team: <span className="font-semibold">{userAFLTeam}</span></p>
-        </div>
       )}
       {id === 14 && (
         <div className="mb-4 text-gray-700">

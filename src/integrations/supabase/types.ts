@@ -39,24 +39,6 @@ export type Database = {
         }
         Relationships: []
       }
-      administrators: {
-        Row: {
-          created_at: string | null
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       "AFL Clubs": {
         Row: {
           "AFL Club Name": string
@@ -194,24 +176,6 @@ export type Database = {
         }
         Relationships: []
       }
-      instagram_credentials: {
-        Row: {
-          api_key: string
-          created_at: string | null
-          id: string
-        }
-        Insert: {
-          api_key: string
-          created_at?: string | null
-          id?: string
-        }
-        Update: {
-          api_key?: string
-          created_at?: string | null
-          id?: string
-        }
-        Relationships: []
-      }
       prediction_comments: {
         Row: {
           comment: string | null
@@ -274,10 +238,8 @@ export type Database = {
       }
       profiles: {
         Row: {
-          afl_team: string | null
           avatar_url: string | null
           created_at: string
-          display_name: string
           email: string | null
           first_name: string | null
           id: string
@@ -290,10 +252,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          afl_team?: string | null
           avatar_url?: string | null
           created_at?: string
-          display_name: string
           email?: string | null
           first_name?: string | null
           id: string
@@ -306,10 +266,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          afl_team?: string | null
           avatar_url?: string | null
           created_at?: string
-          display_name?: string
           email?: string | null
           first_name?: string | null
           id?: string

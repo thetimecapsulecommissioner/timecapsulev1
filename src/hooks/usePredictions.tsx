@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -21,15 +20,6 @@ export const usePredictions = () => {
     queryFn: async () => {
       if (!userData?.id || !competitionId) return null;
 
-      // First check if entry is sealed
-      const { data: entryData } = await supabase
-        .from('competition_entries')
-        .select('status')
-        .eq('user_id', userData.id)
-        .eq('competition_id', competitionId)
-        .maybeSingle();
-
-      // Get predictions
       const { data, error } = await supabase
         .from('predictions')
         .select('*')
@@ -50,9 +40,7 @@ export const usePredictions = () => {
         groupedPredictions[prediction.question_id][prediction.response_order - 1] = prediction.answer;
       });
 
-      const isSubmitted = entryData?.status === 'Submitted';
-
-      return { predictions: groupedPredictions, isSubmitted };
+      return groupedPredictions;
     },
     enabled: !!userData?.id && !!competitionId,
     staleTime: 1000,
@@ -60,9 +48,8 @@ export const usePredictions = () => {
   });
 
   return {
-    predictions: predictions?.predictions || {},
+    predictions,
     predictionsLoading,
-    userData,
-    isSubmitted: predictions?.isSubmitted || false
+    userData
   };
 };
