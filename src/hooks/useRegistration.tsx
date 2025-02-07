@@ -78,8 +78,9 @@ export const useRegistration = () => {
           return;
         }
 
-        toast.success("Registration successful!");
-        navigate("/dashboard");
+        // Show success message with email confirmation instructions
+        toast.success("Registration successful! Please check your email to confirm your account.");
+        navigate("/login");
       }
     } catch (error) {
       console.error('Registration error:', error);
