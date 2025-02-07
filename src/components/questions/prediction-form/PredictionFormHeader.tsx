@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Save, FileText } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -23,17 +22,15 @@ export const PredictionFormHeader = ({
 
   return (
     <div className="flex justify-center gap-2 sm:gap-4 mb-8 flex-wrap">
-      {!isSubmitted && (
-        <Button 
-          onClick={onSave}
-          disabled={isSaving || isSubmitted}
-          className={`${buttonClasses} ${textClasses}`}
-          size={isMobile ? "sm" : "default"}
-        >
-          <Save className={`w-${iconSize} h-${iconSize} mr-2`} />
-          {isSaving ? "Saving..." : "Save Responses"}
-        </Button>
-      )}
+      <Button 
+        onClick={onSave}
+        disabled={isSaving || isSubmitted}
+        className={`${buttonClasses} ${textClasses}`}
+        size={isMobile ? "sm" : "default"}
+      >
+        <Save className={`w-${iconSize} h-${iconSize} mr-2`} />
+        {isSaving ? "Saving..." : "Save Responses"}
+      </Button>
       <Button
         onClick={onShowTerms}
         variant="outline"

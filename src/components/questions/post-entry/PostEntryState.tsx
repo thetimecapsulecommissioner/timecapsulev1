@@ -2,6 +2,7 @@
 import { PredictionPhaseButtons } from "../prediction-phase/PredictionPhaseButtons";
 import { PredictionForm } from "../PredictionForm";
 import { KeyTile } from "../KeyTile";
+import { EntryButtons } from "../competition-buttons/EntryButtons";
 import { useState } from "react";
 import { TermsAndConditionsDialog } from "../TermsAndConditionsDialog";
 
@@ -27,6 +28,13 @@ export const PostEntryState = ({
         selectedPhase={selectedPhase}
       />
 
+      <div className="mt-4">
+        <EntryButtons
+          onEnterClick={() => {}}  // No-op since already entered
+          onTermsClick={() => setShowTerms(true)}
+        />
+      </div>
+
       {selectedPhase === 'pre-season' && questions && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-secondary mb-8 text-center">
@@ -36,7 +44,7 @@ export const PostEntryState = ({
           <PredictionForm 
             questions={questions} 
             answeredQuestions={entry?.predictions_count || 0}
-            readOnly={entry?.status === 'Submitted'}
+            readOnly={false}
           />
         </div>
       )}
