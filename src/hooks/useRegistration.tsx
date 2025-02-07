@@ -56,21 +56,24 @@ export const useRegistration = () => {
       }
 
       if (authData.user) {
-        // Then update their profile with all the form data
+        // Create profile data object
+        const profileData = {
+          id: authData.user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          display_name: formData.displayName,
+          email: formData.email,
+          phone: formData.phone,
+          state: formData.state,
+          player_status: formData.playerStatus,
+          player_reference: formData.playerReference || null,
+          afl_team: formData.aflClub,
+        };
+
+        // Then create/update their profile with all the form data
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            display_name: formData.displayName,
-            email: formData.email,
-            phone: formData.phone,
-            state: formData.state,
-            player_status: formData.playerStatus,
-            player_reference: formData.playerReference || null,
-            afl_team: formData.aflClub,
-          })
-          .eq('id', authData.user.id);
+          .upsert(profileData);
 
         if (profileError) {
           console.error('Profile update error:', profileError);
