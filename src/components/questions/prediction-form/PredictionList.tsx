@@ -1,3 +1,4 @@
+
 import { QuestionCard } from "../QuestionCard";
 import { Textarea } from "@/components/ui/textarea";
 import { useCallback } from "react";
@@ -22,8 +23,11 @@ export const PredictionList = ({
   readOnly = false
 }: PredictionListProps) => {
   const handleCommentChange = useCallback((questionId: number, value: string) => {
+    if (isSubmitted) return;
     onCommentChange(questionId, value);
-  }, [onCommentChange]);
+  }, [onCommentChange, isSubmitted]);
+
+  const finalReadOnly = readOnly || isSubmitted;
 
   return (
     <div className="space-y-8">
@@ -39,9 +43,9 @@ export const PredictionList = ({
             points={question.points}
             requiredAnswers={question.required_answers}
             onAnswerChange={onAnswerChange}
-            disabled={isSubmitted || readOnly}
+            disabled={finalReadOnly}
           />
-          {!readOnly && (
+          {!finalReadOnly && (
             <Textarea
               placeholder="Add a comment about your response (optional)"
               value={comments[question.id] || ''}

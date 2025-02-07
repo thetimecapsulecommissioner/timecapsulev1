@@ -46,28 +46,8 @@ export const PredictionPhaseButtons = ({
   const isPreSeasonOpen = !preSeasonTime.expired;
   const isMidSeasonOpen = false;
 
-  const handlePreSeasonSelect = async () => {
-    if (!isPreSeasonOpen) {
-      toast.error("Pre-season predictions are now closed");
-      return;
-    }
-
-    if (preSeasonTime.expired) {
-      // Auto-seal any unsaved predictions
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && competitionId) {
-        await supabase
-          .from('competition_entries')
-          .update({ status: 'Submitted' })
-          .eq('user_id', user.id)
-          .eq('competition_id', competitionId);
-        
-        toast.success("Pre-season predictions have been automatically sealed as the deadline has passed");
-        navigate("/dashboard");
-        return;
-      }
-    }
-
+  // Simplified handlePreSeasonSelect - always allows selection
+  const handlePreSeasonSelect = () => {
     onPhaseSelect('pre-season');
   };
 
@@ -75,11 +55,11 @@ export const PredictionPhaseButtons = ({
     <div className="space-y-4 mt-8">
       <CountdownButton
         label="Pre-Season Predictions"
-        isOpen={isPreSeasonOpen}
+        isOpen={true} // Always show as open to allow viewing
         timeLeft={preSeasonTimeLeft}
         onClick={handlePreSeasonSelect}
-        disabled={!isPreSeasonOpen}
-        isSubmitted={entryStatus}
+        disabled={false} // Never disable the button
+        isSubmitted={!!entryStatus}
       />
 
       <CountdownButton
@@ -91,3 +71,4 @@ export const PredictionPhaseButtons = ({
     </div>
   );
 };
+
