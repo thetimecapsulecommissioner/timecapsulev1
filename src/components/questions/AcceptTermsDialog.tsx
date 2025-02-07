@@ -43,7 +43,8 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
         throw new Error("User or competition not found");
       }
 
-      console.log('User authenticated, checking competition entry...');
+      console.log('User authenticated:', user.id);
+      console.log('Competition ID:', competitionId);
 
       // First, check if entry exists and get its status
       const { data: existingEntry, error: entryCheckError } = await supabase
@@ -58,7 +59,7 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
         throw entryCheckError;
       }
 
-      console.log('Competition entry status:', existingEntry?.status);
+      console.log('Competition entry found:', existingEntry);
 
       // Create or update competition entry
       const { error: entryError } = await supabase
@@ -91,6 +92,8 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
         throw checkoutError;
       }
 
+      console.log('Checkout session response:', sessionData);
+
       if (!sessionData?.url) {
         console.error('No checkout URL received:', sessionData);
         throw new Error('No checkout URL received');
@@ -100,7 +103,11 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
       window.location.href = sessionData.url;
       onAcceptTerms();
     } catch (error) {
-      console.error('Error processing terms and payment:', error);
+      console.error('Error processing terms and payment:', {
+        message: error.message,
+        details: error.toString(),
+        stack: error.stack
+      });
       let errorMessage = "Failed to process terms and payment. ";
       if (error instanceof Error) {
         errorMessage += error.message;

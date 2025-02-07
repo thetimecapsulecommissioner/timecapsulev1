@@ -16,10 +16,11 @@ serve(async (req) => {
 
   try {
     console.log('Starting checkout process...');
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
     
     // Get user information
     const authHeader = req.headers.get('Authorization')!;
-    console.log('Auth header present:', !!authHeader);
+    console.log('Auth header:', authHeader);
     
     const token = authHeader.replace('Bearer ', '');
     const supabaseClient = createClient(
@@ -33,7 +34,7 @@ serve(async (req) => {
       throw userError;
     }
 
-    console.log('User found:', !!user);
+    console.log('User found:', user?.id);
     const email = user?.email;
 
     if (!email) {
@@ -48,7 +49,7 @@ serve(async (req) => {
       throw new Error('Stripe configuration error');
     }
 
-    console.log('Initializing Stripe...');
+    console.log('Initializing Stripe with key length:', stripeKey.length);
     const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
       typescript: true,
@@ -63,7 +64,14 @@ serve(async (req) => {
     }
 
     // Create the checkout session
-    console.log('Creating payment session...');
+    console.log('Creating payment session with params:', {
+      customer_email: email,
+      success_url: `${req.headers.get('origin')}/questions/${competitionId}`,
+      cancel_url: `${req.headers.get('origin')}/questions/${competitionId}`,
+      mode: 'payment',
+      allow_promotion_codes: true,
+    });
+
     const session = await stripe.checkout.sessions.create({
       customer_email: email,
       line_items: [
@@ -82,8 +90,12 @@ serve(async (req) => {
       currency: 'aud',
     });
 
-    console.log('Payment session created:', session.id);
-    console.log('Checkout URL:', session.url);
+    console.log('Payment session created:', {
+      sessionId: session.id,
+      url: session.url,
+      status: session.status,
+      paymentStatus: session.payment_status,
+    });
 
     if (!session.url) {
       throw new Error('No checkout URL generated');
@@ -97,7 +109,12 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error in create-checkout function:', error);
+    console.error('Error in create-checkout function:', {
+      message: error.message,
+      details: error.toString(),
+      stack: error.stack,
+      raw: error
+    });
     return new Response(
       JSON.stringify({ 
         error: error.message,
@@ -111,3 +128,4 @@ serve(async (req) => {
     );
   }
 });
+
