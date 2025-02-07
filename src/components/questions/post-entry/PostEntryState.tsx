@@ -36,7 +36,7 @@ export const PostEntryState = ({
           <PredictionForm 
             questions={questions} 
             answeredQuestions={entry?.predictions_count || 0}
-            readOnly={false}
+            readOnly={entry?.status === 'Submitted'}
           />
         </div>
       )}
