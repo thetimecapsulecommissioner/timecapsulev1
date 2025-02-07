@@ -30,11 +30,20 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
   const handleAcceptTerms = async () => {
     try {
       setIsProcessing(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !competitionId) {
-        toast.error("User or competition not found");
-        return;
+      console.log('Starting accept terms process...');
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('Error getting user:', userError);
+        throw userError;
       }
+
+      if (!user || !competitionId) {
+        console.error('Missing user or competition ID:', { user: !!user, competitionId });
+        throw new Error("User or competition not found");
+      }
+
+      console.log('User authenticated, checking competition entry...');
 
       // First, check if entry exists and get its status
       const { data: existingEntry, error: entryCheckError } = await supabase
@@ -48,6 +57,8 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
         console.error('Error checking competition entry:', entryCheckError);
         throw entryCheckError;
       }
+
+      console.log('Competition entry status:', existingEntry?.status);
 
       // Create or update competition entry
       const { error: entryError } = await supabase
@@ -80,16 +91,21 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
         throw checkoutError;
       }
 
-      if (sessionData?.url) {
-        window.location.href = sessionData.url;
-      } else {
+      if (!sessionData?.url) {
+        console.error('No checkout URL received:', sessionData);
         throw new Error('No checkout URL received');
       }
 
+      console.log('Redirecting to checkout:', sessionData.url);
+      window.location.href = sessionData.url;
       onAcceptTerms();
     } catch (error) {
       console.error('Error processing terms and payment:', error);
-      toast.error("Failed to process terms and payment. Please try again.");
+      let errorMessage = "Failed to process terms and payment. ";
+      if (error instanceof Error) {
+        errorMessage += error.message;
+      }
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }
