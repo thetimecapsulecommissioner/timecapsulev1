@@ -48,6 +48,7 @@ export const PredictionForm = ({
       onAnswerChange={handleAnswerChange}
       onCommentChange={handleCommentChange}
       readOnly={readOnly || isSubmitted}
+      isSubmitted={isSubmitted}
     />
   );
 };

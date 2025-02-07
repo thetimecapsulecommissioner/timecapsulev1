@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { usePredictions } from "@/hooks/usePredictions";
 import { useComments } from "@/hooks/useComments";
@@ -10,7 +11,7 @@ export const usePredictionForm = (questions: any[]) => {
   const [showSealDialog, setShowSealDialog] = useState(false);
   const { id: competitionId } = useParams();
   
-  const { predictions, predictionsLoading, userData } = usePredictions();
+  const { predictions, predictionsLoading, userData, isSubmitted } = usePredictions();
   const { comments, handleCommentChange } = useComments(userData?.id);
   
   const { 
@@ -55,5 +56,6 @@ export const usePredictionForm = (questions: any[]) => {
     handleSealPredictions,
     handleAnswerChange,
     handleCommentChange,
+    isSubmitted
   };
 };
