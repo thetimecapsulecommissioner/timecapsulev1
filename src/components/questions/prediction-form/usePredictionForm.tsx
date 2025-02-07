@@ -25,11 +25,6 @@ export const usePredictionForm = (questions: any[]) => {
   const { saveComment } = useCommentManagement(userData?.id);
 
   const handleSaveResponses = async () => {
-    if (isSubmitted) {
-      toast.error("Cannot modify predictions after submission");
-      return;
-    }
-
     try {
       setIsSaving(true);
       if (!userData?.id || !competitionId) return;
