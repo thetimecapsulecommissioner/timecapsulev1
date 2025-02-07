@@ -16,7 +16,6 @@ import Profile from "./pages/Profile";
 import Competitions from "./pages/Competitions";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { StrictMode } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +32,8 @@ const App = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) throw error;
         setIsLoggedIn(!!user);
       } catch (error) {
         console.error('Auth check error:', error);
@@ -59,12 +59,12 @@ const App = () => {
   }
 
   return (
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <div>
+          <Toaster />
+          <Sonner />
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
             <Routes>
               {/* Public routes */}
               <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
@@ -84,9 +84,9 @@ const App = () => {
               <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
             </Routes>
           </TooltipProvider>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </StrictMode>
+        </div>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 
