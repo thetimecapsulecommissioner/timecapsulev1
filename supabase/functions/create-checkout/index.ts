@@ -9,8 +9,11 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Function invoked - starting execution');
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -19,24 +22,49 @@ serve(async (req) => {
     console.log('Request headers:', Object.fromEntries(req.headers.entries()));
     
     // Get user information
-    const authHeader = req.headers.get('Authorization')!;
-    console.log('Auth header:', authHeader);
+    const authHeader = req.headers.get('Authorization');
+    console.log('Raw auth header:', authHeader);
     
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      throw new Error('No authorization header provided');
+    }
+
     const token = authHeader.replace('Bearer ', '');
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    );
+    console.log('Token extracted, creating Supabase client...');
+    
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    
+    console.log('Supabase configuration:', {
+      urlPresent: !!supabaseUrl,
+      anonKeyPresent: !!supabaseAnonKey
+    });
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase configuration');
+      throw new Error('Supabase configuration missing');
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    console.log('Supabase client created, getting user...');
 
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) {
-      console.error('Error getting user:', userError);
+      console.error('Error getting user:', {
+        error: userError,
+        message: userError.message,
+        details: userError.toString()
+      });
       throw userError;
     }
 
-    console.log('User found:', user?.id);
+    console.log('User found:', {
+      id: user?.id,
+      emailPresent: !!user?.email
+    });
+    
     const email = user?.email;
-
     if (!email) {
       console.error('No email found for user');
       throw new Error('No email found');
@@ -49,14 +77,23 @@ serve(async (req) => {
       throw new Error('Stripe configuration error');
     }
 
-    console.log('Initializing Stripe with key length:', stripeKey.length);
+    console.log('Initializing Stripe...');
     const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
       typescript: true,
     });
 
-    // Get competition ID from request body
-    const { competitionId } = await req.json();
+    // Get competition ID and validate request body
+    let body;
+    try {
+      body = await req.json();
+      console.log('Request body:', body);
+    } catch (e) {
+      console.error('Error parsing request body:', e);
+      throw new Error('Invalid request body');
+    }
+
+    const { competitionId } = body;
     console.log('Competition ID:', competitionId);
 
     if (!competitionId) {
@@ -128,4 +165,3 @@ serve(async (req) => {
     );
   }
 });
-
