@@ -121,21 +121,15 @@ const Profile = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-              <StateSelect
-                value={profile.state || ''}
-                onChange={(value) => setProfile({ ...profile, state: value })}
-              />
-            </div>
+            <StateSelect
+              value={profile.state || ''}
+              onChange={(value) => setProfile({ ...profile, state: value })}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">AFL Club</label>
-              <AFLClubSelect
-                value={profile.afl_team || ''}
-                onChange={(value) => setProfile({ ...profile, afl_team: value })}
-              />
-            </div>
+            <AFLClubSelect
+              value={profile.afl_team || ''}
+              onChange={(value) => setProfile({ ...profile, afl_team: value })}
+            />
 
             <Button
               onClick={handleUpdate}
