@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import Competitions from "./pages/Competitions";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { StrictMode } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,32 +59,34 @@ const App = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            {/* Public routes */}
-            <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
-            <Route path="/login" element={!isLoggedIn ? <Login /> : <Navigate to="/dashboard" />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/sporting-clubs" element={<SportingClubs />} />
-            
-            {/* Protected routes */}
-            <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
-            <Route path="/questions" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
-            <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
-            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
-            <Route path="/competitions" element={isLoggedIn ? <Competitions /> : <Navigate to="/login" />} />
-            
-            {/* Root route */}
-            <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
-          </Routes>
-        </TooltipProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              {/* Public routes */}
+              <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
+              <Route path="/login" element={!isLoggedIn ? <Login /> : <Navigate to="/dashboard" />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/sporting-clubs" element={<SportingClubs />} />
+              
+              {/* Protected routes */}
+              <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
+              <Route path="/questions" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
+              <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
+              <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
+              <Route path="/competitions" element={isLoggedIn ? <Competitions /> : <Navigate to="/login" />} />
+              
+              {/* Root route */}
+              <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
+            </Routes>
+          </TooltipProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </StrictMode>
   );
 };
 
