@@ -26,7 +26,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => {
+const AppContent = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -59,32 +59,38 @@ const App = () => {
   }
 
   return (
+    <Routes>
+      {/* Public routes */}
+      <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
+      <Route path="/login" element={!isLoggedIn ? <Login /> : <Navigate to="/dashboard" />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/sporting-clubs" element={<SportingClubs />} />
+      
+      {/* Protected routes */}
+      <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
+      <Route path="/questions" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
+      <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
+      <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
+      <Route path="/competitions" element={isLoggedIn ? <Competitions /> : <Navigate to="/login" />} />
+      
+      {/* Root route */}
+      <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
+    </Routes>
+  );
+};
+
+const App = () => {
+  return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <div>
-          <Toaster />
-          <Sonner />
-          <TooltipProvider>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
-              <Route path="/login" element={!isLoggedIn ? <Login /> : <Navigate to="/dashboard" />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/sporting-clubs" element={<SportingClubs />} />
-              
-              {/* Protected routes */}
-              <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
-              <Route path="/questions" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
-              <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
-              <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
-              <Route path="/competitions" element={isLoggedIn ? <Competitions /> : <Navigate to="/login" />} />
-              
-              {/* Root route */}
-              <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
-            </Routes>
-          </TooltipProvider>
-        </div>
+        <TooltipProvider>
+          <div>
+            <Toaster />
+            <Sonner />
+            <AppContent />
+          </div>
+        </TooltipProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
