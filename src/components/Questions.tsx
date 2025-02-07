@@ -1,3 +1,4 @@
+
 import { ProfileDropdown } from "./ProfileDropdown";
 import { useCompetition } from "@/hooks/useCompetition";
 import { LoadingState } from "./ui/LoadingState";
@@ -64,16 +65,17 @@ export const Questions = () => {
               onEnterCompetition={() => setHasEntered(true)}
             />
           ) : (
-            <PostEntryState
-              questions={questions}
-              selectedPhase={selectedPhase}
-              onPhaseSelect={setSelectedPhase}
-              entry={entry}
-            />
-          )}
-
-          {selectedPhase && (
-            <KeyTile className="mt-8 mb-8" />
+            <>
+              <PostEntryState
+                questions={questions}
+                selectedPhase={selectedPhase}
+                onPhaseSelect={setSelectedPhase}
+                entry={entry}
+              />
+              {selectedPhase && (
+                <KeyTile className="mt-4 mb-8" />
+              )}
+            </>
           )}
         </div>
       </div>

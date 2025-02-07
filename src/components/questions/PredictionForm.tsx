@@ -1,3 +1,4 @@
+
 import { PredictionFormContainer } from "./prediction-form/PredictionFormContainer";
 import { LoadingState } from "../ui/LoadingState";
 import { usePredictionForm } from "./prediction-form/usePredictionForm";
@@ -25,6 +26,7 @@ export const PredictionForm = ({
     handleSealPredictions,
     handleAnswerChange,
     handleCommentChange,
+    isSubmitted,
   } = usePredictionForm(questions);
 
   if (predictionsLoading) {
@@ -45,7 +47,7 @@ export const PredictionForm = ({
       onSeal={handleSealPredictions}
       onAnswerChange={handleAnswerChange}
       onCommentChange={handleCommentChange}
-      readOnly={readOnly}
+      readOnly={readOnly || isSubmitted}
     />
   );
 };

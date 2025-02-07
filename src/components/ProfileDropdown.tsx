@@ -32,7 +32,12 @@ export const ProfileDropdown = () => {
           .single();
 
         if (error) throw error;
-        if (data) setAvatarUrl(data.avatar_url);
+        if (data?.avatar_url) {
+          const { data: publicUrl } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(data.avatar_url);
+          setAvatarUrl(publicUrl.publicUrl);
+        }
       }
     } catch (error) {
       console.error('Error loading avatar:', error);
@@ -61,13 +66,14 @@ export const ProfileDropdown = () => {
       <DropdownMenuTrigger disabled={isLoading} className="bg-primary rounded-full">
         <Avatar>
           <AvatarImage 
-            src={avatarUrl} 
+            src={avatarUrl || undefined}
             alt="Profile"
           />
           <AvatarFallback>
             <img 
               src="/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png" 
               alt="Default Avatar" 
+              className="w-full h-full object-cover"
             />
           </AvatarFallback>
         </Avatar>

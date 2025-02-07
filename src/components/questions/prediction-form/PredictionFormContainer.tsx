@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { PredictionFormHeader } from "./PredictionFormHeader";
 import { PredictionList } from "./PredictionList";
@@ -56,7 +57,7 @@ export const PredictionFormContainer = ({
         comments={comments}
         onAnswerChange={onAnswerChange}
         onCommentChange={onCommentChange}
-        isSubmitted={false}
+        isSubmitted={readOnly}
         readOnly={readOnly}
       />
 
