@@ -21,9 +21,9 @@ export const CompetitionCard = ({
   const navigate = useNavigate();
 
   const getStatusColor = () => {
-    if (isSealed) return "bg-green-100";
-    if (predictionsCount > 0) return "bg-yellow-100";
-    return "bg-red-100";
+    if (isSealed) return "bg-green-100"; // Only green if actually submitted/sealed
+    if (predictionsCount > 0) return "bg-yellow-100"; // Draft state
+    return "bg-red-100"; // Not started
   };
 
   const getStatusText = () => {
