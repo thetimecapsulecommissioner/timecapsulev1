@@ -43,6 +43,12 @@ export const useDashboardData = () => {
             .eq("competition_id", comp.id)
             .maybeSingle();
 
+          console.log('Competition Entry Status:', {
+            competitionId: comp.id,
+            status: entry?.status,
+            userId: user.id
+          });
+
           // Get predictions for this user
           const { data: predictions } = await supabase
             .from("predictions")
