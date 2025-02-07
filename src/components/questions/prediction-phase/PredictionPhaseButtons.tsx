@@ -46,8 +46,8 @@ export const PredictionPhaseButtons = ({
   const isPreSeasonOpen = !preSeasonTime.expired;
   const isMidSeasonOpen = false;
 
+  // Simplified handlePreSeasonSelect - always allows selection
   const handlePreSeasonSelect = () => {
-    // Allow selection if either predictions are open OR the user has already submitted
     onPhaseSelect('pre-season');
   };
 
@@ -55,10 +55,10 @@ export const PredictionPhaseButtons = ({
     <div className="space-y-4 mt-8">
       <CountdownButton
         label="Pre-Season Predictions"
-        isOpen={isPreSeasonOpen || !!entryStatus}
+        isOpen={true} // Always show as open to allow viewing
         timeLeft={preSeasonTimeLeft}
         onClick={handlePreSeasonSelect}
-        disabled={false} // Never disable the button as we want users to be able to view their predictions
+        disabled={false} // Never disable the button
         isSubmitted={!!entryStatus}
       />
 
@@ -71,3 +71,4 @@ export const PredictionPhaseButtons = ({
     </div>
   );
 };
+
