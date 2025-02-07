@@ -32,11 +32,17 @@ export const ProfileDropdown = () => {
           .single();
 
         if (error) throw error;
+        
         if (data?.avatar_url) {
-          const { data: { publicUrl } } = supabase.storage
+          // Get the public URL for the avatar
+          const { data: publicUrlData } = supabase.storage
             .from('avatars')
             .getPublicUrl(data.avatar_url);
-          setAvatarUrl(publicUrl);
+          
+          if (publicUrlData) {
+            setAvatarUrl(publicUrlData.publicUrl);
+            console.log('Avatar URL:', publicUrlData.publicUrl);
+          }
         }
       }
     } catch (error) {
