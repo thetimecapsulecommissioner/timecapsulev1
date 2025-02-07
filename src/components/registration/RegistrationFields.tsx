@@ -1,6 +1,6 @@
+
 import { Input } from "@/components/ui/input";
 import { StateSelect } from "./StateSelect";
-import { OrganizationSelect } from "./OrganizationSelect";
 import { AFLClubSelect } from "./AFLClubSelect";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HelpCircle } from "lucide-react";
@@ -10,10 +10,10 @@ interface RegistrationFieldsProps {
   formData: {
     firstName: string;
     lastName: string;
+    displayName: string;
     email: string;
     password: string;
     phone: string;
-    organization: string;
     state: string;
     playerStatus: string;
     playerReference?: string;
@@ -43,6 +43,16 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
           onChange={(e) => onChange("lastName", e.target.value)}
           className="w-full"
           placeholder="Enter your last name"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+        <Input
+          type="text"
+          value={formData.displayName}
+          onChange={(e) => onChange("displayName", e.target.value)}
+          className="w-full"
+          placeholder="Choose a unique display name"
         />
       </div>
       <div>
@@ -118,10 +128,6 @@ export const RegistrationFields = ({ formData, onChange }: RegistrationFieldsPro
       <AFLClubSelect
         value={formData.aflClub}
         onChange={(value) => onChange("aflClub", value)}
-      />
-      <OrganizationSelect
-        value={formData.organization}
-        onChange={(value) => onChange("organization", value)}
       />
       <StateSelect
         value={formData.state}

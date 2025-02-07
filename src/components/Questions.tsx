@@ -64,16 +64,14 @@ export const Questions = () => {
               onEnterCompetition={() => setHasEntered(true)}
             />
           ) : (
-            <PostEntryState
-              questions={questions}
-              selectedPhase={selectedPhase}
-              onPhaseSelect={setSelectedPhase}
-              entry={entry}
-            />
-          )}
-
-          {selectedPhase && (
-            <KeyTile className="mt-8 mb-8" />
+            <>
+              <PostEntryState
+                questions={questions}
+                selectedPhase={selectedPhase}
+                onPhaseSelect={setSelectedPhase}
+                entry={entry}
+              />
+            </>
           )}
         </div>
       </div>
