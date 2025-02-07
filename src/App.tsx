@@ -31,8 +31,13 @@ const App = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setIsLoggedIn(!!user);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsLoggedIn(!!user);
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsLoggedIn(false);
+      }
     };
 
     checkAuth();
@@ -54,8 +59,8 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <TooltipProvider>
           <Toaster />
           <Sonner />
           <Routes>
@@ -76,8 +81,8 @@ const App = () => {
             {/* Root route */}
             <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
