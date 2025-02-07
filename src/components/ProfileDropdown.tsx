@@ -33,10 +33,10 @@ export const ProfileDropdown = () => {
 
         if (error) throw error;
         if (data?.avatar_url) {
-          const { data: publicUrl } = supabase.storage
+          const { data: { publicUrl } } = supabase.storage
             .from('avatars')
             .getPublicUrl(data.avatar_url);
-          setAvatarUrl(publicUrl.publicUrl);
+          setAvatarUrl(publicUrl);
         }
       }
     } catch (error) {
@@ -63,44 +63,31 @@ export const ProfileDropdown = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger disabled={isLoading} className="bg-primary rounded-full">
-        <Avatar>
-          {avatarUrl ? (
-            <AvatarImage 
-              src={avatarUrl}
-              alt="Profile"
-              className="w-full h-full object-cover"
+      <DropdownMenuTrigger disabled={isLoading}>
+        <Avatar className="h-10 w-10">
+          <AvatarImage 
+            src={avatarUrl || undefined}
+            alt="Profile"
+            className="h-full w-full object-cover"
+          />
+          <AvatarFallback>
+            <img 
+              src="/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png" 
+              alt="Default Avatar" 
+              className="h-full w-full object-cover"
             />
-          ) : (
-            <AvatarFallback>
-              <img 
-                src="/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png" 
-                alt="Default Avatar" 
-                className="w-full h-full object-cover"
-              />
-            </AvatarFallback>
-          )}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-primary text-white">
-        <DropdownMenuItem 
-          onClick={() => navigate("/profile")} 
-          className="hover:bg-primary-light cursor-pointer"
-        >
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => navigate("/profile")}>
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => navigate("/competitions")} 
-          className="hover:bg-primary-light cursor-pointer"
-        >
+        <DropdownMenuItem onClick={() => navigate("/competitions")}>
           My Competitions
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-primary-light" />
-        <DropdownMenuItem 
-          onClick={handleLogout} 
-          disabled={isLoading} 
-          className="hover:bg-primary-light cursor-pointer"
-        >
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
           {isLoading ? "Logging out..." : "Logout"}
         </DropdownMenuItem>
       </DropdownMenuContent>

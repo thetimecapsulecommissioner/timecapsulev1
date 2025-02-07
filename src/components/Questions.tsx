@@ -72,7 +72,7 @@ export const Questions = () => {
                 onPhaseSelect={setSelectedPhase}
                 entry={entry}
               />
-              {selectedPhase && (
+              {selectedPhase === 'pre-season' && (
                 <KeyTile className="mt-4 mb-8" />
               )}
             </>
