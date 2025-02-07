@@ -21,6 +21,7 @@ export interface PredictionFormContainerProps {
   onAnswerChange: (questionId: number, answers: string[], responseOrder?: number) => void;
   onCommentChange: (questionId: number, comment: string) => void;
   readOnly?: boolean;
+  isSubmitted: boolean;
 }
 
 export const PredictionFormContainer = ({ 
@@ -36,7 +37,8 @@ export const PredictionFormContainer = ({
   onSeal,
   onAnswerChange,
   onCommentChange,
-  readOnly = false
+  readOnly = false,
+  isSubmitted
 }: PredictionFormContainerProps) => {
   const [showTerms, setShowTerms] = useState(false);
 
@@ -47,7 +49,7 @@ export const PredictionFormContainer = ({
           onSave={onSave}
           onShowTerms={() => setShowTerms(true)}
           isSaving={isSaving}
-          isSubmitted={false}
+          isSubmitted={isSubmitted}
         />
       )}
 
@@ -57,7 +59,7 @@ export const PredictionFormContainer = ({
         comments={comments}
         onAnswerChange={onAnswerChange}
         onCommentChange={onCommentChange}
-        isSubmitted={readOnly}
+        isSubmitted={isSubmitted}
         readOnly={readOnly}
       />
 
@@ -67,7 +69,7 @@ export const PredictionFormContainer = ({
             onSave={onSave}
             onSeal={() => setShowSealDialog(true)}
             isSaving={isSaving}
-            isSubmitted={false}
+            isSubmitted={isSubmitted}
           />
 
           <SealPredictionDialog

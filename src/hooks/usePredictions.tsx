@@ -21,9 +21,18 @@ export const usePredictions = () => {
     queryFn: async () => {
       if (!userData?.id || !competitionId) return null;
 
+      // First check if entry is sealed
+      const { data: entryData } = await supabase
+        .from('competition_entries')
+        .select('status')
+        .eq('user_id', userData.id)
+        .eq('competition_id', competitionId)
+        .maybeSingle();
+
+      // Get predictions
       const { data, error } = await supabase
         .from('predictions')
-        .select('*, entries(is_sealed)')
+        .select('*')
         .eq('user_id', userData.id)
         .order('response_order');
 
@@ -41,8 +50,7 @@ export const usePredictions = () => {
         groupedPredictions[prediction.question_id][prediction.response_order - 1] = prediction.answer;
       });
 
-      // Check if predictions are sealed
-      const isSubmitted = data?.[0]?.entries?.is_sealed || false;
+      const isSubmitted = entryData?.status === 'Submitted';
 
       return { predictions: groupedPredictions, isSubmitted };
     },
