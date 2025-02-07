@@ -44,6 +44,7 @@ export const useRegistration = () => {
 
     setIsLoading(true);
     try {
+      // First create the auth user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -55,6 +56,7 @@ export const useRegistration = () => {
       }
 
       if (authData.user) {
+        // Then update their profile with all the form data
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
@@ -65,12 +67,13 @@ export const useRegistration = () => {
             phone: formData.phone,
             state: formData.state,
             player_status: formData.playerStatus,
-            player_reference: formData.playerReference,
+            player_reference: formData.playerReference || null,
             afl_team: formData.aflClub,
           })
           .eq('id', authData.user.id);
 
         if (profileError) {
+          console.error('Profile update error:', profileError);
           toast.error("Error updating profile");
           return;
         }
@@ -79,6 +82,7 @@ export const useRegistration = () => {
         navigate("/dashboard");
       }
     } catch (error) {
+      console.error('Registration error:', error);
       toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
