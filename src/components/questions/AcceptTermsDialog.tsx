@@ -32,6 +32,21 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
       setIsProcessing(true);
       console.log('Starting accept terms process...');
 
+      // First check if we have an active session
+      const { data: session, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session?.session) {
+        console.error('Session check failed:', {
+          error: sessionError,
+          sessionExists: !!session?.session
+        });
+        throw new Error("Authentication session not found. Please try logging in again.");
+      }
+
+      console.log('Session validated:', {
+        sessionExists: !!session.session,
+        userExists: !!session.session?.user
+      });
+
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError) {
         console.error('Error getting user:', userError);
@@ -83,7 +98,10 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
       const { data: sessionData, error: checkoutError } = await supabase.functions.invoke(
         'create-checkout',
         {
-          body: { competitionId }
+          body: { competitionId },
+          headers: {
+            Authorization: `Bearer ${session.session.access_token}`
+          }
         }
       );
 
