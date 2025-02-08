@@ -44,7 +44,8 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
 
       console.log('Session validated:', {
         sessionExists: !!session.session,
-        userExists: !!session.session?.user
+        userExists: !!session.session?.user,
+        accessToken: !!session.session.access_token
       });
 
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -95,31 +96,41 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
       }
 
       console.log('Creating Stripe checkout session...');
-      const { data: sessionData, error: checkoutError } = await supabase.functions.invoke(
-        'create-checkout',
-        {
-          body: { competitionId },
-          headers: {
-            Authorization: `Bearer ${session.session.access_token}`
+      
+      try {
+        const { data: sessionData, error: checkoutError } = await supabase.functions.invoke(
+          'create-checkout',
+          {
+            body: { competitionId },
+            headers: {
+              Authorization: `Bearer ${session.session.access_token}`
+            }
           }
+        );
+
+        console.log('Checkout API response:', { sessionData, error: checkoutError });
+
+        if (checkoutError) {
+          console.error('Checkout error:', checkoutError);
+          throw checkoutError;
         }
-      );
 
-      if (checkoutError) {
-        console.error('Checkout error:', checkoutError);
-        throw checkoutError;
+        if (!sessionData?.url) {
+          console.error('No checkout URL received:', sessionData);
+          throw new Error('No checkout URL received');
+        }
+
+        console.log('Redirecting to checkout:', sessionData.url);
+        window.location.href = sessionData.url;
+        onAcceptTerms();
+      } catch (invokeError) {
+        console.error('Error invoking create-checkout function:', {
+          error: invokeError,
+          message: invokeError.message,
+          details: invokeError.toString()
+        });
+        throw new Error(`Failed to create checkout session: ${invokeError.message}`);
       }
-
-      console.log('Checkout session response:', sessionData);
-
-      if (!sessionData?.url) {
-        console.error('No checkout URL received:', sessionData);
-        throw new Error('No checkout URL received');
-      }
-
-      console.log('Redirecting to checkout:', sessionData.url);
-      window.location.href = sessionData.url;
-      onAcceptTerms();
     } catch (error) {
       console.error('Error processing terms and payment:', {
         message: error.message,

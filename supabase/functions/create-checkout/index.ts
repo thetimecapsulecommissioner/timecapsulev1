@@ -19,11 +19,10 @@ serve(async (req) => {
 
   try {
     console.log('Starting checkout process...');
-    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
     
-    // Get user information
+    // Get user information from Authorization header
     const authHeader = req.headers.get('Authorization');
-    console.log('Raw auth header:', authHeader);
+    console.log('Authorization header present:', !!authHeader);
     
     if (!authHeader) {
       console.error('No authorization header provided');
@@ -31,44 +30,35 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    console.log('Token extracted, creating Supabase client...');
+    console.log('Token extracted from header');
     
+    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
-    console.log('Supabase configuration:', {
-      urlPresent: !!supabaseUrl,
-      anonKeyPresent: !!supabaseAnonKey
-    });
-
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('Missing Supabase configuration');
       throw new Error('Supabase configuration missing');
     }
 
+    console.log('Creating Supabase client...');
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-    console.log('Supabase client created, getting user...');
 
+    // Get user information
+    console.log('Getting user information...');
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
+    
     if (userError) {
-      console.error('Error getting user:', {
-        error: userError,
-        message: userError.message,
-        details: userError.toString()
-      });
+      console.error('Error getting user:', userError);
       throw userError;
     }
 
-    console.log('User found:', {
-      id: user?.id,
-      emailPresent: !!user?.email
-    });
-    
-    const email = user?.email;
-    if (!email) {
-      console.error('No email found for user');
-      throw new Error('No email found');
+    if (!user) {
+      console.error('No user found');
+      throw new Error('User not found');
     }
+
+    console.log('User found:', { id: user.id, email: user.email });
 
     // Initialize Stripe
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
@@ -83,7 +73,7 @@ serve(async (req) => {
       typescript: true,
     });
 
-    // Get competition ID and validate request body
+    // Get competition ID from request body
     let body;
     try {
       body = await req.json();
@@ -94,23 +84,14 @@ serve(async (req) => {
     }
 
     const { competitionId } = body;
-    console.log('Competition ID:', competitionId);
-
     if (!competitionId) {
       throw new Error('No competition ID provided');
     }
 
-    // Create the checkout session
-    console.log('Creating payment session with params:', {
-      customer_email: email,
-      success_url: `${req.headers.get('origin')}/questions/${competitionId}`,
-      cancel_url: `${req.headers.get('origin')}/questions/${competitionId}`,
-      mode: 'payment',
-      allow_promotion_codes: true,
-    });
-
+    // Create Stripe checkout session
+    console.log('Creating Stripe checkout session...');
     const session = await stripe.checkout.sessions.create({
-      customer_email: email,
+      customer_email: user.email,
       line_items: [
         {
           price: 'price_1QmqnPDI8y21uYLJ8z036zLA',
@@ -127,16 +108,11 @@ serve(async (req) => {
       currency: 'aud',
     });
 
-    console.log('Payment session created:', {
-      sessionId: session.id,
+    console.log('Checkout session created:', {
+      id: session.id,
       url: session.url,
       status: session.status,
-      paymentStatus: session.payment_status,
     });
-
-    if (!session.url) {
-      throw new Error('No checkout URL generated');
-    }
 
     return new Response(
       JSON.stringify({ url: session.url }),
@@ -149,14 +125,13 @@ serve(async (req) => {
     console.error('Error in create-checkout function:', {
       message: error.message,
       details: error.toString(),
-      stack: error.stack,
-      raw: error
+      stack: error.stack
     });
+    
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.toString(),
-        stack: error.stack 
+        details: error.toString()
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
