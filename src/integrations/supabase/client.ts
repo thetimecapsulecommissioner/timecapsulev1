@@ -10,11 +10,12 @@ export const supabase = createClient<Database>(
   SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
-      persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce',
-      storage: localStorage
+      persistSession: true,
+      detectSessionInUrl: false,
+      storage: localStorage,
+      storageKey: 'supabase.auth.token',
+      flowType: 'pkce'
     }
   }
 );
