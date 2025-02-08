@@ -97,7 +97,7 @@ const Navigation = () => {
             </div>
           </SheetContent>
         </Sheet>
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center items-center">
           <Logo onClick={handleLogoClick} />
         </div>
         {isLoggedIn && (
