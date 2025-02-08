@@ -10,7 +10,7 @@ export const Hero = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center bg-primary">
+    <div className="relative h-screen flex flex-col items-center bg-primary overflow-hidden">
       <Navigation />
       
       {isMobile && (
@@ -30,7 +30,7 @@ export const Hero = () => {
         </div>
       )}
       
-      <div className="flex flex-col items-center justify-center min-h-screen px-4 w-full max-w-7xl mx-auto animate-fade-in">
+      <div className="flex flex-col items-center justify-center flex-1 px-4 w-full max-w-7xl mx-auto animate-fade-in">
         <MainContent />
       </div>
     </div>
