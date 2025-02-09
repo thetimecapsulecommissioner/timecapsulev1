@@ -1,4 +1,3 @@
-
 import { ProfileDropdown } from "./ProfileDropdown";
 import { useCompetition } from "@/hooks/useCompetition";
 import { LoadingState } from "./ui/LoadingState";
@@ -7,7 +6,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { CompetitionHeader } from "./questions/CompetitionHeader";
 import { useCompetitionData } from "./questions/hooks/useCompetitionData";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PreEntryState } from "./questions/pre-entry/PreEntryState";
 import { PostEntryState } from "./questions/post-entry/PostEntryState";
 import { KeyTile } from "./questions/KeyTile";
@@ -30,6 +29,13 @@ export const Questions = () => {
 
   const [selectedPhase, setSelectedPhase] = useState<'pre-season' | 'mid-season' | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const predictionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selectedPhase === 'pre-season' && predictionsRef.current) {
+      predictionsRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [selectedPhase]);
 
   useEffect(() => {
     const checkAndRestoreSession = async () => {
@@ -124,9 +130,11 @@ export const Questions = () => {
               onPhaseSelect={setSelectedPhase}
               entry={entry}
             />
-            {selectedPhase === 'pre-season' && (
-              <KeyTile className="mt-4 mb-8" />
-            )}
+            <div ref={predictionsRef}>
+              {selectedPhase === 'pre-season' && (
+                <KeyTile className="mt-4 mb-8" />
+              )}
+            </div>
           </>
         )}
       </div>

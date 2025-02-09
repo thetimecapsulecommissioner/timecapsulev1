@@ -8,6 +8,7 @@ interface CompetitionCardProps {
   totalQuestions: number;
   totalEntrants: number;
   isSealed: boolean;
+  status: string;
 }
 
 export const CompetitionCard = ({
@@ -17,19 +18,19 @@ export const CompetitionCard = ({
   totalQuestions,
   totalEntrants,
   isSealed,
+  status,
 }: CompetitionCardProps) => {
   const navigate = useNavigate();
 
   const getStatusColor = () => {
-    if (isSealed) return "bg-green-100"; // Only green if actually submitted/sealed
-    if (predictionsCount > 0) return "bg-yellow-100"; // Draft state
-    return "bg-red-100"; // Not started
-  };
-
-  const getStatusText = () => {
-    if (isSealed) return "Submitted";
-    if (predictionsCount > 0) return "Draft";
-    return "Not Started";
+    switch (status) {
+      case 'Submitted':
+        return "bg-green-100";
+      case 'In Progress':
+        return "bg-yellow-100";
+      default:
+        return "bg-red-100";
+    }
   };
 
   return (
@@ -49,7 +50,7 @@ export const CompetitionCard = ({
         {totalEntrants} Entrants
       </div>
       <div className="text-gray-600 text-sm md:text-base">
-        {getStatusText()}
+        {status}
       </div>
     </div>
   );

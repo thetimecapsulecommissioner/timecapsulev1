@@ -35,17 +35,17 @@ export const useDashboardData = () => {
       // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
         competitionsData.map(async (comp) => {
-          // Get competition entry status
+          // Get competition entry status and predictions
           const { data: entry } = await supabase
             .from("competition_entries")
-            .select("status")
+            .select("*")
             .eq("user_id", user.id)
             .eq("competition_id", comp.id)
             .maybeSingle();
 
-          console.log('Competition Entry Status:', {
+          console.log('Competition Entry:', {
             competitionId: comp.id,
-            status: entry?.status,
+            entry,
             userId: user.id
           });
 
@@ -54,16 +54,23 @@ export const useDashboardData = () => {
             .from("predictions")
             .select("question_id")
             .eq("user_id", user.id)
-            .eq("submitted", true)
             .not('question_id', 'is', null);
 
           // Get unique question IDs that have been answered
           const uniqueAnsweredQuestions = new Set(
             predictions?.map(p => p.question_id) || []
           );
+
+          // Check entry status
+          const hasStarted = entry?.terms_accepted || false;
+          const isSubmitted = entry?.status === 'Submitted';
+          let status = 'Not Started';
           
-          // Check if entry is in submitted state
-          const isSealed = entry?.status === 'Submitted';
+          if (isSubmitted) {
+            status = 'Submitted';
+          } else if (hasStarted) {
+            status = 'In Progress';
+          }
 
           // Get total number of entrants
           const { data: entries } = await supabase
@@ -76,13 +83,15 @@ export const useDashboardData = () => {
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
             total_entrants: entries?.length || 0,
-            predictions_sealed: isSealed
+            predictions_sealed: isSubmitted,
+            status
           };
         })
       );
 
       return enhancedCompetitions;
     },
+    staleTime: 1000, // Reduce stale time to update more frequently
   });
 
   return {
