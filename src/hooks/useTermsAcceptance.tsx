@@ -32,14 +32,9 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
 
       // Get user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) {
+      if (userError || !user) {
         console.error('Error getting user:', userError);
-        throw userError;
-      }
-
-      if (!user) {
-        console.error('No user found after getUser call');
-        throw new Error("User not found");
+        throw new Error("Failed to get user information");
       }
 
       if (!competitionId) {
@@ -47,18 +42,35 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         throw new Error("Competition ID not found");
       }
 
-      console.log('Creating/updating competition entry for:', {
-        userId: user.id,
-        competitionId
-      });
+      // First, check if entry already exists and is paid
+      const { data: existingEntry, error: checkError } = await supabase
+        .from('competition_entries')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('competition_id', competitionId)
+        .maybeSingle();
 
-      // Create/update entry
+      if (checkError) {
+        console.error('Error checking existing entry:', checkError);
+        throw new Error("Failed to check entry status");
+      }
+
+      console.log('Existing entry check:', existingEntry);
+
+      // If entry exists and payment is completed, just proceed
+      if (existingEntry?.payment_completed) {
+        console.log('Entry already exists and is paid, proceeding...');
+        onAcceptTerms();
+        return;
+      }
+
+      // Create/update entry with terms accepted
       const { error: entryError } = await supabase
         .from('competition_entries')
         .upsert({
           user_id: user.id,
           competition_id: competitionId,
-          terms_accepted: false,
+          terms_accepted: true,
           testing_mode: false,
           status: 'Not Started',
           payment_completed: false
