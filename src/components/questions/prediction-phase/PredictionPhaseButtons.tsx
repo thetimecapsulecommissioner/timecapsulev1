@@ -26,6 +26,9 @@ export const PredictionPhaseButtons = ({
   const isMidSeasonOpen = false;
 
   const handlePreSeasonSelect = () => {
+    toast.info("Scrolling to Pre-Season Predictions...", {
+      duration: 1500,
+    });
     onPhaseSelect('pre-season');
   };
 
