@@ -84,7 +84,7 @@ export const useRegistration = () => {
         console.log("User created successfully:", authData.user);
         toast.success(
           "Registration successful! Please check your email to verify your account before logging in.",
-          { duration: 6000 }
+          { duration: 15000 } // Increased to 15 seconds
         );
         navigate("/login");
       } else {

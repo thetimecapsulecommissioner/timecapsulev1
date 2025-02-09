@@ -59,13 +59,10 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
         throw new Error("User or competition not found");
       }
 
-      console.log('User authenticated:', user.id);
-      console.log('Competition ID:', competitionId);
-
-      // First, check if entry exists and get its status
+      // Check if user has already paid
       const { data: existingEntry, error: entryCheckError } = await supabase
         .from('competition_entries')
-        .select('status')
+        .select('payment_completed, payment_session_id')
         .eq('user_id', user.id)
         .eq('competition_id', competitionId)
         .maybeSingle();
@@ -75,7 +72,14 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
         throw entryCheckError;
       }
 
-      console.log('Competition entry found:', existingEntry);
+      if (existingEntry?.payment_completed) {
+        console.log('User has already paid');
+        onAcceptTerms();
+        return;
+      }
+
+      console.log('User authenticated:', user.id);
+      console.log('Competition ID:', competitionId);
 
       // Create or update competition entry
       const { error: entryError } = await supabase
@@ -85,7 +89,8 @@ export const AcceptTermsDialog = ({ open, onOpenChange, onAcceptTerms }: AcceptT
           competition_id: competitionId,
           terms_accepted: true,
           testing_mode: false,
-          status: existingEntry?.status || 'Not Started'
+          status: 'Not Started',
+          payment_completed: false
         }, {
           onConflict: 'user_id,competition_id'
         });

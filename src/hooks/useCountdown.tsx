@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 interface TimeLeft {
@@ -40,7 +41,9 @@ export const useCountdown = (targetDate: Date) => {
 
   const formattedTimeLeft = timeLeft.expired 
     ? 'Time expired' 
-    : `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m`;
+    : timeLeft.days > 1 
+      ? `${timeLeft.days}d` 
+      : `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m`;
 
   return { timeLeft, formattedTimeLeft };
 };
