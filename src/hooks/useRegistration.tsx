@@ -44,7 +44,6 @@ export const useRegistration = () => {
 
     setIsLoading(true);
     try {
-      // First create the auth user with additional metadata
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -63,43 +62,13 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
+        console.error('Signup error:', signUpError);
         toast.error(signUpError.message);
         return;
       }
 
       if (authData.user) {
-        // Create profile data object
-        const profileData = {
-          id: authData.user.id,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          display_name: formData.displayName,
-          email: formData.email,
-          phone: formData.phone,
-          state: formData.state,
-          player_status: formData.playerStatus,
-          player_reference: formData.playerReference || null,
-          afl_team: formData.aflClub,
-        };
-
-        // Then create/update their profile with all the form data
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert(profileData);
-
-        if (profileError) {
-          console.error('Profile update error:', profileError);
-          if (profileError.message.includes("row level security")) {
-            toast.error("Error creating profile. Please try logging in if you already have an account.");
-          } else {
-            toast.error("Error updating profile. Please try again.");
-          }
-          // Try to clean up the auth user if profile creation fails
-          await supabase.auth.signOut();
-          return;
-        }
-
-        // Show more detailed success message with email verification instructions
+        // Show success message with email verification instructions
         toast.success(
           "Registration successful! Please check your email to verify your account before logging in. " +
           "If you don't see the email, please check your spam folder.",
