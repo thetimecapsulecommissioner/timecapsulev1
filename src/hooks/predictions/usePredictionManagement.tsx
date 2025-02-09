@@ -8,7 +8,7 @@ import { PostgrestError } from "@supabase/supabase-js";
 interface SupabaseResponse {
   error: PostgrestError | null;
   data: any;
-  count?: number;
+  count?: number | null;
   status: number;
 }
 
@@ -43,22 +43,23 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
           .eq('question_id', questionId);
 
         // Insert new predictions
-        const promises = answers.map((answer, index) => 
-          supabase
+        const promises: Promise<SupabaseResponse>[] = answers.map(async (answer, index) => {
+          const result = await supabase
             .from('predictions')
             .upsert({
               question_id: questionId,
               user_id: userId,
               answer,
               response_order: index + 1
-            })
-            .then(result => ({
-              error: result.error,
-              data: result.data,
-              status: result.status,
-              count: result.count
-            }))
-        );
+            });
+
+          return {
+            error: result.error,
+            data: result.data,
+            status: result.status,
+            count: result.count
+          };
+        });
 
         const results = await Promise.all(promises);
         const errors = results.filter(result => result.error);
