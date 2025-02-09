@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useParams } from "react-router-dom";
 import { useCountdown } from "@/hooks/useCountdown";
 import { EntryButtons } from "./competition-buttons/EntryButtons";
+import { toast } from "sonner";
 
 interface CompetitionButtonsProps {
   hasEntered: boolean;
@@ -29,10 +30,22 @@ export const CompetitionButtons = ({
 
   const handleAcceptTerms = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !competitionId) return;
+      console.log('Handling terms acceptance in CompetitionButtons');
+      
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('Error getting user:', userError);
+        toast.error('Authentication error. Please try logging in again.');
+        return;
+      }
 
-      // Check if payment is completed before setting hasEntered
+      if (!user || !competitionId) {
+        console.error('Missing required data:', { user: !!user, competitionId });
+        toast.error('Required information missing. Please try again.');
+        return;
+      }
+
+      // Check if payment is completed
       const { data: entry, error: entryError } = await supabase
         .from('competition_entries')
         .select('payment_completed')
@@ -42,15 +55,20 @@ export const CompetitionButtons = ({
 
       if (entryError) {
         console.error('Error checking entry status:', entryError);
+        toast.error('Failed to verify entry status');
         return;
       }
 
+      console.log('Entry status checked:', { entry, paymentCompleted: entry?.payment_completed });
+
       if (entry?.payment_completed) {
+        console.log('Payment already completed, proceeding with competition entry');
         setShowAcceptTerms(false);
         onEnterCompetition();
       }
     } catch (error) {
-      console.error('Error accepting terms:', error);
+      console.error('Error in handleAcceptTerms:', error);
+      toast.error('Failed to process terms acceptance');
     }
   };
 

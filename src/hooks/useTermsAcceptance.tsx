@@ -11,21 +11,22 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
   const handleAcceptTerms = async () => {
     try {
       setIsProcessing(true);
-      console.log('Starting accept terms process...');
+      console.log('Starting accept terms process...', { competitionId });
 
       // Check session
       const { data: session, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session?.session) {
-        console.error('Session check failed:', {
-          error: sessionError,
-          sessionExists: !!session?.session
-        });
-        throw new Error("Authentication session not found. Please try logging in again.");
+      if (sessionError) {
+        console.error('Session check failed:', sessionError);
+        throw new Error(`Authentication error: ${sessionError.message}`);
+      }
+
+      if (!session?.session) {
+        console.error('No active session found');
+        throw new Error("No active session. Please log in again.");
       }
 
       console.log('Session validated:', {
-        sessionExists: !!session.session,
-        userExists: !!session.session?.user,
+        userId: session.session.user.id,
         accessToken: !!session.session.access_token
       });
 
@@ -36,12 +37,22 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         throw userError;
       }
 
-      if (!user || !competitionId) {
-        console.error('Missing user or competition ID:', { user: !!user, competitionId });
-        throw new Error("User or competition not found");
+      if (!user) {
+        console.error('No user found after getUser call');
+        throw new Error("User not found");
       }
 
-      // Create/update entry with terms_accepted=false until payment is completed
+      if (!competitionId) {
+        console.error('No competition ID available');
+        throw new Error("Competition ID not found");
+      }
+
+      console.log('Creating/updating competition entry for:', {
+        userId: user.id,
+        competitionId
+      });
+
+      // Create/update entry
       const { error: entryError } = await supabase
         .from('competition_entries')
         .upsert({
@@ -57,8 +68,10 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
 
       if (entryError) {
         console.error('Error creating/updating entry:', entryError);
-        throw entryError;
+        throw new Error(`Failed to create entry: ${entryError.message}`);
       }
+
+      console.log('Competition entry created/updated, creating checkout session...');
 
       // Create checkout session
       const { data: sessionData, error: checkoutError } = await supabase.functions.invoke(
@@ -72,29 +85,29 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
       );
 
       if (checkoutError) {
-        console.error('Checkout error:', checkoutError);
-        throw checkoutError;
+        console.error('Checkout session creation failed:', checkoutError);
+        throw new Error(`Checkout error: ${checkoutError.message}`);
       }
 
       if (!sessionData?.url) {
         console.error('No checkout URL received:', sessionData);
-        throw new Error('No checkout URL received');
+        throw new Error('Invalid checkout response');
       }
 
-      console.log('Redirecting to checkout:', sessionData.url);
+      console.log('Redirecting to checkout:', {
+        url: sessionData.url.substring(0, 50) + '...',
+        timestamp: new Date().toISOString()
+      });
+      
       window.location.href = sessionData.url;
       onAcceptTerms();
     } catch (error) {
-      console.error('Error processing terms and payment:', {
+      console.error('Terms acceptance process failed:', {
         message: error.message,
-        details: error.toString(),
-        stack: error.stack
+        details: error instanceof Error ? error.stack : String(error)
       });
-      let errorMessage = "Failed to process terms and payment. ";
-      if (error instanceof Error) {
-        errorMessage += error.message;
-      }
-      toast.error(errorMessage);
+      
+      toast.error(error instanceof Error ? error.message : 'Failed to process terms and payment');
     } finally {
       setIsProcessing(false);
     }
