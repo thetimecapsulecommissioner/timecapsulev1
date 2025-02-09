@@ -53,11 +53,9 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
         }
       }
 
-      // Handle query invalidation
-      Promise.resolve().then(() => {
-        queryClient.invalidateQueries({ queryKey: ['predictions'] });
-        queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
-      });
+      // Use a simpler approach to invalidate queries
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
       
     } catch (error) {
       console.error('Error saving prediction:', error);
@@ -103,11 +101,9 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
       if (entryError) throw entryError;
 
-      // Handle query invalidation
-      Promise.resolve().then(() => {
-        queryClient.invalidateQueries({ queryKey: ['predictions'] });
-        queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
-      });
+      // Use a simpler approach to invalidate queries
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
 
       toast.success("Predictions sealed successfully!");
     } catch (error) {
