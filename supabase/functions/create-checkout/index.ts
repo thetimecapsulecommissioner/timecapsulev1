@@ -117,12 +117,15 @@ serve(async (req) => {
     // Store the session ID and update entry status
     const { error: updateError } = await supabaseClient
       .from('competition_entries')
-      .update({ 
+      .upsert({ 
+        user_id: user.id,
+        competition_id: competitionId,
         payment_session_id: session.id,
-        status: 'Pending Payment'
-      })
-      .eq('user_id', user.id)
-      .eq('competition_id', competitionId);
+        status: 'Pending Payment',
+        testing_mode: false
+      }, {
+        onConflict: 'user_id,competition_id'
+      });
 
     if (updateError) {
       console.error('Error updating competition entry:', updateError);
