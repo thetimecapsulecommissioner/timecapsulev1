@@ -1,4 +1,3 @@
-
 import { ProfileDropdown } from "./ProfileDropdown";
 import { useCompetition } from "@/hooks/useCompetition";
 import { LoadingState } from "./ui/LoadingState";
@@ -18,6 +17,7 @@ export const Questions = () => {
   const { id: competitionId } = useParams();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
+  const paymentStatus = searchParams.get('payment');
   const { data: competition, isLoading: competitionLoading } = useCompetition(competitionId);
   const { 
     questions,
@@ -40,7 +40,7 @@ export const Questions = () => {
   // Handle successful payment completion
   useEffect(() => {
     const handlePaymentSuccess = async () => {
-      if (!sessionId || !competitionId) return;
+      if (!sessionId || !competitionId || paymentStatus !== 'success') return;
 
       try {
         console.log('Handling payment success with session ID:', sessionId);
@@ -72,9 +72,10 @@ export const Questions = () => {
         toast.success('Payment confirmed! You can now start the competition.');
         setHasEntered(true);
         
-        // Clear the session_id from the URL
+        // Clear the URL parameters
         const newParams = new URLSearchParams(searchParams);
         newParams.delete('session_id');
+        newParams.delete('payment');
         navigate({ search: newParams.toString() }, { replace: true });
       } catch (error) {
         console.error('Error processing payment completion:', error);
@@ -83,7 +84,7 @@ export const Questions = () => {
     };
 
     handlePaymentSuccess();
-  }, [sessionId, competitionId, navigate, searchParams, setHasEntered]);
+  }, [sessionId, competitionId, paymentStatus, navigate, searchParams, setHasEntered]);
 
   useEffect(() => {
     const checkAndRestoreSession = async () => {
