@@ -5,15 +5,24 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Prediction } from "@/types/predictions";
 
+type InvalidateQueriesPromise = Promise<void>;
+
 export const usePredictionManagement = (userId?: string, competitionId?: string) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isSealing, setIsSealing] = useState(false);
   const queryClient = useQueryClient();
 
-  const handleAnswerChange = async (questionId: number, answers: string[], responseOrder?: number) => {
-    try {
-      if (!userId) return;
+  const invalidateQueries = async (): InvalidateQueriesPromise => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['predictions'] }),
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] })
+    ]);
+  };
 
+  const handleAnswerChange = async (questionId: number, answers: string[], responseOrder?: number) => {
+    if (!userId) return;
+    
+    try {
       // Case 1: Single prediction update
       if (responseOrder !== undefined) {
         const { error } = await supabase
@@ -53,12 +62,7 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
         }
       }
 
-      const invalidatePromises: Promise<void>[] = [
-        queryClient.invalidateQueries({ queryKey: ['predictions'] }).then(() => {}),
-        queryClient.invalidateQueries({ queryKey: ['competition-entry'] }).then(() => {})
-      ];
-      
-      await Promise.all(invalidatePromises);
+      await invalidateQueries();
       
     } catch (error) {
       console.error('Error saving prediction:', error);
@@ -67,9 +71,10 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
   };
 
   const handleSealPredictions = async () => {
+    if (!userId || !competitionId) return;
+
     try {
       setIsSealing(true);
-      if (!userId || !competitionId) return;
 
       const { data: questions } = await supabase
         .from('questions')
@@ -104,13 +109,7 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
       if (entryError) throw entryError;
 
-      const invalidatePromises: Promise<void>[] = [
-        queryClient.invalidateQueries({ queryKey: ['predictions'] }).then(() => {}),
-        queryClient.invalidateQueries({ queryKey: ['competition-entry'] }).then(() => {})
-      ];
-      
-      await Promise.all(invalidatePromises);
-
+      await invalidateQueries();
       toast.success("Predictions sealed successfully!");
     } catch (error) {
       console.error('Error sealing predictions:', error);
