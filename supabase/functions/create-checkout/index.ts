@@ -78,31 +78,11 @@ serve(async (req) => {
       throw new Error('No competition ID provided');
     }
 
-    const origin = req.headers.get('origin') || req.headers.get('referer');
-    if (!origin) {
-      console.error('No origin or referer header found');
-      throw new Error('Origin or referer header is required');
-    }
-
-    const originUrl = new URL(origin);
-    console.log('Request origin:', originUrl.origin);
-
-    const allowedOrigins = [
-      'https://thetimecapsule1.netlify.app',
-      'http://localhost:5173',
-      'http://localhost:3000'
-    ];
-
-    if (!allowedOrigins.includes(originUrl.origin)) {
-      console.error('Invalid origin:', originUrl.origin);
-      throw new Error('Invalid origin');
-    }
-
-    // Simplified success URL - redirect to dashboard
-    const successUrl = `${originUrl.origin}/dashboard`;
-    const cancelUrl = `${originUrl.origin}/dashboard`;
+    // Simplified success and cancel URLs
+    const successUrl = 'https://thetimecapsule1.netlify.app/dashboard';
+    const cancelUrl = 'https://thetimecapsule1.netlify.app/dashboard';
     
-    console.log('Constructed URLs:', {
+    console.log('Using simplified URLs:', {
       success: successUrl,
       cancel: cancelUrl
     });
@@ -135,7 +115,7 @@ serve(async (req) => {
       .from('competition_entries')
       .update({ 
         payment_session_id: session.id,
-        payment_completed: true // Add this to mark payment as completed
+        payment_completed: true
       })
       .eq('user_id', user.id)
       .eq('competition_id', competitionId);
