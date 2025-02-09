@@ -421,7 +421,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      handle_stripe_payment_success: {
+        Args: {
+          payment_session_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
