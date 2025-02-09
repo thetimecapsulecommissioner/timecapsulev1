@@ -5,6 +5,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PostgrestError } from "@supabase/supabase-js";
 
+interface SupabaseResponse {
+  error: PostgrestError | null;
+  data?: any;
+}
+
 export const usePredictionManagement = (userId?: string, competitionId?: string) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isSealing, setIsSealing] = useState(false);
@@ -36,7 +41,7 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
           .eq('question_id', questionId);
 
         // Insert new predictions
-        const upsertPromises: Promise<{ error: PostgrestError | null }>[] = answers.map((answer, index) => 
+        const upsertPromises = answers.map((answer, index) => 
           supabase
             .from('predictions')
             .upsert({
@@ -47,7 +52,7 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
             })
         );
 
-        const results = await Promise.all(upsertPromises);
+        const results = await Promise.all<SupabaseResponse>(upsertPromises);
         const errors = results.filter(result => result.error);
         if (errors.length > 0) throw errors[0].error;
       }
