@@ -1,8 +1,9 @@
+
 import { ProfileDropdown } from "./ProfileDropdown";
 import { useCompetition } from "@/hooks/useCompetition";
 import { LoadingState } from "./ui/LoadingState";
 import { Logo } from "./navigation/Logo";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CompetitionHeader } from "./questions/CompetitionHeader";
 import { useCompetitionData } from "./questions/hooks/useCompetitionData";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,9 +16,6 @@ import { toast } from "sonner";
 export const Questions = () => {
   const navigate = useNavigate();
   const { id: competitionId } = useParams();
-  const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get('session_id');
-  const paymentStatus = searchParams.get('payment');
   const { data: competition, isLoading: competitionLoading } = useCompetition(competitionId);
   const { 
     questions,
@@ -30,6 +28,7 @@ export const Questions = () => {
 
   const [selectedPhase, setSelectedPhase] = useState<'pre-season' | 'mid-season' | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(true);
 
   useEffect(() => {
     if (selectedPhase === 'pre-season') {
@@ -37,63 +36,75 @@ export const Questions = () => {
     }
   }, [selectedPhase]);
 
-  // Handle successful payment completion
+  // Verify payment status on component mount
   useEffect(() => {
-    const handlePaymentSuccess = async () => {
-      if (!sessionId || !competitionId || paymentStatus !== 'success') return;
+    const verifyPayment = async () => {
+      if (!competitionId) return;
 
       try {
-        console.log('Handling payment success with session ID:', sessionId);
-        
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          console.error('No user found when completing payment');
+          console.error('No user found when verifying payment');
           return;
         }
 
-        // Update the competition entry
-        const { error: updateError } = await supabase
+        // Get the latest entry
+        const { data: entry } = await supabase
           .from('competition_entries')
-          .update({ 
-            payment_completed: true,
-            terms_accepted: true,
-            status: 'In Progress'
-          })
+          .select('*')
           .eq('user_id', user.id)
           .eq('competition_id', competitionId)
-          .eq('payment_session_id', sessionId);
+          .maybeSingle();
 
-        if (updateError) {
-          console.error('Error updating entry after payment:', updateError);
-          toast.error('Failed to confirm payment. Please contact support.');
+        if (!entry) {
+          setIsVerifyingPayment(false);
           return;
         }
 
-        toast.success('Payment confirmed! You can now start the competition.');
-        setHasEntered(true);
-        
-        // Clear the URL parameters
-        const newParams = new URLSearchParams(searchParams);
-        newParams.delete('session_id');
-        newParams.delete('payment');
-        navigate({ search: newParams.toString() }, { replace: true });
+        // If payment is already completed, no need to verify
+        if (entry.payment_completed) {
+          setHasEntered(true);
+          setIsVerifyingPayment(false);
+          return;
+        }
+
+        // If we have a payment session ID, verify with Stripe
+        if (entry.payment_session_id) {
+          const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
+            'verify-payment',
+            {
+              body: { 
+                sessionId: entry.payment_session_id,
+                competitionId,
+                userId: user.id
+              }
+            }
+          );
+
+          if (sessionError) {
+            console.error('Error verifying payment:', sessionError);
+            toast.error('Failed to verify payment status');
+          } else if (sessionData?.paymentCompleted) {
+            setHasEntered(true);
+            toast.success('Payment verified successfully!');
+          }
+        }
+
+        setIsVerifyingPayment(false);
       } catch (error) {
-        console.error('Error processing payment completion:', error);
-        toast.error('Failed to process payment confirmation');
+        console.error('Error in payment verification:', error);
+        toast.error('Failed to verify payment status');
+        setIsVerifyingPayment(false);
       }
     };
 
-    handlePaymentSuccess();
-  }, [sessionId, competitionId, paymentStatus, navigate, searchParams, setHasEntered]);
+    verifyPayment();
+  }, [competitionId, setHasEntered]);
 
   useEffect(() => {
     const checkAndRestoreSession = async () => {
       try {
-        console.log('Checking auth session state...', {
-          hasSessionId: !!sessionId,
-          competitionId
-        });
-
+        console.log('Checking auth session state...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -101,28 +112,15 @@ export const Questions = () => {
           throw error;
         }
         
-        // If we have a session_id from Stripe but no auth session,
-        // preserve the return URL and redirect to login
-        if (!session && sessionId) {
-          console.log('No auth session found with Stripe session_id, redirecting to login');
-          const currentPath = `/competition/${competitionId}?session_id=${sessionId}`;
-          const encodedRedirectUrl = encodeURIComponent(currentPath);
-          navigate(`/login?redirectUrl=${encodedRedirectUrl}`);
-          return;
-        }
-        
-        // If no session and no session_id, redirect to regular login
         if (!session) {
-          console.log('No auth session or Stripe session_id, redirecting to login');
+          console.log('No auth session found, redirecting to login');
           navigate('/login');
           return;
         }
 
         console.log('Auth session found:', {
           userId: session.user?.id,
-          email: session.user?.email,
-          hasSessionId: !!sessionId,
-          competitionId
+          email: session.user?.email
         });
         
         setIsAuthChecking(false);
@@ -134,7 +132,7 @@ export const Questions = () => {
     };
 
     checkAndRestoreSession();
-  }, [navigate, sessionId, competitionId]);
+  }, [navigate]);
 
   const handleLogoClick = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -145,7 +143,7 @@ export const Questions = () => {
     }
   };
 
-  if (isAuthChecking || competitionLoading || questionsLoading || entryLoading) {
+  if (isAuthChecking || isVerifyingPayment || competitionLoading || questionsLoading || entryLoading) {
     return <LoadingState />;
   }
 
