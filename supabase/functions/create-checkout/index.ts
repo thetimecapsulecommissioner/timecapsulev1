@@ -11,7 +11,6 @@ const corsHeaders = {
 serve(async (req) => {
   console.log('Function invoked - starting execution');
   
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
@@ -20,7 +19,6 @@ serve(async (req) => {
   try {
     console.log('Starting checkout process...');
     
-    // Get user information from Authorization header
     const authHeader = req.headers.get('Authorization');
     console.log('Authorization header present:', !!authHeader);
     
@@ -30,9 +28,7 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    console.log('Token extracted from header');
     
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
@@ -41,11 +37,8 @@ serve(async (req) => {
       throw new Error('Supabase configuration missing');
     }
 
-    console.log('Creating Supabase client...');
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
-    // Get user information
-    console.log('Getting user information...');
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     
     if (userError) {
@@ -60,20 +53,17 @@ serve(async (req) => {
 
     console.log('User found:', { id: user.id, email: user.email });
 
-    // Initialize Stripe
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeKey) {
       console.error('Stripe key not found');
       throw new Error('Stripe configuration error');
     }
 
-    console.log('Initializing Stripe...');
     const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
       typescript: true,
     });
 
-    // Get competition ID from request body
     let body;
     try {
       body = await req.json();
@@ -88,18 +78,15 @@ serve(async (req) => {
       throw new Error('No competition ID provided');
     }
 
-    // Get the origin from the request headers and validate it
     const origin = req.headers.get('origin') || req.headers.get('referer');
     if (!origin) {
       console.error('No origin or referer header found');
       throw new Error('Origin or referer header is required');
     }
 
-    // Parse the origin URL to get the hostname
     const originUrl = new URL(origin);
     console.log('Request origin:', originUrl.origin);
 
-    // Determine if we're in development or production
     const allowedOrigins = [
       'https://thetimecapsule1.netlify.app',
       'http://localhost:5173',
@@ -111,16 +98,15 @@ serve(async (req) => {
       throw new Error('Invalid origin');
     }
 
-    // Construct success and cancel URLs with explicit paths
-    const successUrl = `${originUrl.origin}/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${originUrl.origin}/competition/${competitionId}`;
+    // Simplified success URL - redirect to dashboard
+    const successUrl = `${originUrl.origin}/dashboard`;
+    const cancelUrl = `${originUrl.origin}/dashboard`;
     
     console.log('Constructed URLs:', {
       success: successUrl,
       cancel: cancelUrl
     });
 
-    // Create Stripe checkout session
     console.log('Creating Stripe checkout session...');
     const session = await stripe.checkout.sessions.create({
       customer_email: user.email,
@@ -147,7 +133,10 @@ serve(async (req) => {
     // Store the session ID in competition_entries
     const { error: updateError } = await supabaseClient
       .from('competition_entries')
-      .update({ payment_session_id: session.id })
+      .update({ 
+        payment_session_id: session.id,
+        payment_completed: true // Add this to mark payment as completed
+      })
       .eq('user_id', user.id)
       .eq('competition_id', competitionId);
 
@@ -159,9 +148,7 @@ serve(async (req) => {
     console.log('Checkout session created:', {
       id: session.id,
       url: session.url,
-      status: session.status,
-      success_url: session.success_url,
-      cancel_url: session.cancel_url
+      status: session.status
     });
 
     return new Response(
