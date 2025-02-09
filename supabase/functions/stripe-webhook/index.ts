@@ -10,6 +10,9 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Log all headers for debugging
+  console.log('Received headers:', Object.fromEntries(req.headers.entries()));
+  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { 
@@ -19,29 +22,24 @@ serve(async (req) => {
   }
 
   try {
-    // Validate request method
-    if (req.method !== 'POST') {
-      return new Response(
-        JSON.stringify({ error: 'Method not allowed' }), 
-        { 
-          status: 405,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Get raw body
+    // Get raw body and log it
     const rawBody = await req.text();
     console.log('Received webhook payload:', rawBody);
 
-    // Get Stripe signature
-    const signature = req.headers.get('stripe-signature');
-    console.log('Received Stripe signature:', signature);
+    // Get Stripe signature (try different casings)
+    const signature = 
+      req.headers.get('stripe-signature') || 
+      req.headers.get('Stripe-Signature');
+
+    console.log('Stripe signature:', signature);
 
     if (!signature) {
-      console.error('No Stripe signature found');
+      console.error('No Stripe signature found in headers');
       return new Response(
-        JSON.stringify({ error: 'No Stripe signature provided' }),
+        JSON.stringify({ 
+          error: 'No Stripe signature found',
+          headers: Object.fromEntries(req.headers.entries())
+        }),
         { 
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -54,7 +52,10 @@ serve(async (req) => {
     const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
 
     if (!stripeKey || !webhookSecret) {
-      console.error('Missing Stripe configuration');
+      console.error('Missing Stripe configuration:', {
+        hasStripeKey: !!stripeKey,
+        hasWebhookSecret: !!webhookSecret
+      });
       return new Response(
         JSON.stringify({ error: 'Server configuration error' }),
         { 
@@ -73,11 +74,21 @@ serve(async (req) => {
     let event;
     try {
       event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-      console.log('Webhook verified successfully, event type:', event.type);
+      console.log('Webhook verified successfully, event:', {
+        type: event.type,
+        id: event.id
+      });
     } catch (err) {
-      console.error('Webhook signature verification failed:', err.message);
+      console.error('Webhook signature verification failed:', {
+        error: err.message,
+        signature: signature,
+        bodyLength: rawBody.length
+      });
       return new Response(
-        JSON.stringify({ error: 'Invalid signature' }),
+        JSON.stringify({ 
+          error: 'Invalid signature',
+          details: err.message
+        }),
         { 
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -88,13 +99,18 @@ serve(async (req) => {
     // Handle checkout.session.completed event
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      console.log('Processing completed checkout session:', session.id);
+      console.log('Processing completed checkout session:', {
+        sessionId: session.id,
+        customerId: session.customer,
+        paymentStatus: session.payment_status
+      });
 
       // Initialize Supabase client
       const supabaseUrl = Deno.env.get('SUPABASE_URL');
       const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
       if (!supabaseUrl || !supabaseServiceKey) {
+        console.error('Missing Supabase configuration');
         throw new Error('Missing Supabase configuration');
       }
 
@@ -124,7 +140,10 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Webhook processing error:', error.message);
+    console.error('Webhook processing error:', {
+      message: error.message,
+      stack: error.stack
+    });
     return new Response(
       JSON.stringify({ 
         error: error.message,
