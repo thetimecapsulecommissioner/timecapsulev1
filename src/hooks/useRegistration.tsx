@@ -47,6 +47,8 @@ export const useRegistration = () => {
     setIsLoading(true);
 
     try {
+      console.log("Starting registration process...");
+      
       // Sign up the user with metadata
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
@@ -61,26 +63,33 @@ export const useRegistration = () => {
             player_status: formData.playerStatus,
             player_reference: formData.playerReference || null,
             afl_team: formData.aflClub,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/login`
         }
       });
+
+      console.log("Sign up response:", { authData, signUpError });
 
       if (signUpError) {
         console.error('Signup error:', signUpError);
         if (signUpError.message.includes('User already registered')) {
           toast.error('This email is already registered. Please try logging in instead.');
         } else {
-          toast.error(signUpError.message);
+          toast.error(signUpError.message || 'Error during registration');
         }
         return;
       }
 
       if (authData.user) {
+        console.log("User created successfully:", authData.user);
         toast.success(
           "Registration successful! Please check your email to verify your account before logging in.",
           { duration: 6000 }
         );
         navigate("/login");
+      } else {
+        console.error('No user data returned');
+        toast.error("An unexpected error occurred during registration");
       }
     } catch (error) {
       console.error('Registration error:', error);
