@@ -114,7 +114,23 @@ serve(async (req) => {
       submit_type: 'pay',
       payment_method_types: ['card'],
       currency: 'aud',
+      metadata: {
+        user_id: user.id,
+        competition_id: competitionId
+      }
     });
+
+    // Store the session ID in competition_entries
+    const { error: updateError } = await supabaseClient
+      .from('competition_entries')
+      .update({ payment_session_id: session.id })
+      .eq('user_id', user.id)
+      .eq('competition_id', competitionId);
+
+    if (updateError) {
+      console.error('Error updating competition entry:', updateError);
+      throw updateError;
+    }
 
     console.log('Checkout session created:', {
       id: session.id,

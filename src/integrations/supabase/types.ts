@@ -125,6 +125,8 @@ export type Database = {
           competition_id: string
           created_at: string
           id: string
+          payment_completed: boolean | null
+          payment_session_id: string | null
           questions_completed: number
           responses_saved: number | null
           status: string | null
@@ -137,6 +139,8 @@ export type Database = {
           competition_id: string
           created_at?: string
           id?: string
+          payment_completed?: boolean | null
+          payment_session_id?: string | null
           questions_completed?: number
           responses_saved?: number | null
           status?: string | null
@@ -149,6 +153,8 @@ export type Database = {
           competition_id?: string
           created_at?: string
           id?: string
+          payment_completed?: boolean | null
+          payment_session_id?: string | null
           questions_completed?: number
           responses_saved?: number | null
           status?: string | null
