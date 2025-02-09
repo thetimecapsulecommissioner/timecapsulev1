@@ -4,21 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PostgrestError } from "@supabase/supabase-js";
-
-// Define a more specific type for the prediction data
-interface PredictionData {
-  question_id: number;
-  user_id: string;
-  answer: string;
-  response_order: number;
-}
-
-interface SupabaseResponse {
-  error: PostgrestError | null;
-  data: PredictionData[] | null;
-  count?: number | null;
-  status: number;
-}
+import { Prediction } from "@/types/predictions";
 
 export const usePredictionManagement = (userId?: string, competitionId?: string) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -50,30 +36,19 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
           .eq('user_id', userId)
           .eq('question_id', questionId);
 
-        // Insert new predictions with explicit typing
-        const predictionPromises = answers.map(async (answer, index) => {
-          const predictionData: PredictionData = {
-            question_id: questionId,
-            user_id: userId,
-            answer,
-            response_order: index + 1
-          };
-
-          const result = await supabase
+        // Insert new predictions one by one to avoid type issues
+        for (let i = 0; i < answers.length; i++) {
+          const { error } = await supabase
             .from('predictions')
-            .upsert(predictionData);
+            .insert({
+              question_id: questionId,
+              user_id: userId,
+              answer: answers[i],
+              response_order: i + 1
+            });
 
-          return {
-            error: result.error,
-            data: result.data,
-            status: result.status,
-            count: result.count
-          } as SupabaseResponse;
-        });
-
-        const results = await Promise.all(predictionPromises);
-        const errors = results.filter(result => result.error);
-        if (errors.length > 0) throw errors[0].error;
+          if (error) throw error;
+        }
       }
 
       queryClient.invalidateQueries({ queryKey: ['predictions'] });
