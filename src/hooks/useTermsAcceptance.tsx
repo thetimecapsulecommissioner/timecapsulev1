@@ -94,17 +94,20 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         throw new Error('Invalid checkout response');
       }
 
-      console.log('Redirecting to checkout:', {
+      console.log('Successfully created checkout session, redirecting to:', {
         url: sessionData.url.substring(0, 50) + '...',
         timestamp: new Date().toISOString()
       });
-      
-      window.location.href = sessionData.url;
+
+      // Call onAcceptTerms before redirecting
       onAcceptTerms();
+      
+      // Redirect to Stripe checkout
+      window.location.href = sessionData.url;
     } catch (error) {
       console.error('Terms acceptance process failed:', {
-        message: error.message,
-        details: error instanceof Error ? error.stack : String(error)
+        message: error instanceof Error ? error.message : String(error),
+        details: error instanceof Error ? error.stack : error
       });
       
       toast.error(error instanceof Error ? error.message : 'Failed to process terms and payment');

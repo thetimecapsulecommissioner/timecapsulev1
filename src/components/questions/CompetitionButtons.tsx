@@ -65,6 +65,8 @@ export const CompetitionButtons = ({
         console.log('Payment already completed, proceeding with competition entry');
         setShowAcceptTerms(false);
         onEnterCompetition();
+      } else {
+        console.log('Payment not completed, keeping dialog open');
       }
     } catch (error) {
       console.error('Error in handleAcceptTerms:', error);

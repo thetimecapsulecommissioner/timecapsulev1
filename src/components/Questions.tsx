@@ -50,12 +50,19 @@ export const Questions = () => {
         }
 
         // Get the latest entry
-        const { data: entry } = await supabase
+        const { data: entry, error: entryError } = await supabase
           .from('competition_entries')
           .select('*')
           .eq('user_id', user.id)
           .eq('competition_id', competitionId)
           .maybeSingle();
+
+        if (entryError) {
+          console.error('Error fetching entry:', entryError);
+          toast.error('Failed to verify payment status');
+          setIsVerifyingPayment(false);
+          return;
+        }
 
         console.log('Found competition entry:', entry);
 
@@ -88,6 +95,8 @@ export const Questions = () => {
               return;
             }
 
+            console.log(`Payment verification attempt ${attempts + 1} of ${maxAttempts}`);
+
             const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
               'verify-payment',
               {
@@ -105,6 +114,8 @@ export const Questions = () => {
               setIsVerifyingPayment(false);
               return;
             }
+
+            console.log('Payment verification response:', sessionData);
 
             if (sessionData?.paymentCompleted) {
               console.log('Payment verified successfully');
