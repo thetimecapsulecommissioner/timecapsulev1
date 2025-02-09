@@ -16,6 +16,14 @@ export const usePaymentVerification = (
       if (!competitionId) return;
 
       try {
+        // Get current session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.error('No session found when verifying payment');
+          return;
+        }
+
+        // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           console.error('No user found when verifying payment');
@@ -35,6 +43,9 @@ export const usePaymentVerification = (
                 sessionId,
                 competitionId,
                 userId: user.id
+              },
+              headers: {
+                Authorization: `Bearer ${session.access_token}`
               }
             }
           );
@@ -60,38 +71,8 @@ export const usePaymentVerification = (
             .eq('competition_id', competitionId)
             .maybeSingle();
 
-          if (!entry) {
-            setIsVerifyingPayment(false);
-            return;
-          }
-
-          // If payment is already completed, no need to verify
-          if (entry.payment_completed) {
+          if (entry?.payment_completed) {
             setHasEntered(true);
-            setIsVerifyingPayment(false);
-            return;
-          }
-
-          // If we have a payment session ID, verify with Stripe
-          if (entry.payment_session_id) {
-            const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
-              'verify-payment',
-              {
-                body: { 
-                  sessionId: entry.payment_session_id,
-                  competitionId,
-                  userId: user.id
-                }
-              }
-            );
-
-            if (sessionError) {
-              console.error('Error verifying payment:', sessionError);
-              toast.error('Failed to verify payment status');
-            } else if (sessionData?.paymentCompleted) {
-              setHasEntered(true);
-              toast.success('Payment verified successfully!');
-            }
           }
         }
 

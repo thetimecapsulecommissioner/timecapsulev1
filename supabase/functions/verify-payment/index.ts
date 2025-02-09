@@ -10,13 +10,20 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Verify the JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Missing authorization header');
+    }
+
     const { sessionId, competitionId, userId } = await req.json();
-    console.log('Verifying payment for:', { sessionId, competitionId, userId });
+    console.log('Starting payment verification for:', { sessionId, competitionId, userId });
 
     if (!sessionId || !competitionId || !userId) {
       throw new Error('Missing required parameters');
@@ -34,6 +41,7 @@ serve(async (req) => {
     });
 
     // Get session from Stripe
+    console.log('Retrieving Stripe session:', sessionId);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     console.log('Retrieved Stripe session:', {
       id: session.id,
@@ -47,6 +55,15 @@ serve(async (req) => {
       session.metadata?.competition_id === competitionId &&
       session.metadata?.user_id === userId;
 
+    console.log('Payment validation result:', {
+      isValid: isValidPayment,
+      paymentStatus: session.payment_status,
+      metadataMatch: {
+        competition: session.metadata?.competition_id === competitionId,
+        user: session.metadata?.user_id === userId
+      }
+    });
+
     if (isValidPayment) {
       // Initialize Supabase admin client
       const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -59,6 +76,7 @@ serve(async (req) => {
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
       // Check if entry exists
+      console.log('Checking for existing competition entry...');
       const { data: existingEntry, error: checkError } = await supabaseAdmin
         .from('competition_entries')
         .select('*')
@@ -67,11 +85,12 @@ serve(async (req) => {
         .maybeSingle();
 
       if (checkError) {
+        console.error('Error checking existing entry:', checkError);
         throw checkError;
       }
 
       if (existingEntry) {
-        // Update existing entry
+        console.log('Updating existing competition entry...');
         const { error: updateError } = await supabaseAdmin
           .from('competition_entries')
           .update({ 
@@ -84,10 +103,11 @@ serve(async (req) => {
           .eq('competition_id', competitionId);
 
         if (updateError) {
+          console.error('Error updating entry:', updateError);
           throw updateError;
         }
       } else {
-        // Create new entry
+        console.log('Creating new competition entry...');
         const { error: createError } = await supabaseAdmin
           .from('competition_entries')
           .insert({
@@ -100,11 +120,12 @@ serve(async (req) => {
           });
 
         if (createError) {
+          console.error('Error creating entry:', createError);
           throw createError;
         }
       }
 
-      console.log('Successfully processed payment for session:', sessionId);
+      console.log('Successfully processed payment and updated competition entry');
     }
 
     return new Response(
@@ -118,7 +139,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error verifying payment:', error);
+    console.error('Error in verify-payment function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
