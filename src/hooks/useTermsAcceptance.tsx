@@ -41,32 +41,13 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         throw new Error("User or competition not found");
       }
 
-      // Check existing payment
-      const { data: existingEntry, error: entryCheckError } = await supabase
-        .from('competition_entries')
-        .select('payment_completed, payment_session_id')
-        .eq('user_id', user.id)
-        .eq('competition_id', competitionId)
-        .maybeSingle();
-
-      if (entryCheckError) {
-        console.error('Error checking competition entry:', entryCheckError);
-        throw entryCheckError;
-      }
-
-      if (existingEntry?.payment_completed) {
-        console.log('User has already paid');
-        onAcceptTerms();
-        return;
-      }
-
-      // Create/update entry
+      // Create/update entry with terms_accepted=false until payment is completed
       const { error: entryError } = await supabase
         .from('competition_entries')
         .upsert({
           user_id: user.id,
           competition_id: competitionId,
-          terms_accepted: true,
+          terms_accepted: false,
           testing_mode: false,
           status: 'Not Started',
           payment_completed: false

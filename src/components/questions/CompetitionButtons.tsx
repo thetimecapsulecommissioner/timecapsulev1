@@ -32,8 +32,23 @@ export const CompetitionButtons = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !competitionId) return;
 
-      setShowAcceptTerms(false);
-      onEnterCompetition();
+      // Check if payment is completed before setting hasEntered
+      const { data: entry, error: entryError } = await supabase
+        .from('competition_entries')
+        .select('payment_completed')
+        .eq('user_id', user.id)
+        .eq('competition_id', competitionId)
+        .maybeSingle();
+
+      if (entryError) {
+        console.error('Error checking entry status:', entryError);
+        return;
+      }
+
+      if (entry?.payment_completed) {
+        setShowAcceptTerms(false);
+        onEnterCompetition();
+      }
     } catch (error) {
       console.error('Error accepting terms:', error);
     }

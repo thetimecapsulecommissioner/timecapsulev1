@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,8 +83,10 @@ export const useCompetitionData = () => {
   });
 
   useEffect(() => {
-    if (entry?.terms_accepted) {
+    if (entry?.terms_accepted && entry?.payment_completed) {
       setHasEntered(true);
+    } else {
+      setHasEntered(false);
     }
   }, [entry]);
 
