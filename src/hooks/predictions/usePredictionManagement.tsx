@@ -53,11 +53,13 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
         }
       }
 
-      // Invalidate queries with explicit Promise handling
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['predictions'] }),
-        queryClient.invalidateQueries({ queryKey: ['competition-entry'] })
-      ]);
+      // Type the promises explicitly
+      const invalidatePromises = [
+        queryClient.invalidateQueries({ queryKey: ['predictions'] }).then(() => {}),
+        queryClient.invalidateQueries({ queryKey: ['competition-entry'] }).then(() => {})
+      ] as const;
+      
+      await Promise.all(invalidatePromises);
       
     } catch (error) {
       console.error('Error saving prediction:', error);
@@ -103,11 +105,13 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
       if (entryError) throw entryError;
 
-      // Invalidate queries with explicit Promise handling
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['predictions'] }),
-        queryClient.invalidateQueries({ queryKey: ['competition-entry'] })
-      ]);
+      // Type the promises explicitly 
+      const invalidatePromises = [
+        queryClient.invalidateQueries({ queryKey: ['predictions'] }).then(() => {}),
+        queryClient.invalidateQueries({ queryKey: ['competition-entry'] }).then(() => {})
+      ] as const;
+      
+      await Promise.all(invalidatePromises);
 
       toast.success("Predictions sealed successfully!");
     } catch (error) {
