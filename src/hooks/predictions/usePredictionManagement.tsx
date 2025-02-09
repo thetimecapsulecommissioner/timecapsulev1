@@ -53,9 +53,13 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
         }
       }
 
-      // Invalidate queries without awaiting to avoid deep type instantiation
-      queryClient.invalidateQueries({ queryKey: ['predictions'] });
-      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
+      // Invalidate queries synchronously to avoid type recursion
+      void queryClient.invalidateQueries({
+        queryKey: ['predictions']
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['competition-entry']
+      });
       
     } catch (error) {
       console.error('Error saving prediction:', error);
@@ -101,9 +105,15 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
       if (entryError) throw entryError;
 
+      // Invalidate queries synchronously
+      void queryClient.invalidateQueries({
+        queryKey: ['predictions']
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['competition-entry']
+      });
+
       toast.success("Predictions sealed successfully!");
-      queryClient.invalidateQueries({ queryKey: ['predictions'] });
-      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
     } catch (error) {
       console.error('Error sealing predictions:', error);
       toast.error("Failed to seal predictions");
