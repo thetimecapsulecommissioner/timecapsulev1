@@ -44,8 +44,42 @@ export const usePaymentVerification = (
             toast.error('Failed to verify payment status');
           } else if (sessionData?.paymentCompleted) {
             console.log('Payment verified successfully');
+            
+            // Ensure competition entry exists and is properly updated
+            const { data: existingEntry, error: entryError } = await supabase
+              .from('competition_entries')
+              .select('*')
+              .eq('user_id', user.id)
+              .eq('competition_id', competitionId)
+              .maybeSingle();
+
+            if (entryError) {
+              console.error('Error checking competition entry:', entryError);
+              return;
+            }
+
+            if (!existingEntry) {
+              // Create new entry if it doesn't exist
+              const { error: createError } = await supabase
+                .from('competition_entries')
+                .insert({
+                  user_id: user.id,
+                  competition_id: competitionId,
+                  payment_completed: true,
+                  terms_accepted: true,
+                  status: 'In Progress',
+                  payment_session_id: sessionId
+                });
+
+              if (createError) {
+                console.error('Error creating competition entry:', createError);
+                return;
+              }
+            }
+
             setHasEntered(true);
             toast.success('Payment verified successfully! You are now entered in the competition.');
+            
             // Remove session_id from URL without page reload
             const newUrl = window.location.pathname;
             window.history.replaceState({}, '', newUrl);
