@@ -37,6 +37,54 @@ export const Questions = () => {
     }
   }, [selectedPhase]);
 
+  // Handle successful payment completion
+  useEffect(() => {
+    const handlePaymentSuccess = async () => {
+      if (!sessionId || !competitionId) return;
+
+      try {
+        console.log('Handling payment success with session ID:', sessionId);
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          console.error('No user found when completing payment');
+          return;
+        }
+
+        // Update the competition entry
+        const { error: updateError } = await supabase
+          .from('competition_entries')
+          .update({ 
+            payment_completed: true,
+            terms_accepted: true,
+            status: 'In Progress'
+          })
+          .eq('user_id', user.id)
+          .eq('competition_id', competitionId)
+          .eq('payment_session_id', sessionId);
+
+        if (updateError) {
+          console.error('Error updating entry after payment:', updateError);
+          toast.error('Failed to confirm payment. Please contact support.');
+          return;
+        }
+
+        toast.success('Payment confirmed! You can now start the competition.');
+        setHasEntered(true);
+        
+        // Clear the session_id from the URL
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('session_id');
+        navigate({ search: newParams.toString() }, { replace: true });
+      } catch (error) {
+        console.error('Error processing payment completion:', error);
+        toast.error('Failed to process payment confirmation');
+      }
+    };
+
+    handlePaymentSuccess();
+  }, [sessionId, competitionId, navigate, searchParams, setHasEntered]);
+
   useEffect(() => {
     const checkAndRestoreSession = async () => {
       try {
