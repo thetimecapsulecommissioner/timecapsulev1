@@ -15,14 +15,9 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
 
       // Check session
       const { data: session, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
+      if (sessionError || !session?.session) {
         console.error('Session check failed:', sessionError);
-        throw new Error(`Authentication error: ${sessionError.message}`);
-      }
-
-      if (!session?.session) {
-        console.error('No active session found');
-        throw new Error("No active session. Please log in again.");
+        throw new Error(sessionError ? sessionError.message : "No active session. Please log in again.");
       }
 
       console.log('Session validated:', {
@@ -64,7 +59,7 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         return;
       }
 
-      // Create/update entry with terms accepted
+      // Make sure entry exists before creating checkout session
       const { error: entryError } = await supabase
         .from('competition_entries')
         .upsert({
@@ -83,9 +78,9 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         throw new Error(`Failed to create entry: ${entryError.message}`);
       }
 
-      console.log('Competition entry created/updated, creating checkout session...');
+      console.log('Competition entry created/updated successfully, proceeding to checkout...');
 
-      // Create checkout session
+      // Create checkout session with proper authorization
       const { data: sessionData, error: checkoutError } = await supabase.functions.invoke(
         'create-checkout',
         {
@@ -96,17 +91,12 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         }
       );
 
-      if (checkoutError) {
-        console.error('Checkout session creation failed:', checkoutError);
-        throw new Error(`Checkout error: ${checkoutError.message}`);
+      if (checkoutError || !sessionData?.url) {
+        console.error('Checkout session creation failed:', checkoutError || 'No URL received');
+        throw new Error(checkoutError?.message || 'Failed to create checkout session');
       }
 
-      if (!sessionData?.url) {
-        console.error('No checkout URL received:', sessionData);
-        throw new Error('Invalid checkout response');
-      }
-
-      console.log('Successfully created checkout session, redirecting to:', {
+      console.log('Successfully created checkout session:', {
         url: sessionData.url.substring(0, 50) + '...',
         timestamp: new Date().toISOString()
       });

@@ -19,6 +19,7 @@ serve(async (req) => {
   try {
     console.log('Starting checkout process...');
     
+    // Validate authorization header
     const authHeader = req.headers.get('Authorization');
     console.log('Authorization header present:', !!authHeader);
     
@@ -29,6 +30,7 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     
+    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
@@ -39,20 +41,17 @@ serve(async (req) => {
 
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
+    // Verify user
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     
-    if (userError) {
+    if (userError || !user) {
       console.error('Error getting user:', userError);
-      throw userError;
-    }
-
-    if (!user) {
-      console.error('No user found');
-      throw new Error('User not found');
+      throw userError || new Error('User not found');
     }
 
     console.log('User found:', { id: user.id, email: user.email });
 
+    // Initialize Stripe
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeKey) {
       console.error('Stripe key not found');
@@ -64,33 +63,16 @@ serve(async (req) => {
       typescript: true,
     });
 
-    let body;
-    try {
-      body = await req.json();
-      console.log('Request body:', body);
-    } catch (e) {
-      console.error('Error parsing request body:', e);
-      throw new Error('Invalid request body');
-    }
-
-    const { competitionId } = body;
+    // Parse request body
+    const { competitionId } = await req.json();
     if (!competitionId) {
       throw new Error('No competition ID provided');
     }
 
-    // Create a unique client reference ID combining user and competition IDs
+    // Create unique reference ID
     const clientReferenceId = `${user.id}_${competitionId}`;
 
-    // Updated success and cancel URLs to use home page
-    const successUrl = 'https://thetimecapsule1.netlify.app';
-    const cancelUrl = 'https://thetimecapsule1.netlify.app';
-    
-    console.log('Creating Stripe checkout session with URLs:', {
-      success: successUrl,
-      cancel: cancelUrl,
-      clientReferenceId
-    });
-
+    // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer_email: user.email,
       client_reference_id: clientReferenceId,
@@ -101,8 +83,8 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      success_url: 'https://thetimecapsule1.netlify.app',
+      cancel_url: 'https://thetimecapsule1.netlify.app',
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       submit_type: 'pay',
@@ -114,18 +96,15 @@ serve(async (req) => {
       }
     });
 
-    // Store the session ID and update entry status
+    // Update entry with session ID
     const { error: updateError } = await supabaseClient
       .from('competition_entries')
-      .upsert({ 
-        user_id: user.id,
-        competition_id: competitionId,
+      .update({ 
         payment_session_id: session.id,
-        status: 'Pending Payment',
-        testing_mode: false
-      }, {
-        onConflict: 'user_id,competition_id'
-      });
+        status: 'Pending Payment'
+      })
+      .eq('user_id', user.id)
+      .eq('competition_id', competitionId);
 
     if (updateError) {
       console.error('Error updating competition entry:', updateError);
@@ -159,7 +138,7 @@ serve(async (req) => {
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+        status: 400,
       }
     );
   }
