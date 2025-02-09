@@ -81,8 +81,8 @@ serve(async (req) => {
     // Create a unique client reference ID combining user and competition IDs
     const clientReferenceId = `${user.id}_${competitionId}`;
 
-    // Updated success URL to include the competition ID but not expose session details
-    const successUrl = `https://thetimecapsule1.netlify.app/competition/${competitionId}`;
+    // Updated success URL to include session_id parameter
+    const successUrl = `https://thetimecapsule1.netlify.app/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `https://thetimecapsule1.netlify.app/competition/${competitionId}?payment=cancelled`;
     
     console.log('Creating Stripe checkout session with URLs:', {
