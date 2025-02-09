@@ -3,7 +3,6 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { PostgrestError } from "@supabase/supabase-js";
 import { Prediction } from "@/types/predictions";
 
 export const usePredictionManagement = (userId?: string, competitionId?: string) => {
@@ -15,6 +14,7 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
     try {
       if (!userId) return;
 
+      // Case 1: Single prediction update
       if (responseOrder !== undefined) {
         const { error } = await supabase
           .from('predictions')
@@ -23,36 +23,40 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
             user_id: userId,
             answer: answers[responseOrder - 1],
             response_order: responseOrder
-          }, {
-            onConflict: 'user_id,question_id,response_order'
           });
 
         if (error) throw error;
+        
+      // Case 2: Multiple predictions update
       } else {
-        // Delete existing predictions for this question
-        await supabase
+        // First delete existing predictions
+        const { error: deleteError } = await supabase
           .from('predictions')
           .delete()
           .eq('user_id', userId)
           .eq('question_id', questionId);
 
-        // Insert new predictions one by one to avoid type issues
-        for (let i = 0; i < answers.length; i++) {
-          const { error } = await supabase
+        if (deleteError) throw deleteError;
+
+        // Then insert new predictions
+        for (const [index, answer] of answers.entries()) {
+          const { error: insertError } = await supabase
             .from('predictions')
             .insert({
               question_id: questionId,
               user_id: userId,
-              answer: answers[i],
-              response_order: i + 1
+              answer,
+              response_order: index + 1
             });
 
-          if (error) throw error;
+          if (insertError) throw insertError;
         }
       }
 
-      queryClient.invalidateQueries({ queryKey: ['predictions'] });
-      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
+      // Invalidate relevant queries after successful update
+      await queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      await queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
+      
     } catch (error) {
       console.error('Error saving prediction:', error);
       toast.error("Failed to save prediction");
