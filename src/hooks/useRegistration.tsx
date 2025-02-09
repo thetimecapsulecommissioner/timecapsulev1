@@ -63,7 +63,11 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        toast.error(signUpError.message);
+        if (signUpError.message.includes("signup")) {
+          toast.error("Please wait a few minutes before trying to register again");
+        } else {
+          toast.error(signUpError.message);
+        }
         return;
       }
 
@@ -89,7 +93,13 @@ export const useRegistration = () => {
 
         if (profileError) {
           console.error('Profile update error:', profileError);
-          toast.error("Error updating profile");
+          if (profileError.message.includes("row level security")) {
+            toast.error("Error creating profile. Please try logging in if you already have an account.");
+          } else {
+            toast.error("Error updating profile. Please try again.");
+          }
+          // Try to clean up the auth user if profile creation fails
+          await supabase.auth.signOut();
           return;
         }
 
@@ -105,7 +115,7 @@ export const useRegistration = () => {
       }
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error("An unexpected error occurred");
+      toast.error("An unexpected error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }
