@@ -1,16 +1,15 @@
+
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 
 interface PredictionFormFooterProps {
   onSave: () => void;
-  onSeal: () => void;
   isSaving: boolean;
   isSubmitted: boolean;
 }
 
 export const PredictionFormFooter = ({
   onSave,
-  onSeal,
   isSaving,
   isSubmitted
 }: PredictionFormFooterProps) => {
@@ -23,14 +22,6 @@ export const PredictionFormFooter = ({
       >
         <Save className="w-4 h-4 mr-2" />
         {isSaving ? "Saving..." : "Save Responses"}
-      </Button>
-
-      <Button 
-        onClick={onSeal}
-        disabled={isSubmitted}
-        className="w-full max-w-md bg-green-600 hover:bg-green-700"
-      >
-        Seal Your Predictions
       </Button>
     </div>
   );

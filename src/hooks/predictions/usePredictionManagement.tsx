@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -5,7 +6,6 @@ import { toast } from "sonner";
 
 export const usePredictionManagement = (userId?: string, competitionId?: string) => {
   const [isSaving, setIsSaving] = useState(false);
-  const [isSealing, setIsSealing] = useState(false);
   const queryClient = useQueryClient();
 
   const handleAnswerChange = async (questionId: number, answers: string[], responseOrder?: number) => {
@@ -26,13 +26,15 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
         if (error) throw error;
       } else {
+        // Delete existing predictions for this question
         await supabase
           .from('predictions')
           .delete()
           .eq('user_id', userId)
           .eq('question_id', questionId);
 
-        const upsertPromises = answers.map((answer, index) => 
+        // Create new predictions
+        const upsertPromises: Promise<{ error: any }>[] = answers.map((answer, index) => 
           supabase
             .from('predictions')
             .upsert({
@@ -48,50 +50,38 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
         if (errors.length > 0) throw errors[0].error;
       }
 
+      // Check if all questions are answered and update status
+      const { count } = await supabase
+        .from('predictions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      if (count === 29) { // Total number of questions
+        await supabase
+          .from('competition_entries')
+          .update({ status: 'Complete' })
+          .eq('user_id', userId)
+          .eq('competition_id', competitionId);
+      } else {
+        await supabase
+          .from('competition_entries')
+          .update({ status: 'In Progress' })
+          .eq('user_id', userId)
+          .eq('competition_id', competitionId);
+      }
+
       queryClient.invalidateQueries({ queryKey: ['predictions'] });
       queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-competitions'] });
     } catch (error) {
       console.error('Error saving prediction:', error);
       toast.error("Failed to save prediction");
     }
   };
 
-  const handleSealPredictions = async () => {
-    try {
-      setIsSealing(true);
-      if (!userId || !competitionId) return;
-
-      const { error: predictionError } = await supabase
-        .from('predictions')
-        .update({ submitted: true })
-        .eq('user_id', userId);
-
-      if (predictionError) throw predictionError;
-
-      const { error: entryError } = await supabase
-        .from('competition_entries')
-        .update({ status: 'Submitted' })
-        .eq('user_id', userId)
-        .eq('competition_id', competitionId);
-
-      if (entryError) throw entryError;
-
-      toast.success("Predictions sealed successfully!");
-      queryClient.invalidateQueries({ queryKey: ['predictions'] });
-      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
-    } catch (error) {
-      console.error('Error sealing predictions:', error);
-      toast.error("Failed to seal predictions");
-    } finally {
-      setIsSealing(false);
-    }
-  };
-
   return {
     isSaving,
-    isSealing,
     handleAnswerChange,
-    handleSealPredictions,
     setIsSaving
   };
 };

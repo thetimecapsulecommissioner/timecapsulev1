@@ -3,7 +3,6 @@ import { useState } from "react";
 import { PredictionFormHeader } from "./PredictionFormHeader";
 import { PredictionList } from "./PredictionList";
 import { PredictionFormFooter } from "./PredictionFormFooter";
-import { SealPredictionDialog } from "./SealPredictionDialog";
 import { TermsDialog } from "../TermsDialog";
 import { GroupedPredictions, PredictionComments } from "@/types/predictions";
 
@@ -13,11 +12,7 @@ export interface PredictionFormContainerProps {
   comments: PredictionComments;
   answeredQuestions: number;
   isSaving: boolean;
-  isSealing: boolean;
-  showSealDialog: boolean;
-  setShowSealDialog: (show: boolean) => void;
   onSave: () => void;
-  onSeal: () => void;
   onAnswerChange: (questionId: number, answers: string[], responseOrder?: number) => void;
   onCommentChange: (questionId: number, comment: string) => void;
   readOnly?: boolean;
@@ -30,11 +25,7 @@ export const PredictionFormContainer = ({
   comments,
   answeredQuestions,
   isSaving,
-  isSealing,
-  showSealDialog,
-  setShowSealDialog,
   onSave,
-  onSeal,
   onAnswerChange,
   onCommentChange,
   readOnly = false,
@@ -67,16 +58,8 @@ export const PredictionFormContainer = ({
         <>
           <PredictionFormFooter
             onSave={onSave}
-            onSeal={() => setShowSealDialog(true)}
             isSaving={isSaving}
             isSubmitted={isSubmitted}
-          />
-
-          <SealPredictionDialog
-            open={showSealDialog}
-            onOpenChange={setShowSealDialog}
-            onConfirm={onSeal}
-            isSealing={isSealing}
           />
 
           <TermsDialog open={showTerms} onOpenChange={setShowTerms} />
