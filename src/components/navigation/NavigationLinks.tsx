@@ -43,16 +43,16 @@ export const NavigationLinks = () => {
         Sporting Clubs
       </button>
       <button 
+        onClick={() => navigate("/faq")} 
+        className={buttonClass}
+      >
+        FAQs
+      </button>
+      <button 
         onClick={() => navigate("/contact")} 
         className={buttonClass}
       >
         Contact
-      </button>
-      <button 
-        onClick={() => navigate("/faq")} 
-        className={buttonClass}
-      >
-        FAQ
       </button>
     </nav>
   );
