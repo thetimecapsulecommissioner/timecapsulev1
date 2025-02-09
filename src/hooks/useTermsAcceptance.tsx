@@ -11,61 +11,43 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
   const handleAcceptTerms = async () => {
     try {
       setIsProcessing(true);
-      console.log('Starting accept terms process...', { competitionId });
+      console.log('Starting accept terms process...');
 
       // Check session
       const { data: session, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session?.session) {
-        console.error('Session check failed:', sessionError);
-        throw new Error(sessionError ? sessionError.message : "No active session. Please log in again.");
+        console.error('Session check failed:', {
+          error: sessionError,
+          sessionExists: !!session?.session
+        });
+        throw new Error("Authentication session not found. Please try logging in again.");
       }
 
       console.log('Session validated:', {
-        userId: session.session.user.id,
+        sessionExists: !!session.session,
+        userExists: !!session.session?.user,
         accessToken: !!session.session.access_token
       });
 
       // Get user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
+      if (userError) {
         console.error('Error getting user:', userError);
-        throw new Error("Failed to get user information");
+        throw userError;
       }
 
-      if (!competitionId) {
-        console.error('No competition ID available');
-        throw new Error("Competition ID not found");
+      if (!user || !competitionId) {
+        console.error('Missing user or competition ID:', { user: !!user, competitionId });
+        throw new Error("User or competition not found");
       }
 
-      // First, check if entry already exists and is paid
-      const { data: existingEntry, error: checkError } = await supabase
-        .from('competition_entries')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('competition_id', competitionId)
-        .maybeSingle();
-
-      if (checkError) {
-        console.error('Error checking existing entry:', checkError);
-        throw new Error("Failed to check entry status");
-      }
-
-      console.log('Existing entry check:', existingEntry);
-
-      // If entry exists and payment is completed, just proceed
-      if (existingEntry?.payment_completed) {
-        console.log('Entry already exists and is paid, proceeding...');
-        onAcceptTerms();
-        return;
-      }
-
-      // Make sure entry exists before creating checkout session
+      // Create/update entry with terms_accepted=false until payment is completed
       const { error: entryError } = await supabase
         .from('competition_entries')
         .upsert({
           user_id: user.id,
           competition_id: competitionId,
-          terms_accepted: true,
+          terms_accepted: false,
           testing_mode: false,
           status: 'Not Started',
           payment_completed: false
@@ -75,12 +57,10 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
 
       if (entryError) {
         console.error('Error creating/updating entry:', entryError);
-        throw new Error(`Failed to create entry: ${entryError.message}`);
+        throw entryError;
       }
 
-      console.log('Competition entry created/updated successfully, proceeding to checkout...');
-
-      // Create checkout session with proper authorization
+      // Create checkout session
       const { data: sessionData, error: checkoutError } = await supabase.functions.invoke(
         'create-checkout',
         {
@@ -91,28 +71,30 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         }
       );
 
-      if (checkoutError || !sessionData?.url) {
-        console.error('Checkout session creation failed:', checkoutError || 'No URL received');
-        throw new Error(checkoutError?.message || 'Failed to create checkout session');
+      if (checkoutError) {
+        console.error('Checkout error:', checkoutError);
+        throw checkoutError;
       }
 
-      console.log('Successfully created checkout session:', {
-        url: sessionData.url.substring(0, 50) + '...',
-        timestamp: new Date().toISOString()
-      });
+      if (!sessionData?.url) {
+        console.error('No checkout URL received:', sessionData);
+        throw new Error('No checkout URL received');
+      }
 
-      // Call onAcceptTerms before redirecting
-      onAcceptTerms();
-      
-      // Redirect to Stripe checkout
+      console.log('Redirecting to checkout:', sessionData.url);
       window.location.href = sessionData.url;
+      onAcceptTerms();
     } catch (error) {
-      console.error('Terms acceptance process failed:', {
-        message: error instanceof Error ? error.message : String(error),
-        details: error instanceof Error ? error.stack : error
+      console.error('Error processing terms and payment:', {
+        message: error.message,
+        details: error.toString(),
+        stack: error.stack
       });
-      
-      toast.error(error instanceof Error ? error.message : 'Failed to process terms and payment');
+      let errorMessage = "Failed to process terms and payment. ";
+      if (error instanceof Error) {
+        errorMessage += error.message;
+      }
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }

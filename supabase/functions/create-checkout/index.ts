@@ -19,7 +19,6 @@ serve(async (req) => {
   try {
     console.log('Starting checkout process...');
     
-    // Validate authorization header
     const authHeader = req.headers.get('Authorization');
     console.log('Authorization header present:', !!authHeader);
     
@@ -30,7 +29,6 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
@@ -41,17 +39,20 @@ serve(async (req) => {
 
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
-    // Verify user
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     
-    if (userError || !user) {
+    if (userError) {
       console.error('Error getting user:', userError);
-      throw userError || new Error('User not found');
+      throw userError;
+    }
+
+    if (!user) {
+      console.error('No user found');
+      throw new Error('User not found');
     }
 
     console.log('User found:', { id: user.id, email: user.email });
 
-    // Initialize Stripe
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeKey) {
       console.error('Stripe key not found');
@@ -63,16 +64,33 @@ serve(async (req) => {
       typescript: true,
     });
 
-    // Parse request body
-    const { competitionId } = await req.json();
+    let body;
+    try {
+      body = await req.json();
+      console.log('Request body:', body);
+    } catch (e) {
+      console.error('Error parsing request body:', e);
+      throw new Error('Invalid request body');
+    }
+
+    const { competitionId } = body;
     if (!competitionId) {
       throw new Error('No competition ID provided');
     }
 
-    // Create unique reference ID
+    // Create a unique client reference ID combining user and competition IDs
     const clientReferenceId = `${user.id}_${competitionId}`;
 
-    // Create checkout session
+    // Updated success URL to include the competition ID but not expose session details
+    const successUrl = `https://thetimecapsule1.netlify.app/competition/${competitionId}`;
+    const cancelUrl = `https://thetimecapsule1.netlify.app/competition/${competitionId}?payment=cancelled`;
+    
+    console.log('Creating Stripe checkout session with URLs:', {
+      success: successUrl,
+      cancel: cancelUrl,
+      clientReferenceId
+    });
+
     const session = await stripe.checkout.sessions.create({
       customer_email: user.email,
       client_reference_id: clientReferenceId,
@@ -83,8 +101,8 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `https://thetimecapsule1.netlify.app/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}&success=true`,
-      cancel_url: `https://thetimecapsule1.netlify.app/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}&canceled=true`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       submit_type: 'pay',
@@ -96,7 +114,7 @@ serve(async (req) => {
       }
     });
 
-    // Update entry with session ID
+    // Store the session ID and update entry status
     const { error: updateError } = await supabaseClient
       .from('competition_entries')
       .update({ 
@@ -138,7 +156,7 @@ serve(async (req) => {
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: 500,
       }
     );
   }
