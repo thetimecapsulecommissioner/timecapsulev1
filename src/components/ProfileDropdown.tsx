@@ -64,13 +64,13 @@ export const ProfileDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger disabled={isLoading}>
-        <Avatar className="h-10 w-10">
+        <Avatar className="h-10 w-10 bg-secondary">
           <AvatarImage 
             src={avatarUrl || undefined}
             alt="Profile"
             className="h-full w-full object-cover"
           />
-          <AvatarFallback>
+          <AvatarFallback className="bg-secondary">
             <img 
               src="/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png" 
               alt="Default Avatar" 

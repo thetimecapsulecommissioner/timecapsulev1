@@ -61,6 +61,24 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
       setIsSealing(true);
       if (!userId || !competitionId) return;
 
+      const { data: questions } = await supabase
+        .from('questions')
+        .select('id')
+        .eq('competition_id', competitionId);
+
+      const { data: predictions } = await supabase
+        .from('predictions')
+        .select('question_id')
+        .eq('user_id', userId);
+
+      const answeredQuestionIds = new Set(predictions?.map(p => p.question_id));
+      const allQuestionsAnswered = questions?.every(q => answeredQuestionIds.has(q.id));
+
+      if (!allQuestionsAnswered) {
+        toast.error("Please answer all questions before sealing your predictions");
+        return;
+      }
+
       const { error: predictionError } = await supabase
         .from('predictions')
         .update({ submitted: true })
