@@ -35,15 +35,19 @@ export const useRegistration = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
     if (!formData.firstName || !formData.lastName || !formData.displayName || !formData.email || 
         !formData.password || !formData.phone || !formData.state || !formData.playerStatus || 
-        (formData.playerStatus === "new" && !formData.playerReference) || !formData.aflClub) {
+        !formData.aflClub || (formData.playerStatus === "new" && !formData.playerReference)) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     setIsLoading(true);
+
     try {
+      // Sign up the user with metadata
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -63,18 +67,18 @@ export const useRegistration = () => {
 
       if (signUpError) {
         console.error('Signup error:', signUpError);
-        toast.error(signUpError.message);
+        if (signUpError.message.includes('User already registered')) {
+          toast.error('This email is already registered. Please try logging in instead.');
+        } else {
+          toast.error(signUpError.message);
+        }
         return;
       }
 
       if (authData.user) {
-        // Show success message with email verification instructions
         toast.success(
-          "Registration successful! Please check your email to verify your account before logging in. " +
-          "If you don't see the email, please check your spam folder.",
-          {
-            duration: 6000 // Show for 6 seconds since it's a longer message
-          }
+          "Registration successful! Please check your email to verify your account before logging in.",
+          { duration: 6000 }
         );
         navigate("/login");
       }

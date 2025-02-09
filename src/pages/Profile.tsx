@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { AvatarUpload } from "@/components/profile/AvatarUpload";
 import { StateSelect } from "@/components/registration/StateSelect";
 import { AFLClubSelect } from "@/components/registration/AFLClubSelect";
 
@@ -78,16 +77,6 @@ const Profile = () => {
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
           <h1 className="text-2xl font-bold text-primary mb-6">Profile Settings</h1>
           
-          <div className="mb-6">
-            <AvatarUpload
-              url={profile.avatar_url}
-              onUpload={(url) => {
-                setProfile({ ...profile, avatar_url: url });
-                handleUpdate();
-              }}
-            />
-          </div>
-
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
