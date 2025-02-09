@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,17 @@ import { X } from "lucide-react";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  // Parse competition ID and session ID from URL if they exist
+  const searchParams = new URLSearchParams(location.search);
+  const redirectUrl = searchParams.get('redirectUrl');
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
@@ -34,7 +39,12 @@ export const Login = () => {
         return;
       }
 
-      navigate("/dashboard");
+      // If there's a redirect URL, use it, otherwise go to dashboard
+      if (redirectUrl) {
+        navigate(redirectUrl);
+      } else {
+        navigate("/dashboard");
+      }
       toast.success("Login successful!");
     } catch (error) {
       toast.error("An unexpected error occurred");

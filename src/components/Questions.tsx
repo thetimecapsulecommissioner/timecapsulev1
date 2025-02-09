@@ -39,9 +39,12 @@ export const Questions = () => {
         
         if (!session) {
           // If there's no session but we have a session_id from Stripe,
-          // let the user know they need to log in again
+          // redirect to login with the return URL
           if (sessionId) {
-            toast.error("Your session has expired. Please log in again to access your competition.");
+            const currentPath = `/competition/${competitionId}?session_id=${sessionId}`;
+            const encodedRedirectUrl = encodeURIComponent(currentPath);
+            navigate(`/login?redirectUrl=${encodedRedirectUrl}`);
+            return;
           }
           navigate('/login');
           return;
@@ -56,7 +59,7 @@ export const Questions = () => {
     };
 
     checkAndRestoreSession();
-  }, [navigate, sessionId]);
+  }, [navigate, sessionId, competitionId]);
 
   const handleLogoClick = async () => {
     const { data: { user } } = await supabase.auth.getUser();
