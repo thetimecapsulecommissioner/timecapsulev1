@@ -33,8 +33,7 @@ export const Questions = () => {
 
   useEffect(() => {
     if (selectedPhase === 'pre-season' && predictionsRef.current) {
-      const currentScrollPosition = window.pageYOffset;
-      window.scrollTo({ top: currentScrollPosition });
+      predictionsRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [selectedPhase]);
 

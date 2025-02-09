@@ -25,10 +25,7 @@ export const PredictionPhaseButtons = ({
   const isPreSeasonOpen = !preSeasonTime.expired;
   const isMidSeasonOpen = false;
 
-  const handlePreSeasonSelect = () => {
-    toast.info("Scrolling to Pre-Season Predictions...", {
-      duration: 1500,
-    });
+  const handlePreSeasonSelect = async () => {
     onPhaseSelect('pre-season');
   };
 

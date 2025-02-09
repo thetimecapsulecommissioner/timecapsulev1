@@ -63,14 +63,14 @@ export const ProfileDropdown = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger disabled={isLoading} className="bg-green-500 rounded-full">
+      <DropdownMenuTrigger disabled={isLoading}>
         <Avatar className="h-10 w-10">
           <AvatarImage 
             src={avatarUrl || undefined}
             alt="Profile"
             className="h-full w-full object-cover"
           />
-          <AvatarFallback className="bg-green-500">
+          <AvatarFallback>
             <img 
               src="/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png" 
               alt="Default Avatar" 
@@ -79,29 +79,18 @@ export const ProfileDropdown = () => {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-green-500 text-white border-none shadow-lg">
-        <DropdownMenuItem 
-          onClick={() => navigate("/profile")}
-          className="hover:bg-green-600 cursor-pointer"
-        >
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => navigate("/profile")}>
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => navigate("/competitions")}
-          className="hover:bg-green-600 cursor-pointer"
-        >
+        <DropdownMenuItem onClick={() => navigate("/competitions")}>
           My Competitions
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-green-600" />
-        <DropdownMenuItem 
-          onClick={handleLogout} 
-          disabled={isLoading}
-          className="hover:bg-green-600 cursor-pointer"
-        >
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
           {isLoading ? "Logging out..." : "Logout"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
-

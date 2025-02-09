@@ -1,29 +1,17 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Prediction } from "@/types/predictions";
-
-type InvalidateQueriesPromise = Promise<void>;
 
 export const usePredictionManagement = (userId?: string, competitionId?: string) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isSealing, setIsSealing] = useState(false);
   const queryClient = useQueryClient();
 
-  const invalidateQueries = async (): InvalidateQueriesPromise => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['predictions'] }),
-      queryClient.invalidateQueries({ queryKey: ['competition-entry'] })
-    ]);
-  };
-
   const handleAnswerChange = async (questionId: number, answers: string[], responseOrder?: number) => {
-    if (!userId) return;
-    
     try {
-      // Case 1: Single prediction update
+      if (!userId) return;
+
       if (responseOrder !== undefined) {
         const { error } = await supabase
           .from('predictions')
@@ -32,38 +20,36 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
             user_id: userId,
             answer: answers[responseOrder - 1],
             response_order: responseOrder
+          }, {
+            onConflict: 'user_id,question_id,response_order'
           });
 
         if (error) throw error;
-        
-      // Case 2: Multiple predictions update
       } else {
-        // First delete existing predictions
-        const { error: deleteError } = await supabase
+        await supabase
           .from('predictions')
           .delete()
           .eq('user_id', userId)
           .eq('question_id', questionId);
 
-        if (deleteError) throw deleteError;
-
-        // Then insert new predictions
-        for (const [index, answer] of answers.entries()) {
-          const { error: insertError } = await supabase
+        const upsertPromises = answers.map((answer, index) => 
+          supabase
             .from('predictions')
-            .insert({
+            .upsert({
               question_id: questionId,
               user_id: userId,
               answer,
               response_order: index + 1
-            });
+            })
+        );
 
-          if (insertError) throw insertError;
-        }
+        const results = await Promise.all(upsertPromises);
+        const errors = results.filter(result => result.error);
+        if (errors.length > 0) throw errors[0].error;
       }
 
-      await invalidateQueries();
-      
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
     } catch (error) {
       console.error('Error saving prediction:', error);
       toast.error("Failed to save prediction");
@@ -71,28 +57,9 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
   };
 
   const handleSealPredictions = async () => {
-    if (!userId || !competitionId) return;
-
     try {
       setIsSealing(true);
-
-      const { data: questions } = await supabase
-        .from('questions')
-        .select('id')
-        .eq('competition_id', competitionId);
-
-      const { data: predictions } = await supabase
-        .from('predictions')
-        .select('question_id')
-        .eq('user_id', userId);
-
-      const answeredQuestionIds = new Set(predictions?.map(p => p.question_id));
-      const allQuestionsAnswered = questions?.every(q => answeredQuestionIds.has(q.id));
-
-      if (!allQuestionsAnswered) {
-        toast.error("Please answer all questions before sealing your predictions");
-        return;
-      }
+      if (!userId || !competitionId) return;
 
       const { error: predictionError } = await supabase
         .from('predictions')
@@ -109,8 +76,9 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
       if (entryError) throw entryError;
 
-      await invalidateQueries();
       toast.success("Predictions sealed successfully!");
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
     } catch (error) {
       console.error('Error sealing predictions:', error);
       toast.error("Failed to seal predictions");
