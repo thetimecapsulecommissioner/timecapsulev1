@@ -86,6 +86,7 @@ export const Questions = () => {
             toast.error('Failed to verify payment status');
           } else if (sessionData?.paymentCompleted) {
             setHasEntered(true);
+            navigate(`/competition/${competitionId}`);
             toast.success('Payment verified successfully!');
           }
         }
@@ -99,7 +100,7 @@ export const Questions = () => {
     };
 
     verifyPayment();
-  }, [competitionId, setHasEntered]);
+  }, [competitionId, setHasEntered, navigate]);
 
   useEffect(() => {
     const checkAndRestoreSession = async () => {
