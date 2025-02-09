@@ -63,11 +63,7 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        if (signUpError.message.includes("signup")) {
-          toast.error("Please wait a few minutes before trying to register again");
-        } else {
-          toast.error(signUpError.message);
-        }
+        toast.error(signUpError.message);
         return;
       }
 
