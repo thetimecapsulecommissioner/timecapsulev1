@@ -53,9 +53,9 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
         }
       }
 
-      // Invalidate relevant queries after successful update
-      await queryClient.invalidateQueries({ queryKey: ['predictions'] });
-      await queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
+      // Invalidate queries without awaiting to avoid deep type instantiation
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
       
     } catch (error) {
       console.error('Error saving prediction:', error);
