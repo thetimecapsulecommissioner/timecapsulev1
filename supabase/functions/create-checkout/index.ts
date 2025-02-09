@@ -88,13 +88,28 @@ serve(async (req) => {
       throw new Error('No competition ID provided');
     }
 
-    // Get the origin from the request headers
-    const origin = req.headers.get('origin');
+    // Get the origin from the request headers and validate it
+    const origin = req.headers.get('origin') || req.headers.get('referer');
     if (!origin) {
-      console.error('No origin header found');
-      throw new Error('Origin header is required');
+      console.error('No origin or referer header found');
+      throw new Error('Origin or referer header is required');
     }
-    console.log('Using origin:', origin);
+
+    // Parse the origin URL to get the hostname
+    const originUrl = new URL(origin);
+    console.log('Request origin:', originUrl.origin);
+
+    // Determine if we're in development or production
+    const allowedOrigins = [
+      'https://thetimecapsule1.netlify.app',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
+
+    if (!allowedOrigins.includes(originUrl.origin)) {
+      console.error('Invalid origin:', originUrl.origin);
+      throw new Error('Invalid origin');
+    }
 
     // Create Stripe checkout session
     console.log('Creating Stripe checkout session...');
@@ -107,8 +122,8 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${origin}/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/competition/${competitionId}`,
+      success_url: `${originUrl.origin}/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${originUrl.origin}/competition/${competitionId}`,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       submit_type: 'pay',
@@ -166,3 +181,4 @@ serve(async (req) => {
     );
   }
 });
+
