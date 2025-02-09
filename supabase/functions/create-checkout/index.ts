@@ -78,9 +78,9 @@ serve(async (req) => {
       throw new Error('No competition ID provided');
     }
 
-    // Simplified success and cancel URLs
-    const successUrl = 'https://thetimecapsule1.netlify.app/dashboard';
-    const cancelUrl = 'https://thetimecapsule1.netlify.app/dashboard';
+    // Updated simplified URLs without /dashboard
+    const successUrl = 'https://thetimecapsule1.netlify.app';
+    const cancelUrl = 'https://thetimecapsule1.netlify.app';
     
     console.log('Using simplified URLs:', {
       success: successUrl,
