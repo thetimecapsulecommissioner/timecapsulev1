@@ -75,28 +75,55 @@ export const Questions = () => {
         // If we have a payment session ID, verify with Stripe
         if (entry.payment_session_id) {
           console.log('Verifying payment session:', entry.payment_session_id);
-          const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
-            'verify-payment',
-            {
-              body: { 
-                sessionId: entry.payment_session_id,
-                competitionId,
-                userId: user.id
-              }
+          
+          // Poll payment status a few times
+          let attempts = 0;
+          const maxAttempts = 5;
+          const pollInterval = 2000; // 2 seconds
+
+          const pollPaymentStatus = async () => {
+            if (attempts >= maxAttempts) {
+              console.log('Max verification attempts reached');
+              setIsVerifyingPayment(false);
+              return;
             }
-          );
 
-          if (sessionError) {
-            console.error('Error verifying payment:', sessionError);
-            toast.error('Failed to verify payment status');
-          } else if (sessionData?.paymentCompleted) {
-            console.log('Payment verified successfully');
-            setHasEntered(true);
-            toast.success('Payment verified successfully!');
-          }
+            const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
+              'verify-payment',
+              {
+                body: { 
+                  sessionId: entry.payment_session_id,
+                  competitionId,
+                  userId: user.id
+                }
+              }
+            );
+
+            if (sessionError) {
+              console.error('Error verifying payment:', sessionError);
+              toast.error('Failed to verify payment status');
+              setIsVerifyingPayment(false);
+              return;
+            }
+
+            if (sessionData?.paymentCompleted) {
+              console.log('Payment verified successfully');
+              setHasEntered(true);
+              toast.success('Payment verified successfully!');
+              setIsVerifyingPayment(false);
+              return;
+            }
+
+            // If payment not completed yet, try again after delay
+            attempts++;
+            setTimeout(pollPaymentStatus, pollInterval);
+          };
+
+          // Start polling
+          pollPaymentStatus();
+        } else {
+          setIsVerifyingPayment(false);
         }
-
-        setIsVerifyingPayment(false);
       } catch (error) {
         console.error('Error in payment verification:', error);
         toast.error('Failed to verify payment status');

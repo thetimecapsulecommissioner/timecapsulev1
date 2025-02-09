@@ -44,41 +44,29 @@ serve(async (req) => {
       metadata: session.metadata
     });
 
-    // Verify the session is paid and matches our records
-    const isValidPayment = 
-      session.payment_status === 'paid' && 
-      session.metadata?.competition_id === competitionId &&
-      session.metadata?.user_id === userId;
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    console.log('Payment validation result:', {
-      isValid: isValidPayment,
-      paymentStatus: session.payment_status,
-      metadataMatch: {
-        competition: session.metadata?.competition_id === competitionId,
-        user: session.metadata?.user_id === userId
-      }
-    });
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Supabase configuration missing');
+      throw new Error('Supabase configuration missing');
+    }
 
-    if (isValidPayment) {
-      // Initialize Supabase admin client
-      const supabaseUrl = Deno.env.get('SUPABASE_URL');
-      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-      if (!supabaseUrl || !supabaseServiceKey) {
-        console.error('Supabase configuration missing');
-        throw new Error('Supabase configuration missing');
-      }
-
-      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-
-      console.log('Updating competition entry...');
+    // Verify the session is paid
+    if (session.payment_status === 'paid') {
+      console.log('Payment is confirmed paid. Updating competition entry...');
+      
       // Update competition entry
       const { error: updateError } = await supabaseAdmin
         .from('competition_entries')
         .update({ 
           payment_completed: true,
           terms_accepted: true,
-          status: 'In Progress'
+          status: 'In Progress',
+          testing_mode: false
         })
         .eq('user_id', userId)
         .eq('competition_id', competitionId);
@@ -89,18 +77,31 @@ serve(async (req) => {
       }
       
       console.log('Competition entry updated successfully');
+      
+      return new Response(
+        JSON.stringify({ 
+          paymentCompleted: true,
+          status: session.payment_status
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 
+        }
+      );
     }
 
+    // If payment is not paid, return current status
     return new Response(
       JSON.stringify({ 
-        paymentCompleted: isValidPayment,
+        paymentCompleted: false,
         status: session.payment_status
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
+        status: 200
       }
     );
+
   } catch (error) {
     console.error('Error verifying payment:', error);
     return new Response(
