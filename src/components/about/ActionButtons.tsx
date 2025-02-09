@@ -28,6 +28,13 @@ export const ActionButtons = () => {
       >
         Register your sporting club
       </Button>
+      <Button 
+        variant="secondary" 
+        className="text-primary font-semibold"
+        onClick={() => navigate('/faq')}
+      >
+        Check out our FAQs
+      </Button>
     </div>
   );
 };
