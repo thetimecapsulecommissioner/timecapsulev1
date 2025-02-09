@@ -97,23 +97,48 @@ serve(async (req) => {
       // Log session details
       console.log('Processing checkout session:', {
         id: session.id,
-        customer: session.customer,
+        customer: session.customer_email,
         paymentStatus: session.payment_status,
-        metadata: session.metadata
+        metadata: session.metadata,
+        amount: session.amount_total,
+        currency: session.currency
       });
 
+      if (session.payment_status !== 'paid') {
+        console.error('Payment status is not paid:', session.payment_status);
+        throw new Error('Payment not completed successfully');
+      }
+
+      // Extract user_id and competition_id from metadata
+      const { user_id, competition_id } = session.metadata;
+      
+      if (!user_id || !competition_id) {
+        console.error('Missing metadata:', session.metadata);
+        throw new Error('Missing required metadata');
+      }
+
       // Update competition entry
-      const { error: updateError } = await supabaseAdmin.rpc(
-        'handle_stripe_payment_success',
-        { payment_session_id: session.id }
-      );
+      const { error: updateError } = await supabaseAdmin
+        .from('competition_entries')
+        .update({ 
+          payment_completed: true,
+          terms_accepted: true,
+          status: 'In Progress',
+          payment_session_id: session.id
+        })
+        .eq('user_id', user_id)
+        .eq('competition_id', competition_id);
 
       if (updateError) {
         console.error('Error updating competition entry:', updateError);
         throw updateError;
       }
 
-      console.log('Successfully processed payment for session:', session.id);
+      console.log('Successfully processed payment for session:', {
+        sessionId: session.id,
+        userId: user_id,
+        competitionId: competition_id
+      });
     }
 
     // Return success response
