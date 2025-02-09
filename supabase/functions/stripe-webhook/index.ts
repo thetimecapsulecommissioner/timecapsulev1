@@ -6,13 +6,17 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, stripe-signature',
 };
 
 serve(async (req) => {
-  // Log all headers for debugging
-  console.log('Received headers:', Object.fromEntries(req.headers.entries()));
-  
+  // Log request details
+  console.log('Webhook Request:', {
+    method: req.method,
+    url: req.url,
+    headers: Object.fromEntries(req.headers.entries())
+  });
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { 
@@ -22,99 +26,81 @@ serve(async (req) => {
   }
 
   try {
-    // Get raw body and log it
+    // Get raw body
     const rawBody = await req.text();
-    console.log('Received webhook payload:', rawBody);
+    console.log('Request body length:', rawBody.length);
 
-    // Get Stripe signature (try different casings)
-    const signature = 
-      req.headers.get('stripe-signature') || 
-      req.headers.get('Stripe-Signature');
+    // Get and validate Stripe configuration
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
+    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    console.log('Stripe signature:', signature);
+    // Validate all required configuration
+    const configCheck = {
+      hasStripeKey: !!stripeKey,
+      hasWebhookSecret: !!webhookSecret,
+      hasSupabaseUrl: !!supabaseUrl,
+      hasSupabaseKey: !!supabaseServiceKey
+    };
 
-    if (!signature) {
-      console.error('No Stripe signature found in headers');
-      return new Response(
-        JSON.stringify({ 
-          error: 'No Stripe signature found',
-          headers: Object.fromEntries(req.headers.entries())
-        }),
-        { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+    console.log('Configuration check:', configCheck);
+
+    if (!stripeKey || !webhookSecret) {
+      throw new Error('Missing Stripe configuration');
+    }
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase configuration');
     }
 
     // Initialize Stripe
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
-
-    if (!stripeKey || !webhookSecret) {
-      console.error('Missing Stripe configuration:', {
-        hasStripeKey: !!stripeKey,
-        hasWebhookSecret: !!webhookSecret
-      });
-      return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
     const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
       typescript: true,
     });
 
+    // Get Stripe signature (try multiple header variations)
+    const signature = 
+      req.headers.get('stripe-signature') || 
+      req.headers.get('Stripe-Signature');
+
+    if (!signature) {
+      console.error('No Stripe signature found in request headers');
+      throw new Error('No Stripe signature found');
+    }
+
     // Verify webhook signature
     let event;
     try {
       event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-      console.log('Webhook verified successfully, event:', {
+      console.log('Event verified successfully:', {
         type: event.type,
         id: event.id
       });
     } catch (err) {
-      console.error('Webhook signature verification failed:', {
+      console.error('Signature verification failed:', {
         error: err.message,
-        signature: signature,
+        signature: signature?.substring(0, 20) + '...',
         bodyLength: rawBody.length
       });
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid signature',
-          details: err.message
-        }),
-        { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      throw new Error(`Webhook signature verification failed: ${err.message}`);
     }
+
+    // Initialize Supabase client
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     // Handle checkout.session.completed event
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      console.log('Processing completed checkout session:', {
-        sessionId: session.id,
-        customerId: session.customer,
-        paymentStatus: session.payment_status
+      
+      // Log session details
+      console.log('Processing checkout session:', {
+        id: session.id,
+        customer: session.customer,
+        paymentStatus: session.payment_status,
+        metadata: session.metadata
       });
-
-      // Initialize Supabase client
-      const supabaseUrl = Deno.env.get('SUPABASE_URL');
-      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-      if (!supabaseUrl || !supabaseServiceKey) {
-        console.error('Missing Supabase configuration');
-        throw new Error('Missing Supabase configuration');
-      }
-
-      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
       // Update competition entry
       const { error: updateError } = await supabaseAdmin.rpc(
@@ -140,17 +126,21 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Webhook processing error:', {
+    // Log the full error details
+    console.error('Webhook error:', {
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
+      type: error.constructor.name
     });
+
+    // Return error response
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        type: 'internal_server_error'
+        type: error.constructor.name
       }),
       { 
-        status: 500,
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
