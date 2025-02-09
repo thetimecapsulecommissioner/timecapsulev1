@@ -25,7 +25,13 @@ export const PredictionPhaseButtons = ({
   const isPreSeasonOpen = !preSeasonTime.expired;
   const isMidSeasonOpen = false;
 
-  const handlePreSeasonSelect = async () => {
+  const handlePreSeasonSelect = () => {
+    const firstQuestion = document.querySelector('.question-card');
+    if (firstQuestion) {
+      const yOffset = -80; // Adjust this value to control the space from the top
+      const y = firstQuestion.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
     onPhaseSelect('pre-season');
   };
 

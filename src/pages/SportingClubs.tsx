@@ -25,14 +25,14 @@ const SportingClubs = () => {
             title="Club Table at the Fundraiser"
             content="Have a group enter and attend this year's event! Get your club involved in our Brownlow-Style awards night where we unveil the Time Capsule predictions and celebrate together as a community."
             imagePosition="left"
-            imageSrc="/lovable-uploads/Auction_IMG_7792.jpeg"
+            imageSrc="/lovable-uploads/ef048efe-708d-4e5f-a691-59428e7e7a0b.png"
           />
 
           <AboutSection
             title="In-Season Mini Time Capsule Game"
             content="A game-week focussed fundraiser designed specifically for sporting clubs. Engage your members and supporters while raising funds for your club through an exciting prediction-based competition."
             imagePosition="right"
-            imageSrc="/lovable-uploads/IMG_2484.jpeg"
+            imageSrc="/lovable-uploads/25776a5f-f842-494a-81c7-c91bc3af0c77.png"
           />
 
           <div className="mt-12 text-center">
