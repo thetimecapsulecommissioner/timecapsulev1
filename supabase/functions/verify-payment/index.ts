@@ -16,6 +16,7 @@ serve(async (req) => {
 
   try {
     const { sessionId, competitionId, userId } = await req.json();
+    console.log('Verifying payment for:', { sessionId, competitionId, userId });
 
     if (!sessionId || !competitionId || !userId) {
       throw new Error('Missing required parameters');
@@ -34,6 +35,11 @@ serve(async (req) => {
 
     // Get session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log('Retrieved Stripe session:', {
+      id: session.id,
+      status: session.payment_status,
+      metadata: session.metadata
+    });
 
     // Verify the session is paid and matches our records
     const isValidPayment = 
@@ -52,20 +58,53 @@ serve(async (req) => {
 
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-      // Update competition entry
-      const { error: updateError } = await supabaseAdmin
+      // Check if entry exists
+      const { data: existingEntry, error: checkError } = await supabaseAdmin
         .from('competition_entries')
-        .update({ 
-          payment_completed: true,
-          terms_accepted: true,
-          status: 'In Progress'
-        })
+        .select('*')
         .eq('user_id', userId)
-        .eq('competition_id', competitionId);
+        .eq('competition_id', competitionId)
+        .maybeSingle();
 
-      if (updateError) {
-        throw updateError;
+      if (checkError) {
+        throw checkError;
       }
+
+      if (existingEntry) {
+        // Update existing entry
+        const { error: updateError } = await supabaseAdmin
+          .from('competition_entries')
+          .update({ 
+            payment_completed: true,
+            terms_accepted: true,
+            status: 'In Progress',
+            payment_session_id: sessionId
+          })
+          .eq('user_id', userId)
+          .eq('competition_id', competitionId);
+
+        if (updateError) {
+          throw updateError;
+        }
+      } else {
+        // Create new entry
+        const { error: createError } = await supabaseAdmin
+          .from('competition_entries')
+          .insert({
+            user_id: userId,
+            competition_id: competitionId,
+            payment_completed: true,
+            terms_accepted: true,
+            status: 'In Progress',
+            payment_session_id: sessionId
+          });
+
+        if (createError) {
+          throw createError;
+        }
+      }
+
+      console.log('Successfully processed payment for session:', sessionId);
     }
 
     return new Response(
@@ -81,9 +120,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error verifying payment:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message 
-      }),
+      JSON.stringify({ error: error.message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400
