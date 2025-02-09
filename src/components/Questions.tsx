@@ -42,6 +42,7 @@ export const Questions = () => {
       if (!competitionId) return;
 
       try {
+        console.log('Starting payment verification...');
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           console.error('No user found when verifying payment');
@@ -56,6 +57,8 @@ export const Questions = () => {
           .eq('competition_id', competitionId)
           .maybeSingle();
 
+        console.log('Found competition entry:', entry);
+
         if (!entry) {
           setIsVerifyingPayment(false);
           return;
@@ -63,6 +66,7 @@ export const Questions = () => {
 
         // If payment is already completed, no need to verify
         if (entry.payment_completed) {
+          console.log('Payment already completed');
           setHasEntered(true);
           setIsVerifyingPayment(false);
           return;
@@ -70,6 +74,7 @@ export const Questions = () => {
 
         // If we have a payment session ID, verify with Stripe
         if (entry.payment_session_id) {
+          console.log('Verifying payment session:', entry.payment_session_id);
           const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
             'verify-payment',
             {
@@ -85,8 +90,8 @@ export const Questions = () => {
             console.error('Error verifying payment:', sessionError);
             toast.error('Failed to verify payment status');
           } else if (sessionData?.paymentCompleted) {
+            console.log('Payment verified successfully');
             setHasEntered(true);
-            navigate(`/competition/${competitionId}`);
             toast.success('Payment verified successfully!');
           }
         }
@@ -100,7 +105,7 @@ export const Questions = () => {
     };
 
     verifyPayment();
-  }, [competitionId, setHasEntered, navigate]);
+  }, [competitionId, setHasEntered]);
 
   useEffect(() => {
     const checkAndRestoreSession = async () => {
