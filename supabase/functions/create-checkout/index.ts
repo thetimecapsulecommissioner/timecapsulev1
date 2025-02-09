@@ -111,7 +111,7 @@ serve(async (req) => {
       throw new Error('Invalid origin');
     }
 
-    // Construct success and cancel URLs
+    // Construct success and cancel URLs with explicit paths
     const successUrl = `${originUrl.origin}/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${originUrl.origin}/competition/${competitionId}`;
     
@@ -126,7 +126,7 @@ serve(async (req) => {
       customer_email: user.email,
       line_items: [
         {
-          price: 'price_1QkbfoDI8y21uYLJ3bcWNfWg', // Updated to test price ID
+          price: 'price_1QkbfoDI8y21uYLJ3bcWNfWg',
           quantity: 1,
         },
       ],

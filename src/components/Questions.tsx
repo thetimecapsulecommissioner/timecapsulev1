@@ -34,25 +34,38 @@ export const Questions = () => {
   useEffect(() => {
     const checkAndRestoreSession = async () => {
       try {
+        console.log('Checking auth session state...', {
+          hasSessionId: !!sessionId,
+          competitionId
+        });
+
         const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
         
-        if (!session) {
-          // Store the current URL before redirecting
-          if (sessionId) {
-            console.log('No session found but have session_id, redirecting to login with return URL');
-            const currentPath = `/competition/${competitionId}?session_id=${sessionId}`;
-            const encodedRedirectUrl = encodeURIComponent(currentPath);
-            navigate(`/login?redirectUrl=${encodedRedirectUrl}`);
-            return;
-          }
-          console.log('No session found and no session_id, redirecting to login');
-          navigate('/login');
+        if (error) {
+          console.error('Session check error:', error);
+          throw error;
+        }
+        
+        // If we have a session_id from Stripe but no auth session,
+        // preserve the return URL and redirect to login
+        if (!session && sessionId) {
+          console.log('No auth session found with Stripe session_id, redirecting to login');
+          const currentPath = `/competition/${competitionId}?session_id=${sessionId}`;
+          const encodedRedirectUrl = encodeURIComponent(currentPath);
+          navigate(`/login?redirectUrl=${encodedRedirectUrl}`);
           return;
         }
         
-        console.log('Session found:', {
+        // If no session and no session_id, redirect to regular login
+        if (!session) {
+          console.log('No auth session or Stripe session_id, redirecting to login');
+          navigate('/login');
+          return;
+        }
+
+        console.log('Auth session found:', {
           userId: session.user?.id,
+          email: session.user?.email,
           hasSessionId: !!sessionId,
           competitionId
         });
