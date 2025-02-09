@@ -80,14 +80,14 @@ export const ProfileDropdown = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48 bg-white border border-gray-200 shadow-lg rounded-md">
-        <DropdownMenuItem onClick={() => navigate("/profile")} className="hover:bg-gray-100">
+        <DropdownMenuItem onClick={() => navigate("/profile")} className="text-green-600 hover:bg-gray-100">
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/competitions")} className="hover:bg-gray-100">
+        <DropdownMenuItem onClick={() => navigate("/competitions")} className="text-green-600 hover:bg-gray-100">
           My Competitions
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-gray-200" />
-        <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="hover:bg-gray-100">
+        <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="text-green-600 hover:bg-gray-100">
           {isLoading ? "Logging out..." : "Logout"}
         </DropdownMenuItem>
       </DropdownMenuContent>
