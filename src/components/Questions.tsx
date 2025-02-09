@@ -38,17 +38,24 @@ export const Questions = () => {
         if (error) throw error;
         
         if (!session) {
-          // If there's no session but we have a session_id from Stripe,
-          // redirect to login with the return URL
+          // Store the current URL before redirecting
           if (sessionId) {
+            console.log('No session found but have session_id, redirecting to login with return URL');
             const currentPath = `/competition/${competitionId}?session_id=${sessionId}`;
             const encodedRedirectUrl = encodeURIComponent(currentPath);
             navigate(`/login?redirectUrl=${encodedRedirectUrl}`);
             return;
           }
+          console.log('No session found and no session_id, redirecting to login');
           navigate('/login');
           return;
         }
+        
+        console.log('Session found:', {
+          userId: session.user?.id,
+          hasSessionId: !!sessionId,
+          competitionId
+        });
         
         setIsAuthChecking(false);
       } catch (error) {

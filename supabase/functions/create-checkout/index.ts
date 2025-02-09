@@ -111,6 +111,15 @@ serve(async (req) => {
       throw new Error('Invalid origin');
     }
 
+    // Construct success and cancel URLs
+    const successUrl = `${originUrl.origin}/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${originUrl.origin}/competition/${competitionId}`;
+    
+    console.log('Constructed URLs:', {
+      success: successUrl,
+      cancel: cancelUrl
+    });
+
     // Create Stripe checkout session
     console.log('Creating Stripe checkout session...');
     const session = await stripe.checkout.sessions.create({
@@ -122,8 +131,8 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${originUrl.origin}/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${originUrl.origin}/competition/${competitionId}`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       submit_type: 'pay',
