@@ -30,21 +30,19 @@ serve(async (req) => {
     const rawBody = await req.text();
     console.log('Request body length:', rawBody.length);
 
-    // Get and validate Stripe configuration
+    // Get and validate configuration
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    // Validate all required configuration
-    const configCheck = {
+    // Log configuration status
+    console.log('Configuration check:', {
       hasStripeKey: !!stripeKey,
       hasWebhookSecret: !!webhookSecret,
       hasSupabaseUrl: !!supabaseUrl,
       hasSupabaseKey: !!supabaseServiceKey
-    };
-
-    console.log('Configuration check:', configCheck);
+    });
 
     if (!stripeKey || !webhookSecret) {
       throw new Error('Missing Stripe configuration');
@@ -60,7 +58,7 @@ serve(async (req) => {
       typescript: true,
     });
 
-    // Get Stripe signature (try multiple header variations)
+    // Get Stripe signature
     const signature = 
       req.headers.get('stripe-signature') || 
       req.headers.get('Stripe-Signature');
@@ -124,7 +122,8 @@ serve(async (req) => {
           payment_completed: true,
           terms_accepted: true,
           status: 'In Progress',
-          payment_session_id: session.id
+          payment_session_id: session.id,
+          testing_mode: false
         })
         .eq('user_id', user_id)
         .eq('competition_id', competition_id);
