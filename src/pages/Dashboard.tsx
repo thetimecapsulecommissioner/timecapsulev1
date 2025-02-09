@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { CompetitionCard } from "@/components/dashboard/CompetitionCard";
@@ -22,7 +23,7 @@ const Dashboard = () => {
         </div>
         
         <div className="bg-primary/10 rounded-lg p-4 md:p-6">
-          <h2 className="text-lg md:text-2xl font-semibold mb-4 text-secondary">Competitions</h2>
+          <h2 className="text-lg md:text-2xl font-semibold mb-4 text-secondary">Competitions - click below to play!</h2>
           <div className="space-y-3 md:space-y-4">
             {competitions.map((competition) => (
               <CompetitionCard
