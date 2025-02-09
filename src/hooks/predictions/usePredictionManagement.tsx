@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { PostgrestError } from "@supabase/supabase-js";
 
 export const usePredictionManagement = (userId?: string, competitionId?: string) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -26,13 +28,15 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
         if (error) throw error;
       } else {
+        // Delete existing predictions for this question
         await supabase
           .from('predictions')
           .delete()
           .eq('user_id', userId)
           .eq('question_id', questionId);
 
-        const upsertPromises = answers.map((answer, index) => 
+        // Insert new predictions
+        const upsertPromises: Promise<{ error: PostgrestError | null }>[] = answers.map((answer, index) => 
           supabase
             .from('predictions')
             .upsert({
