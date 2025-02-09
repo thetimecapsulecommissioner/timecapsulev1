@@ -8,7 +8,6 @@ import { useCommentManagement } from "@/hooks/predictions/useCommentManagement";
 import { toast } from "sonner";
 
 export const usePredictionForm = (questions: any[]) => {
-  const [showSealDialog, setShowSealDialog] = useState(false);
   const { id: competitionId } = useParams();
   
   const { predictions, predictionsLoading, userData, isSubmitted } = usePredictions();
@@ -16,9 +15,7 @@ export const usePredictionForm = (questions: any[]) => {
   
   const { 
     isSaving,
-    isSealing,
     handleAnswerChange,
-    handleSealPredictions,
     setIsSaving
   } = usePredictionManagement(userData?.id, competitionId);
 
@@ -49,11 +46,7 @@ export const usePredictionForm = (questions: any[]) => {
     predictionsLoading,
     comments,
     isSaving,
-    isSealing,
-    showSealDialog,
-    setShowSealDialog,
     handleSaveResponses,
-    handleSealPredictions,
     handleAnswerChange,
     handleCommentChange,
     isSubmitted

@@ -19,11 +19,7 @@ export const PredictionForm = ({
     predictionsLoading,
     comments,
     isSaving,
-    isSealing,
-    showSealDialog,
-    setShowSealDialog,
     handleSaveResponses,
-    handleSealPredictions,
     handleAnswerChange,
     handleCommentChange,
     isSubmitted,
@@ -40,11 +36,7 @@ export const PredictionForm = ({
       comments={comments}
       answeredQuestions={answeredQuestions}
       isSaving={isSaving}
-      isSealing={isSealing}
-      showSealDialog={showSealDialog}
-      setShowSealDialog={setShowSealDialog}
       onSave={handleSaveResponses}
-      onSeal={handleSealPredictions}
       onAnswerChange={handleAnswerChange}
       onCommentChange={handleCommentChange}
       readOnly={readOnly || isSubmitted}

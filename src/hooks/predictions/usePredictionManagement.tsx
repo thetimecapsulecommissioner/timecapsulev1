@@ -34,20 +34,18 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
           .eq('question_id', questionId);
 
         // Create new predictions
-        const upsertPromises: Promise<{ error: any }>[] = answers.map((answer, index) => 
-          supabase
-            .from('predictions')
-            .upsert({
-              question_id: questionId,
-              user_id: userId,
-              answer,
-              response_order: index + 1
-            })
-        );
+        const predictions = answers.map((answer, index) => ({
+          question_id: questionId,
+          user_id: userId,
+          answer,
+          response_order: index + 1
+        }));
 
-        const results = await Promise.all(upsertPromises);
-        const errors = results.filter(result => result.error);
-        if (errors.length > 0) throw errors[0].error;
+        const { error } = await supabase
+          .from('predictions')
+          .insert(predictions);
+
+        if (error) throw error;
       }
 
       // Check if all questions are answered and update status
