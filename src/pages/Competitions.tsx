@@ -30,6 +30,7 @@ const Competitions = () => {
                   totalQuestions={competition.total_questions}
                   totalEntrants={competition.total_entrants}
                   isSealed={competition.predictions_sealed}
+                  status={competition.status}
                 />
               ))
             ) : (
