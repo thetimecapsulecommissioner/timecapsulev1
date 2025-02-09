@@ -31,10 +31,6 @@ export const Questions = () => {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(true);
 
-  const handleLogoClick = () => {
-    navigate("/dashboard");
-  };
-
   useEffect(() => {
     if (selectedPhase === 'pre-season') {
       toast.info("Scroll down to see the questions!");
