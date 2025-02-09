@@ -117,7 +117,7 @@ serve(async (req) => {
       customer_email: user.email,
       line_items: [
         {
-          price: 'price_1QmqnPDI8y21uYLJ8z036zLA',
+          price: 'price_1QkbfoDI8y21uYLJ3bcWNfWg', // Updated to test price ID
           quantity: 1,
         },
       ],
@@ -181,4 +181,3 @@ serve(async (req) => {
     );
   }
 });
-
