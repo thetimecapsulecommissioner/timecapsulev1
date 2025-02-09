@@ -4,17 +4,25 @@ import Stripe from 'https://esm.sh/stripe@14.21.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, stripe-signature',
 };
 
 serve(async (req) => {
-  console.log('Stripe webhook function invoked');
+  console.log('Stripe webhook function invoked with method:', req.method);
   
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      status: 200,
+      headers: corsHeaders 
+    });
   }
 
   try {
+    // Log all incoming headers for debugging
+    console.log('Received headers:', Object.fromEntries(req.headers.entries()));
+
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeKey) {
       console.error('Missing Stripe secret key');
@@ -28,8 +36,14 @@ serve(async (req) => {
 
     const signature = req.headers.get('stripe-signature');
     if (!signature) {
-      console.error('No Stripe signature found in request');
-      throw new Error('No signature provided');
+      console.error('No Stripe signature found in request headers');
+      return new Response(
+        JSON.stringify({ error: 'No signature provided' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
@@ -38,17 +52,22 @@ serve(async (req) => {
       throw new Error('Configuration error');
     }
 
+    console.log('Webhook secret exists, proceeding to verify signature');
+
     const body = await req.text();
     let event;
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-      console.log('Webhook event constructed:', event.type);
+      console.log('Webhook event constructed successfully:', event.type);
     } catch (err) {
-      console.error('Error verifying webhook signature:', err);
+      console.error('Error verifying webhook signature:', err.message);
       return new Response(
-        JSON.stringify({ error: 'Webhook signature verification failed' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Webhook signature verification failed', details: err.message }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
@@ -78,13 +97,19 @@ serve(async (req) => {
       }
 
       console.log('Successfully processed payment for session:', session.id);
+      return new Response(JSON.stringify({ received: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
+    // Handle other event types
+    console.log('Received webhook event type:', event.type);
     return new Response(JSON.stringify({ received: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    console.error('Error processing webhook:', error.message);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
