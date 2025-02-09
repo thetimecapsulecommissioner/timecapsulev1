@@ -22,6 +22,18 @@ serve(async (req) => {
   try {
     // Log all incoming headers for debugging
     console.log('Received headers:', Object.fromEntries(req.headers.entries()));
+    
+    // Verify it's a POST request
+    if (req.method !== 'POST') {
+      console.error('Invalid method:', req.method);
+      return new Response(
+        JSON.stringify({ error: 'Method not allowed' }),
+        { 
+          status: 405,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeKey) {
@@ -75,6 +87,9 @@ serve(async (req) => {
       const session = event.data.object;
       console.log('Processing successful checkout session:', session.id);
 
+      // Log the metadata for debugging
+      console.log('Session metadata:', session.metadata);
+
       const supabaseUrl = Deno.env.get('SUPABASE_URL');
       const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
@@ -86,6 +101,7 @@ serve(async (req) => {
       const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.7.1');
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+      // Update the competition entry for the user
       const { data, error } = await supabaseAdmin.rpc(
         'handle_stripe_payment_success',
         { payment_session_id: session.id }
