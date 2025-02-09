@@ -20,8 +20,10 @@ serve(async (req) => {
   }
 
   try {
-    // Log all incoming headers for debugging
-    console.log('Received headers:', Object.fromEntries(req.headers.entries()));
+    // Log complete request details for debugging
+    console.log('Request URL:', req.url);
+    console.log('Request method:', req.method);
+    console.log('All headers:', Object.fromEntries(req.headers.entries()));
     
     // Verify it's a POST request
     if (req.method !== 'POST') {
@@ -46,11 +48,26 @@ serve(async (req) => {
       typescript: true,
     });
 
-    const signature = req.headers.get('stripe-signature');
+    // Check raw stripe-signature header
+    const rawSig = req.headers.get('stripe-signature');
+    console.log('Raw Stripe signature:', rawSig);
+
+    // Check all possible header variations
+    console.log('Stripe-Signature header:', req.headers.get('Stripe-Signature'));
+    console.log('stripe-signature header:', req.headers.get('stripe-signature'));
+    console.log('STRIPE-SIGNATURE header:', req.headers.get('STRIPE-SIGNATURE'));
+
+    const signature = req.headers.get('stripe-signature') || 
+                     req.headers.get('Stripe-Signature') || 
+                     req.headers.get('STRIPE-SIGNATURE');
+
     if (!signature) {
       console.error('No Stripe signature found in request headers');
       return new Response(
-        JSON.stringify({ error: 'No signature provided' }),
+        JSON.stringify({ 
+          error: 'No signature provided',
+          headers: Object.fromEntries(req.headers.entries())
+        }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -67,6 +84,8 @@ serve(async (req) => {
     console.log('Webhook secret exists, proceeding to verify signature');
 
     const body = await req.text();
+    console.log('Received webhook body:', body);
+    
     let event;
 
     try {
@@ -75,7 +94,12 @@ serve(async (req) => {
     } catch (err) {
       console.error('Error verifying webhook signature:', err.message);
       return new Response(
-        JSON.stringify({ error: 'Webhook signature verification failed', details: err.message }),
+        JSON.stringify({ 
+          error: 'Webhook signature verification failed', 
+          details: err.message,
+          receivedSignature: signature,
+          headerKeys: Array.from(req.headers.keys())
+        }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -127,7 +151,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing webhook:', error.message);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        stack: error.stack
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
