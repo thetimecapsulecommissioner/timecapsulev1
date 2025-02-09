@@ -79,15 +79,15 @@ export const ProfileDropdown = () => {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => navigate("/profile")}>
+      <DropdownMenuContent className="w-48 bg-white border border-gray-200 shadow-lg rounded-md">
+        <DropdownMenuItem onClick={() => navigate("/profile")} className="hover:bg-gray-100">
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/competitions")}>
+        <DropdownMenuItem onClick={() => navigate("/competitions")} className="hover:bg-gray-100">
           My Competitions
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
+        <DropdownMenuSeparator className="bg-gray-200" />
+        <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="hover:bg-gray-100">
           {isLoading ? "Logging out..." : "Logout"}
         </DropdownMenuItem>
       </DropdownMenuContent>
