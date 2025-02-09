@@ -79,18 +79,29 @@ export const ProfileDropdown = () => {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => navigate("/profile")}>
+      <DropdownMenuContent className="bg-green-500 text-white border-none shadow-lg">
+        <DropdownMenuItem 
+          onClick={() => navigate("/profile")}
+          className="hover:bg-green-600 cursor-pointer"
+        >
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/competitions")}>
+        <DropdownMenuItem 
+          onClick={() => navigate("/competitions")}
+          className="hover:bg-green-600 cursor-pointer"
+        >
           My Competitions
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
+        <DropdownMenuSeparator className="bg-green-600" />
+        <DropdownMenuItem 
+          onClick={handleLogout} 
+          disabled={isLoading}
+          className="hover:bg-green-600 cursor-pointer"
+        >
           {isLoading ? "Logging out..." : "Logout"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
+
