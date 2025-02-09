@@ -96,7 +96,7 @@ serve(async (req) => {
       client_reference_id: clientReferenceId,
       line_items: [
         {
-          price: 'price_1QmqnPDI8y21uYLJ8z036zLA',
+          price: 'price_1QkbfoDI8y21uYLJ3bcWNfWg',
           quantity: 1,
         },
       ],
@@ -161,3 +161,4 @@ serve(async (req) => {
     );
   }
 });
+
