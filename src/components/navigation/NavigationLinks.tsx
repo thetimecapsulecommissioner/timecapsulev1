@@ -48,6 +48,12 @@ export const NavigationLinks = () => {
       >
         Contact
       </button>
+      <button 
+        onClick={() => navigate("/faq")} 
+        className={buttonClass}
+      >
+        FAQ
+      </button>
     </nav>
   );
 };

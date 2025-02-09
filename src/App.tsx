@@ -14,6 +14,7 @@ import Contact from "./pages/Contact";
 import SportingClubs from "./pages/SportingClubs";
 import Profile from "./pages/Profile";
 import Competitions from "./pages/Competitions";
+import FAQ from "./pages/FAQ";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -66,6 +67,7 @@ const AppContent = () => {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/sporting-clubs" element={<SportingClubs />} />
+      <Route path="/faq" element={<FAQ />} />
       
       {/* Protected routes */}
       <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />

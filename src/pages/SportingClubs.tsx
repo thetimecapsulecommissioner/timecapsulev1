@@ -2,6 +2,7 @@
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { AboutSection } from "@/components/about/AboutSection";
 
 const SportingClubs = () => {
   const navigate = useNavigate();
@@ -10,53 +11,37 @@ const SportingClubs = () => {
     <div className="min-h-screen bg-primary">
       <Navigation />
       <div className="container mx-auto px-4 pt-24 pb-12">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-secondary mb-8 text-center">Sporting Clubs</h1>
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-4xl font-bold text-secondary mb-12 text-center">Sporting Clubs</h1>
           
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="relative h-[500px] w-full">
-              <img 
-                src="/lovable-uploads/42fc1dc7-689f-44cd-ae5b-e0c872c19f05.png" 
-                alt="Community Sports Event"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            
-            <div className="p-6">
-              <div className="prose prose-lg max-w-none text-gray-700">
-                <p className="mb-6">
-                  The Time Capsule is this year fundraising for and partnering with Community Sporting Clubs. Partnership Opportunities include:
-                </p>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="font-bold mb-2">Community Clubs Fundraising Pool</h3>
-                    <p>Join the fundraising pool!</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-bold mb-2">Club Table at the Fundraiser</h3>
-                    <p>Have a group enter and attend this year's event!</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-bold mb-2">In-Season Mini Time Capsule Game</h3>
-                    <p>A game-week focussed fundraiser</p>
-                  </div>
-                </div>
-                <p className="mt-6">
-                  Please reach out in the below contact window if interested in one or all of these options!
-                </p>
-              </div>
-              
-              <div className="mt-8 flex justify-center">
-                <Button 
-                  onClick={() => navigate('/contact')}
-                  className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg text-lg font-semibold"
-                >
-                  Contact Us for Partnership
-                </Button>
-              </div>
-            </div>
+          <AboutSection
+            title="Community Clubs Fundraising Pool"
+            content="Join the fundraising pool! The Time Capsule is this year fundraising for and partnering with Community Sporting Clubs. Be part of our growing community of sports organizations making a difference."
+            imagePosition="right"
+            imageSrc="/lovable-uploads/42fc1dc7-689f-44cd-ae5b-e0c872c19f05.png"
+          />
+
+          <AboutSection
+            title="Club Table at the Fundraiser"
+            content="Have a group enter and attend this year's event! Get your club involved in our Brownlow-Style awards night where we unveil the Time Capsule predictions and celebrate together as a community."
+            imagePosition="left"
+            imageSrc="/lovable-uploads/ef0e589f-e07b-48b5-b432-9eecbb113582.png"
+          />
+
+          <AboutSection
+            title="In-Season Mini Time Capsule Game"
+            content="A game-week focussed fundraiser designed specifically for sporting clubs. Engage your members and supporters while raising funds for your club through an exciting prediction-based competition."
+            imagePosition="right"
+            imageSrc="/lovable-uploads/8320c47e-9843-452d-a7e9-43d11586f867.png"
+          />
+
+          <div className="mt-12 text-center">
+            <Button 
+              onClick={() => navigate('/contact')}
+              className="bg-secondary hover:bg-secondary-light text-primary px-8 py-3 rounded-lg text-lg font-semibold"
+            >
+              Contact Us for Partnership
+            </Button>
           </div>
         </div>
       </div>

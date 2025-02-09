@@ -18,7 +18,7 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 pt-32 md:pt-32">
         <div className="flex justify-between items-center mb-6 md:mb-8">
           <h1 className="text-xl md:text-3xl font-bold text-secondary">
-            Hi, {firstName}
+            Hi {firstName},
           </h1>
         </div>
         
