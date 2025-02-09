@@ -81,8 +81,14 @@ export const useRegistration = () => {
           return;
         }
 
-        // Show success message with email confirmation instructions
-        toast.success("Registration successful! Please check your email to confirm your account.");
+        // Show more detailed success message with email verification instructions
+        toast.success(
+          "Registration successful! Please check your email to verify your account before logging in. " +
+          "If you don't see the email, please check your spam folder.",
+          {
+            duration: 6000 // Show for 6 seconds since it's a longer message
+          }
+        );
         navigate("/login");
       }
     } catch (error) {
