@@ -44,10 +44,22 @@ export const useRegistration = () => {
 
     setIsLoading(true);
     try {
-      // First create the auth user
+      // First create the auth user with additional metadata
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            display_name: formData.displayName,
+            phone: formData.phone,
+            state: formData.state,
+            player_status: formData.playerStatus,
+            player_reference: formData.playerReference || null,
+            afl_team: formData.aflClub,
+          }
+        }
       });
 
       if (signUpError) {
