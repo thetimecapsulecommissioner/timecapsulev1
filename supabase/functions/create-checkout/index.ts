@@ -88,8 +88,12 @@ serve(async (req) => {
       throw new Error('No competition ID provided');
     }
 
-    // Get the origin with a fallback
-    const origin = req.headers.get('origin') || 'https://42931025-6d81-41ae-96b5-881b6c8c1ce2.lovableproject.com';
+    // Get the origin from the request headers
+    const origin = req.headers.get('origin');
+    if (!origin) {
+      console.error('No origin header found');
+      throw new Error('Origin header is required');
+    }
     console.log('Using origin:', origin);
 
     // Create Stripe checkout session
@@ -103,8 +107,8 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${origin}/questions/${competitionId}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/questions/${competitionId}`,
+      success_url: `${origin}/competition/${competitionId}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/competition/${competitionId}`,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       submit_type: 'pay',
