@@ -33,10 +33,8 @@ export const Questions = () => {
 
   useEffect(() => {
     if (selectedPhase === 'pre-season' && predictionsRef.current) {
-      const yOffset = -100; // This will keep some space at the top
-      const element = predictionsRef.current;
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      const currentScrollPosition = window.pageYOffset;
+      window.scrollTo({ top: currentScrollPosition });
     }
   }, [selectedPhase]);
 
