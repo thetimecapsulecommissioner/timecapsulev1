@@ -5,9 +5,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PostgrestError } from "@supabase/supabase-js";
 
+// Define a more specific type for the prediction data
+interface PredictionData {
+  question_id: number;
+  user_id: string;
+  answer: string;
+  response_order: number;
+}
+
 interface SupabaseResponse {
   error: PostgrestError | null;
-  data: any;
+  data: PredictionData[] | null;
   count?: number | null;
   status: number;
 }
@@ -42,26 +50,28 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
           .eq('user_id', userId)
           .eq('question_id', questionId);
 
-        // Insert new predictions
-        const promises: Promise<SupabaseResponse>[] = answers.map(async (answer, index) => {
+        // Insert new predictions with explicit typing
+        const predictionPromises = answers.map(async (answer, index) => {
+          const predictionData: PredictionData = {
+            question_id: questionId,
+            user_id: userId,
+            answer,
+            response_order: index + 1
+          };
+
           const result = await supabase
             .from('predictions')
-            .upsert({
-              question_id: questionId,
-              user_id: userId,
-              answer,
-              response_order: index + 1
-            });
+            .upsert(predictionData);
 
           return {
             error: result.error,
             data: result.data,
             status: result.status,
             count: result.count
-          };
+          } as SupabaseResponse;
         });
 
-        const results = await Promise.all(promises);
+        const results = await Promise.all(predictionPromises);
         const errors = results.filter(result => result.error);
         if (errors.length > 0) throw errors[0].error;
       }
