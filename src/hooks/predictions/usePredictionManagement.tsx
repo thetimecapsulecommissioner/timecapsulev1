@@ -53,12 +53,10 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
         }
       }
 
-      // Invalidate queries synchronously to avoid type recursion
-      void queryClient.invalidateQueries({
-        queryKey: ['predictions']
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ['competition-entry']
+      // Handle query invalidation
+      Promise.resolve().then(() => {
+        queryClient.invalidateQueries({ queryKey: ['predictions'] });
+        queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
       });
       
     } catch (error) {
@@ -105,12 +103,10 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
       if (entryError) throw entryError;
 
-      // Invalidate queries synchronously
-      void queryClient.invalidateQueries({
-        queryKey: ['predictions']
-      });
-      void queryClient.invalidateQueries({
-        queryKey: ['competition-entry']
+      // Handle query invalidation
+      Promise.resolve().then(() => {
+        queryClient.invalidateQueries({ queryKey: ['predictions'] });
+        queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
       });
 
       toast.success("Predictions sealed successfully!");
