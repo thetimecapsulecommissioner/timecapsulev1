@@ -47,13 +47,13 @@ export const ProfileDropdown = () => {
   const handleLogout = async () => {
     try {
       setIsLoading(true);
+      navigate('/'); // Navigate to home page first
       const { error } = await supabase.auth.signOut();
       if (error) {
         toast.error("Error logging out");
         return;
       }
       toast.success("Logged out successfully");
-      window.location.href = '/';
     } catch (error) {
       toast.error("Error logging out");
     } finally {
