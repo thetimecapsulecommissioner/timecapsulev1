@@ -20,7 +20,7 @@ const FAQ = () => {
           <div className="bg-white/5 rounded-lg p-6">
             <Accordion type="single" collapsible className="space-y-4">
               <AccordionItem value="item-1">
-                <AccordionTrigger className="text-secondary hover:text-secondary/90 justify-start">
+                <AccordionTrigger className="text-secondary hover:text-secondary/90 text-left">
                   What sort of predictions am I making?
                 </AccordionTrigger>
                 <AccordionContent className="text-secondary/80">
@@ -29,7 +29,7 @@ const FAQ = () => {
               </AccordionItem>
 
               <AccordionItem value="item-2">
-                <AccordionTrigger className="text-secondary hover:text-secondary/90 justify-start">
+                <AccordionTrigger className="text-secondary hover:text-secondary/90 text-left">
                   Are my predictions public?
                 </AccordionTrigger>
                 <AccordionContent className="text-secondary/80">
@@ -38,7 +38,7 @@ const FAQ = () => {
               </AccordionItem>
 
               <AccordionItem value="item-3">
-                <AccordionTrigger className="text-secondary hover:text-secondary/90 justify-start">
+                <AccordionTrigger className="text-secondary hover:text-secondary/90 text-left">
                   How does the event work?
                 </AccordionTrigger>
                 <AccordionContent className="text-secondary/80">
@@ -47,7 +47,7 @@ const FAQ = () => {
               </AccordionItem>
 
               <AccordionItem value="item-4">
-                <AccordionTrigger className="text-secondary hover:text-secondary/90 justify-start">
+                <AccordionTrigger className="text-secondary hover:text-secondary/90 text-left">
                   What does my entry cost and where does it go?
                 </AccordionTrigger>
                 <AccordionContent className="text-secondary/80">
@@ -56,7 +56,7 @@ const FAQ = () => {
               </AccordionItem>
 
               <AccordionItem value="item-5">
-                <AccordionTrigger className="text-secondary hover:text-secondary/90 justify-start">
+                <AccordionTrigger className="text-secondary hover:text-secondary/90 text-left">
                   How often and many predictions do I have to make?
                 </AccordionTrigger>
                 <AccordionContent className="text-secondary/80">
@@ -72,3 +72,4 @@ const FAQ = () => {
 };
 
 export default FAQ;
+
