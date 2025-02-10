@@ -99,7 +99,9 @@ const Navigation = () => {
           </SheetContent>
         </Sheet>
         <div className="flex-1 flex justify-center items-center">
-          <Logo onClick={handleLogoClick} />
+          <div className="-ml-10"> {/* Added negative margin to move logo left */}
+            <Logo onClick={handleLogoClick} />
+          </div>
         </div>
         {isLoggedIn && (
           <div className="flex items-center">
@@ -148,3 +150,4 @@ const Navigation = () => {
 };
 
 export { Navigation };
+
