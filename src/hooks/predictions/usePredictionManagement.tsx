@@ -13,6 +13,7 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
       if (!userId) return;
 
       if (responseOrder !== undefined) {
+        // Update single prediction with conflict handling
         const { error } = await supabase
           .from('predictions')
           .upsert({
@@ -33,7 +34,7 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
           .eq('user_id', userId)
           .eq('question_id', questionId);
 
-        // Create new predictions
+        // Create new predictions with proper conflict handling
         const predictions = answers.map((answer, index) => ({
           question_id: questionId,
           user_id: userId,
@@ -43,7 +44,9 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
 
         const { error } = await supabase
           .from('predictions')
-          .insert(predictions);
+          .upsert(predictions, {
+            onConflict: 'user_id,question_id,response_order'
+          });
 
         if (error) throw error;
       }
