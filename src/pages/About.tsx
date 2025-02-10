@@ -12,7 +12,7 @@ const About = () => {
         
         <AboutSection
           title="What's the Time Capsule?"
-          content="It's a community competition, where competitors have their predictive skills and knowledge tested against their friends, by answering a series of intriguing questions. You and your mates then gather to count back the points and see who won, while winning prizes and supporting a great cause!"
+          content="It's a sports prediction competition with mates and community at the centre of it. Competitors have their predictive skills and knowledge tested against their mates, by answering the important questions about sport. You and your mates then gather to go through the predictions and see who won, while winning prizes and supporting a great cause!"
           imagePosition="right"
           imageSrc="/lovable-uploads/2336bbd1-2408-436b-9a1b-50488d1da377.png"
         />
