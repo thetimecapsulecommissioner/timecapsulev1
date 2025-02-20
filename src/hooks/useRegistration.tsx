@@ -49,6 +49,9 @@ export const useRegistration = () => {
     try {
       console.log("Starting registration process...");
       
+      // Get the base URL for redirects
+      const redirectBase = window.location.origin;
+      
       // Sign up the user with metadata
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
@@ -64,7 +67,7 @@ export const useRegistration = () => {
             player_reference: formData.playerReference || null,
             afl_team: formData.aflClub,
           },
-          emailRedirectTo: `${window.location.origin}/login`
+          emailRedirectTo: `${redirectBase}/login?verified=true`
         }
       });
 
@@ -106,3 +109,4 @@ export const useRegistration = () => {
     handleSubmit,
   };
 };
+
