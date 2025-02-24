@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,14 +40,14 @@ export const AFLPlayerSelect = ({
   });
 
   const filteredPlayers = players?.filter(player => 
-    player.fullName.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    !selected.includes(player.fullName) // Filter out already selected players
+    player.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!containerRefs.current.some(ref => ref?.contains(event.target as Node))) {
         setActiveIndex(null);
+        setSearchTerm("");
       }
     };
 
@@ -55,11 +56,9 @@ export const AFLPlayerSelect = ({
   }, []);
 
   const handlePlayerSelect = (playerName: string, index: number) => {
-    if (!selected.includes(playerName)) {
-      const newSelected = [...selected];
-      newSelected[index] = playerName;
-      onAnswerChange(newSelected.filter(Boolean));
-    }
+    const newSelected = [...selected];
+    newSelected[index] = playerName;
+    onAnswerChange(newSelected.filter(Boolean));
     setSearchTerm("");
     setActiveIndex(null);
   };
