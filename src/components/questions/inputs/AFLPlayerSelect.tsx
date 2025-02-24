@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 
 interface AFLPlayerSelectProps {
   selected: string[];
@@ -75,6 +75,13 @@ export const AFLPlayerSelect = ({
     }
   };
 
+  const toggleDropdown = (index: number) => {
+    if (!disabled) {
+      setActiveIndex(activeIndex === index ? null : index);
+      setSearchTerm("");
+    }
+  };
+
   return (
     <div className="space-y-3">
       {Array.from({ length: requiredAnswers }).map((_, index) => (
@@ -84,17 +91,26 @@ export const AFLPlayerSelect = ({
           ref={el => containerRefs.current[index] = el}
         >
           {selected[index] ? (
-            <div className="flex items-center gap-2 p-2 bg-white border rounded-md">
+            <div 
+              className="flex items-center gap-2 p-2 bg-white border rounded-md cursor-pointer group"
+              onClick={() => toggleDropdown(index)}
+            >
               <span className="flex-1 text-gray-900">{selected[index]}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleRemovePlayer(index)}
-                disabled={disabled}
-                className="h-8 w-8 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemovePlayer(index);
+                  }}
+                  disabled={disabled}
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </div>
             </div>
           ) : (
             <>
@@ -108,25 +124,27 @@ export const AFLPlayerSelect = ({
                 autoComplete="off"
                 disabled={disabled}
               />
-              {activeIndex === index && filteredPlayers && filteredPlayers.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg">
-                  <ScrollArea className="h-[200px]">
-                    <div className="p-1">
-                      {filteredPlayers.map((player) => (
-                        <button
-                          key={player.id}
-                          className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded-sm text-gray-900"
-                          onClick={() => handlePlayerSelect(player.fullName, index)}
-                          disabled={disabled}
-                        >
-                          {player.fullName} - {player.team}
-                        </button>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
+              <ChevronDown className="absolute right-3 top-3 h-4 w-4 text-gray-500 pointer-events-none" />
             </>
+          )}
+          
+          {activeIndex === index && filteredPlayers && filteredPlayers.length > 0 && (
+            <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg">
+              <ScrollArea className="h-[200px]">
+                <div className="p-1">
+                  {filteredPlayers.map((player) => (
+                    <button
+                      key={player.id}
+                      className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded-sm text-gray-900"
+                      onClick={() => handlePlayerSelect(player.fullName, index)}
+                      disabled={disabled}
+                    >
+                      {player.fullName} - {player.team}
+                    </button>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
           )}
         </div>
       ))}
