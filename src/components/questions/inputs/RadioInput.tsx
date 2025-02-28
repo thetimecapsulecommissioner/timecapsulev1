@@ -14,16 +14,21 @@ export const RadioInput = ({ id, options, selected, onAnswerChange, disabled = f
   // Check if this is Question 3
   const isQuestion3 = id === 3;
   
-  // Add "nil" as an option for Question 3 if it's not already included
-  // Using console.log to debug
-  console.log(`Question ID: ${id}, Is Question 3: ${isQuestion3}`);
-  console.log(`Original options:`, options);
+  // Create a new array with the enhanced options to ensure React re-renders
+  let displayOptions = [...options];
   
-  const enhancedOptions = isQuestion3 && !options.some(option => option.toLowerCase() === "nil") 
-    ? [...options, "nil"] 
-    : options;
-  
-  console.log(`Enhanced options:`, enhancedOptions);
+  // For Question 3, make sure "nil" is included
+  if (isQuestion3) {
+    // Only add "nil" if it's not already in the list
+    const hasNil = options.some(option => 
+      option.toLowerCase() === "nil" || option.toLowerCase() === "nil.");
+      
+    if (!hasNil) {
+      displayOptions.push("nil");
+    }
+    
+    console.log(`Question 3 options with nil:`, displayOptions);
+  }
 
   return (
     <RadioGroup
@@ -32,7 +37,7 @@ export const RadioInput = ({ id, options, selected, onAnswerChange, disabled = f
       disabled={disabled}
     >
       <div className="space-y-3">
-        {enhancedOptions.map((option) => (
+        {displayOptions.map((option) => (
           <div key={option} className="flex items-center space-x-2">
             <RadioGroupItem value={option} id={`${id}-${option}`} />
             <Label htmlFor={`${id}-${option}`} className="text-gray-700">{option}</Label>
