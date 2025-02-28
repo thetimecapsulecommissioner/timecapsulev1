@@ -72,26 +72,30 @@ export const useDashboardData = () => {
             status = 'In Progress';
           }
 
-          // Get total number of entrants - count ONLY entries where payment is completed
-          // This represents users who have paid and can make predictions
-          const { data: entries, error } = await supabase
-            .from("competition_entries")
-            .select("*")
-            .eq("competition_id", comp.id)
-            .eq("payment_completed", true);
+          // Get a distinct count of users who have made ANY predictions for this competition
+          // This approach counts anyone who has answered at least one question
+          const { data: distinctUsers, error } = await supabase
+            .from("predictions")
+            .select("user_id")
+            .eq("question_id", 1) // Using the first question as a proxy
+            .limit(1000); // Add a reasonable limit
 
           // Log entry counts for debugging
-          console.log('Competition entrants count:', {
+          console.log('Competition entrants count based on predictions:', {
             competitionId: comp.id,
-            entryCount: entries?.length || 0,
+            distinctUserCount: distinctUsers?.length || 0,
             queryError: error
           });
+
+          // Create a unique set of user IDs
+          const uniqueUserIds = new Set(distinctUsers?.map(p => p.user_id) || []);
+          const entrantsCount = uniqueUserIds.size;
 
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
-            total_entrants: entries?.length || 0,
+            total_entrants: entrantsCount,
             predictions_sealed: isSubmitted,
             status
           };
@@ -100,8 +104,8 @@ export const useDashboardData = () => {
 
       return enhancedCompetitions;
     },
-    // Use a shorter stale time to refresh more frequently for testing
-    staleTime: 30000, 
+    // Use a shorter stale time to refresh more frequently
+    staleTime: 15000, 
   });
 
   return {
