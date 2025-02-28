@@ -72,35 +72,35 @@ export const useDashboardData = () => {
             status = 'In Progress';
           }
 
-          // Get total number of unique users who have made predictions
-          // This counts any user who has answered at least one question
-          const { data: userPredictions, error } = await supabase
+          // Direct approach: Get a count of distinct users who have made any predictions
+          const { data: distinctUsersData, error: distinctUsersError } = await supabase
             .from("predictions")
-            .select("user_id", { count: "exact", head: true })
-            .eq("question_id", 1); // Using question_id=1 as a reference point
-
-          if (error) {
-            console.error('Error fetching predictions count:', error);
+            .select("user_id", { count: "exact" })
+            .is("user_id", 'not.null'); // Ensure we only count valid users
+            
+          if (distinctUsersError) {
+            console.error('Error fetching distinct users count:', distinctUsersError);
           }
-
-          // Fallback to counting distinct users manually if the count query fails
+          
           let entrantsCount = 0;
           
-          if (userPredictions === null) {
-            const { data: allPredictions } = await supabase
+          if (distinctUsersData !== null) {
+            // Get all distinct user IDs
+            const { data: allUserIds } = await supabase
               .from("predictions")
-              .select("user_id")
-              .eq("question_id", 1);
+              .select("user_id");
               
-            // Create a Set of unique user IDs
-            const uniqueUsers = new Set(allPredictions?.map(p => p.user_id) || []);
-            entrantsCount = uniqueUsers.size;
-          } else {
-            // Use the count from the query if available
-            entrantsCount = userPredictions.length;
+            // Create a Set to count unique user IDs
+            const uniqueUserIds = new Set();
+            allUserIds?.forEach(p => {
+              if (p.user_id) {
+                uniqueUserIds.add(p.user_id);
+              }
+            });
+            
+            entrantsCount = uniqueUserIds.size;
+            console.log(`Counted ${entrantsCount} unique users from predictions`);
           }
-
-          console.log(`Competition ${comp.id} has ${entrantsCount} entrants based on predictions`);
 
           return {
             ...comp,
@@ -115,8 +115,8 @@ export const useDashboardData = () => {
 
       return enhancedCompetitions;
     },
-    // Reduce stale time to refresh data more frequently
-    staleTime: 10000,
+    // Refresh data frequently to ensure we have up-to-date counts
+    staleTime: 5000,
   });
 
   return {
