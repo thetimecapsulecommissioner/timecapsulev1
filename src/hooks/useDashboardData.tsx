@@ -72,11 +72,12 @@ export const useDashboardData = () => {
             status = 'In Progress';
           }
 
-          // Get total number of entrants
+          // Get total number of entrants - only count entries where terms have been accepted
           const { data: entries } = await supabase
             .from("competition_entries")
             .select("*")
-            .eq("competition_id", comp.id);
+            .eq("competition_id", comp.id)
+            .eq("terms_accepted", true);
 
           return {
             ...comp,

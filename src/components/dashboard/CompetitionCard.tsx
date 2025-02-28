@@ -47,7 +47,7 @@ export const CompetitionCard = ({
         {predictionsCount}/{totalQuestions} Predictions Made
       </div>
       <div className="text-gray-600 text-sm md:text-base">
-        {totalEntrants} Entrants
+        {totalEntrants} {totalEntrants === 1 ? 'Entrant' : 'Entrants'}
       </div>
       <div className="text-gray-600 text-sm md:text-base">
         {status}
