@@ -1,3 +1,4 @@
+
 import { AFLTeamSelect } from "./AFLTeamSelect";
 import { MultipleChoiceInput } from "./MultipleChoiceInput";
 import { NumberSelect } from "./NumberSelect";
@@ -33,6 +34,14 @@ export const QuestionInput = ({
     if (!predictions || !predictions[questionId]) return [];
     return Object.values(predictions[questionId]).filter(Boolean) as string[];
   };
+
+  // Check if this is a Round 3 question (questions 25, 26, 27)
+  const isRound3Question = [25, 26, 27].includes(id);
+  
+  // Add "nil" as an option for Round 3 questions if it's not already included
+  const enhancedOptions = isRound3Question && !options.some(option => option.toLowerCase() === "nil") 
+    ? [...options, "nil"] 
+    : options;
 
   const commonProps = {
     disabled: disabled
@@ -70,7 +79,7 @@ export const QuestionInput = ({
       return (
         <MultipleChoiceInput
           id={id}
-          options={options}
+          options={enhancedOptions}
           selected={selected}
           requiredAnswers={requiredAnswers}
           onAnswerChange={onAnswerChange}
