@@ -1,3 +1,4 @@
+
 import { AFLTeamSelect } from "./AFLTeamSelect";
 import { MultipleChoiceInput } from "./MultipleChoiceInput";
 import { NumberSelect } from "./NumberSelect";
@@ -33,6 +34,18 @@ export const QuestionInput = ({
     if (!predictions || !predictions[questionId]) return [];
     return Object.values(predictions[questionId]).filter(Boolean) as string[];
   };
+
+  // Special case for Question 3: ensure "nil" is in the options
+  let questionOptions = [...options];
+  if (id === 3) {
+    const hasNil = options.some(option => 
+      option.toLowerCase() === "nil" || option.toLowerCase() === "nil.");
+    
+    if (!hasNil) {
+      questionOptions.push("nil");
+    }
+    console.log("Question 3 options:", questionOptions);
+  }
 
   const commonProps = {
     disabled: disabled
@@ -70,7 +83,7 @@ export const QuestionInput = ({
       return (
         <MultipleChoiceInput
           id={id}
-          options={options}
+          options={questionOptions}
           selected={selected}
           requiredAnswers={requiredAnswers}
           onAnswerChange={onAnswerChange}
@@ -81,7 +94,7 @@ export const QuestionInput = ({
     case "Number":
       return (
         <NumberSelect
-          options={options}
+          options={questionOptions}
           selected={selected}
           onAnswerChange={onAnswerChange}
           {...commonProps}
@@ -99,7 +112,7 @@ export const QuestionInput = ({
       return (
         <RadioInput
           id={id}
-          options={options}
+          options={questionOptions}
           selected={selected}
           onAnswerChange={onAnswerChange}
           {...commonProps}
