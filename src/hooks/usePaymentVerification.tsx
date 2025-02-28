@@ -55,24 +55,6 @@ export const usePaymentVerification = (
             toast.error('Failed to verify payment status');
           } else if (sessionData?.paymentCompleted) {
             console.log('Payment verified successfully');
-            
-            // Directly update the database entry immediately
-            const { error: updateError } = await supabase
-              .from('competition_entries')
-              .update({
-                payment_completed: true,
-                terms_accepted: true,
-                status: 'In Progress'
-              })
-              .eq('user_id', user.id)
-              .eq('competition_id', competitionId);
-              
-            if (updateError) {
-              console.error('Error updating entry after payment:', updateError);
-            } else {
-              console.log('Entry updated with payment_completed=true');
-            }
-            
             setHasEntered(true);
             toast.success('Payment verified successfully! You are now entered in the competition.');
             
@@ -88,8 +70,6 @@ export const usePaymentVerification = (
             .eq('user_id', user.id)
             .eq('competition_id', competitionId)
             .maybeSingle();
-
-          console.log('Checking existing entry payment status:', entry);
 
           if (entry?.payment_completed) {
             setHasEntered(true);

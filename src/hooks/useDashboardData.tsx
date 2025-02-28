@@ -72,30 +72,18 @@ export const useDashboardData = () => {
             status = 'In Progress';
           }
 
-          // Get a distinct count of users who have made ANY predictions for this competition
-          // This approach counts anyone who has answered at least one question
-          const { data: distinctUsers, error } = await supabase
-            .from("predictions")
-            .select("user_id")
-            .eq("question_id", 1) // Using the first question as a proxy
-            .limit(1000); // Add a reasonable limit
-
-          // Log entry counts for debugging
-          console.log('Competition entrants count based on predictions:', {
-            competitionId: comp.id,
-            distinctUserCount: distinctUsers?.length || 0,
-            queryError: error
-          });
-
-          // Create a unique set of user IDs
-          const uniqueUserIds = new Set(distinctUsers?.map(p => p.user_id) || []);
-          const entrantsCount = uniqueUserIds.size;
+          // Get total number of entrants - only count entries where terms have been accepted
+          const { data: entries } = await supabase
+            .from("competition_entries")
+            .select("*")
+            .eq("competition_id", comp.id)
+            .eq("terms_accepted", true);
 
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
-            total_entrants: entrantsCount,
+            total_entrants: entries?.length || 0,
             predictions_sealed: isSubmitted,
             status
           };
@@ -104,8 +92,7 @@ export const useDashboardData = () => {
 
       return enhancedCompetitions;
     },
-    // Use a shorter stale time to refresh more frequently
-    staleTime: 15000, 
+    staleTime: 1000, // Reduce stale time to update more frequently
   });
 
   return {

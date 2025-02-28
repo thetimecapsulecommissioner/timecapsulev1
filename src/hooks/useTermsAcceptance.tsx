@@ -41,7 +41,7 @@ export const useTermsAcceptance = (onAcceptTerms: () => void) => {
         throw new Error("User or competition not found");
       }
 
-      // Create/update entry with initial status - payment_completed will be set after payment verification
+      // Create/update entry with terms_accepted=false until payment is completed
       const { error: entryError } = await supabase
         .from('competition_entries')
         .upsert({
