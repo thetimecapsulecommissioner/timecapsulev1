@@ -72,12 +72,20 @@ export const useDashboardData = () => {
             status = 'In Progress';
           }
 
-          // Get total number of entrants - only count entries where terms have been accepted
-          const { data: entries } = await supabase
+          // Get total number of entrants - count ONLY entries where payment is completed
+          // This represents users who have paid and can make predictions
+          const { data: entries, error } = await supabase
             .from("competition_entries")
             .select("*")
             .eq("competition_id", comp.id)
-            .eq("terms_accepted", true);
+            .eq("payment_completed", true);
+
+          // Log entry counts for debugging
+          console.log('Competition entrants count:', {
+            competitionId: comp.id,
+            entryCount: entries?.length || 0,
+            queryError: error
+          });
 
           return {
             ...comp,
@@ -92,7 +100,8 @@ export const useDashboardData = () => {
 
       return enhancedCompetitions;
     },
-    staleTime: 1000, // Reduce stale time to update more frequently
+    // Use a shorter stale time to refresh more frequently for testing
+    staleTime: 30000, 
   });
 
   return {
