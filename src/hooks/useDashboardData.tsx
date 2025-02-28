@@ -72,18 +72,41 @@ export const useDashboardData = () => {
             status = 'In Progress';
           }
 
-          // Get total number of entrants - only count entries where terms have been accepted
-          const { data: entries } = await supabase
-            .from("competition_entries")
-            .select("*")
-            .eq("competition_id", comp.id)
-            .eq("terms_accepted", true);
+          // Get total number of unique users who have made predictions
+          // This counts any user who has answered at least one question
+          const { data: userPredictions, error } = await supabase
+            .from("predictions")
+            .select("user_id", { count: "exact", head: true })
+            .eq("question_id", 1); // Using question_id=1 as a reference point
+
+          if (error) {
+            console.error('Error fetching predictions count:', error);
+          }
+
+          // Fallback to counting distinct users manually if the count query fails
+          let entrantsCount = 0;
+          
+          if (userPredictions === null) {
+            const { data: allPredictions } = await supabase
+              .from("predictions")
+              .select("user_id")
+              .eq("question_id", 1);
+              
+            // Create a Set of unique user IDs
+            const uniqueUsers = new Set(allPredictions?.map(p => p.user_id) || []);
+            entrantsCount = uniqueUsers.size;
+          } else {
+            // Use the count from the query if available
+            entrantsCount = userPredictions.length;
+          }
+
+          console.log(`Competition ${comp.id} has ${entrantsCount} entrants based on predictions`);
 
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
-            total_entrants: entries?.length || 0,
+            total_entrants: entrantsCount,
             predictions_sealed: isSubmitted,
             status
           };
@@ -92,7 +115,8 @@ export const useDashboardData = () => {
 
       return enhancedCompetitions;
     },
-    staleTime: 1000, // Reduce stale time to update more frequently
+    // Reduce stale time to refresh data more frequently
+    staleTime: 10000,
   });
 
   return {
