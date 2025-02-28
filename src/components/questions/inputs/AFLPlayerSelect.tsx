@@ -1,11 +1,18 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { 
+  Select,
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { X, ChevronDown, Search } from "lucide-react";
+import { X, Search } from "lucide-react";
 
 interface AFLPlayerSelectProps {
   selected: string[];
@@ -21,9 +28,7 @@ export const AFLPlayerSelect = ({
   disabled = false 
 }: AFLPlayerSelectProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [isSearchMode, setIsSearchMode] = useState<boolean[]>(Array(requiredAnswers).fill(false));
-  const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean[]>(Array(requiredAnswers).fill(false));
 
   const { data: players } = useQuery({
     queryKey: ['afl-players'],
@@ -40,33 +45,25 @@ export const AFLPlayerSelect = ({
     },
   });
 
-  const filteredPlayers = players?.filter(player => 
-    player.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!containerRefs.current.some(ref => ref?.contains(event.target as Node))) {
-        setActiveIndex(null);
-        setSearchTerm("");
-        setIsSearchMode(Array(requiredAnswers).fill(false));
+  // Filter players based on search and already selected items
+  const getFilteredPlayers = (index: number) => {
+    if (!players) return [];
+    
+    // Filter by search term
+    const searchFiltered = searchTerm.trim() === "" 
+      ? players 
+      : players.filter(player => 
+          player.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    
+    // Filter out already selected players from other selections
+    return searchFiltered.filter(player => {
+      // Allow the player at the current index to remain in the list
+      if (selected[index] === player.fullName) {
+        return true;
       }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [requiredAnswers]);
-
-  const handlePlayerSelect = (playerName: string, index: number) => {
-    const newSelected = [...selected];
-    newSelected[index] = playerName;
-    onAnswerChange(newSelected.filter(Boolean));
-    setSearchTerm("");
-    setActiveIndex(null);
-    setIsSearchMode(prev => {
-      const updated = [...prev];
-      updated[index] = false;
-      return updated;
+      // Filter out players that are already selected in other positions
+      return !selected.includes(player.fullName);
     });
   };
 
@@ -76,57 +73,41 @@ export const AFLPlayerSelect = ({
     onAnswerChange(newSelected);
   };
 
-  const handleInputFocus = (index: number) => {
-    if (!disabled) {
-      setActiveIndex(index);
-    }
+  const handleSelectPlayer = (playerName: string, index: number) => {
+    const newSelected = [...selected];
+    newSelected[index] = playerName;
+    onAnswerChange(newSelected.filter(Boolean));
+    
+    // Close search after selection
+    toggleSearch(index, false);
   };
 
-  const toggleSearchMode = (index: number) => {
-    if (!disabled) {
-      setIsSearchMode(prev => {
-        const updated = [...prev];
-        updated[index] = !updated[index];
-        return updated;
-      });
-      setActiveIndex(isSearchMode[index] ? null : index);
+  const toggleSearch = (index: number, state?: boolean) => {
+    setIsSearchOpen(prev => {
+      const updated = [...prev];
+      updated[index] = state !== undefined ? state : !prev[index];
+      return updated;
+    });
+    
+    if (!state) {
       setSearchTerm("");
-    }
-  };
-
-  const toggleDropdown = (index: number) => {
-    if (!disabled) {
-      if (!isSearchMode[index]) {
-        setActiveIndex(activeIndex === index ? null : index);
-        setSearchTerm("");
-      }
     }
   };
 
   return (
     <div className="space-y-3">
       {Array.from({ length: requiredAnswers }).map((_, index) => (
-        <div 
-          key={index} 
-          className="relative" 
-          ref={el => containerRefs.current[index] = el}
-        >
-          {selected[index] && !isSearchMode[index] ? (
-            <div 
-              className="flex items-center gap-2 p-2 bg-white border rounded-md cursor-pointer group"
-              onClick={() => toggleDropdown(index)}
-            >
-              <span className="flex-1 text-gray-900">{selected[index]}</span>
-              <div className="flex items-center gap-1">
+        <div key={index} className="relative">
+          {selected[index] && !isSearchOpen[index] ? (
+            <div className="flex items-center justify-between p-2 bg-white border rounded-md">
+              <span className="text-gray-900">{selected[index]}</span>
+              <div className="flex gap-1">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemovePlayer(index);
-                  }}
+                  onClick={() => handleRemovePlayer(index)}
                   disabled={disabled}
-                  className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 transition-opacity"
+                  className="h-8 w-8 p-0"
                   aria-label="Remove player"
                 >
                   <X className="h-4 w-4" />
@@ -134,52 +115,69 @@ export const AFLPlayerSelect = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleSearchMode(index);
-                  }}
+                  onClick={() => toggleSearch(index, true)}
                   disabled={disabled}
-                  className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 transition-opacity"
+                  className="h-8 w-8 p-0"
                   aria-label="Search players"
                 >
                   <Search className="h-4 w-4" />
                 </Button>
-                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </div>
+            </div>
+          ) : isSearchOpen[index] ? (
+            <div className="border rounded-md overflow-hidden">
+              <div className="flex items-center p-2 bg-white">
+                <Input
+                  type="text"
+                  placeholder="Search players..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="border-0 focus-visible:ring-0 flex-1"
+                  autoFocus
+                  disabled={disabled}
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleSearch(index, false)}
+                  className="h-8 w-8 p-0 ml-1"
+                  aria-label="Cancel search"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="border-t">
+                <ScrollArea className="h-[200px]">
+                  <div className="p-1">
+                    {getFilteredPlayers(index).length > 0 ? (
+                      getFilteredPlayers(index).map((player) => (
+                        <button
+                          key={player.id}
+                          className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded-sm text-gray-900"
+                          onClick={() => handleSelectPlayer(player.fullName, index)}
+                          disabled={disabled}
+                        >
+                          {player.fullName} - {player.team}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="p-3 text-center text-gray-500">
+                        No players found
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
               </div>
             </div>
           ) : (
-            <>
-              <Input
-                type="text"
-                placeholder="Search players..."
-                value={activeIndex === index ? searchTerm : ""}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={() => handleInputFocus(index)}
-                className="w-full bg-white text-gray-900 placeholder:text-gray-500 cursor-text p-3"
-                autoComplete="off"
-                disabled={disabled}
-              />
-              <ChevronDown className="absolute right-3 top-3 h-4 w-4 text-gray-500 pointer-events-none" />
-            </>
-          )}
-          
-          {activeIndex === index && filteredPlayers && filteredPlayers.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg">
-              <ScrollArea className="h-[200px]">
-                <div className="p-1">
-                  {filteredPlayers.map((player) => (
-                    <button
-                      key={player.id}
-                      className="w-full px-3 py-2 text-left hover:bg-gray-100 rounded-sm text-gray-900"
-                      onClick={() => handlePlayerSelect(player.fullName, index)}
-                      disabled={disabled}
-                    >
-                      {player.fullName} - {player.team}
-                    </button>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
+            <button
+              className="w-full p-2 bg-white border rounded-md text-left hover:bg-gray-50 text-gray-700"
+              onClick={() => toggleSearch(index, true)}
+              disabled={disabled}
+            >
+              Select player...
+            </button>
           )}
         </div>
       ))}
