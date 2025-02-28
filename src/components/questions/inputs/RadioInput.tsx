@@ -15,9 +15,15 @@ export const RadioInput = ({ id, options, selected, onAnswerChange, disabled = f
   const isQuestion3 = id === 3;
   
   // Add "nil" as an option for Question 3 if it's not already included
+  // Using console.log to debug
+  console.log(`Question ID: ${id}, Is Question 3: ${isQuestion3}`);
+  console.log(`Original options:`, options);
+  
   const enhancedOptions = isQuestion3 && !options.some(option => option.toLowerCase() === "nil") 
     ? [...options, "nil"] 
     : options;
+  
+  console.log(`Enhanced options:`, enhancedOptions);
 
   return (
     <RadioGroup
