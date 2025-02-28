@@ -5,6 +5,7 @@ import { NumberSelect } from "./NumberSelect";
 import { RadioInput } from "./RadioInput";
 import { AFLPlayerSelect } from "./AFLPlayerSelect";
 import { AFLCoachSelect } from "./AFLCoachSelect";
+import { AFLCoachWithNilSelect } from "./AFLCoachWithNilSelect";
 import { FreeTextInput } from "./FreeTextInput";
 import { usePredictions } from "@/hooks/usePredictions";
 
@@ -44,6 +45,18 @@ export const QuestionInput = ({
     console.log(`Input component for Q3: ${responseCategory}`, options);
   }
 
+  // Special case for Question 3 - use AFL Coaches with Nil
+  if (id === 3 && responseCategory === "AFL Coaches") {
+    return (
+      <AFLCoachWithNilSelect
+        selected={selected}
+        requiredAnswers={requiredAnswers}
+        onAnswerChange={onAnswerChange}
+        {...commonProps}
+      />
+    );
+  }
+
   switch (responseCategory) {
     case "AFL Teams":
       return (
@@ -72,8 +85,17 @@ export const QuestionInput = ({
           {...commonProps}
         />
       );
+    case "AFL Coaches With Nil":
+      return (
+        <AFLCoachWithNilSelect
+          selected={selected}
+          requiredAnswers={requiredAnswers}
+          onAnswerChange={onAnswerChange}
+          {...commonProps}
+        />
+      );
     case "Custom":
-      // For custom options list (used for Question 3)
+      // For custom options list
       return (
         <RadioInput
           id={id}

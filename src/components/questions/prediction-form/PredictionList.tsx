@@ -32,15 +32,7 @@ export const PredictionList = ({
         // Special handling for Question 3
         let enhancedQuestion = {...question};
         if (question.id === 3) {
-          // Check if "nil" is in the options
-          const hasNil = question.options.some((option: string) => 
-            option.toLowerCase() === "nil" || option.toLowerCase() === "nil.");
-          
-          // If not, add it to the options
-          if (!hasNil) {
-            enhancedQuestion.options = [...question.options, "nil"];
-            console.log("Enhanced Question 3 options:", enhancedQuestion.options);
-          }
+          console.log("Processing Question 3");
         }
 
         return (

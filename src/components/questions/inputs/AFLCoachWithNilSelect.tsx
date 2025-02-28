@@ -3,21 +3,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface AFLCoachSelectProps {
+interface AFLCoachWithNilSelectProps {
   selected: string[];
   requiredAnswers: number;
   onAnswerChange: (value: string[]) => void;
   disabled?: boolean;
 }
 
-export const AFLCoachSelect = ({ 
+export const AFLCoachWithNilSelect = ({ 
   selected, 
   requiredAnswers, 
   onAnswerChange,
   disabled = false
-}: AFLCoachSelectProps) => {
+}: AFLCoachWithNilSelectProps) => {
   const { data: coaches, isLoading } = useQuery({
-    queryKey: ['afl-coaches'],
+    queryKey: ['afl-coaches-with-nil'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('afl_coaches')
@@ -25,11 +25,21 @@ export const AFLCoachSelect = ({
         .order('firstname');
       if (error) throw error;
       
-      // Map coaches without nil option
+      // Map coaches
       const coachList = data.map(coach => ({
         ...coach,
         fullName: `${coach.firstname} ${coach.surname}`
       }));
+      
+      // Add nil as an option with all required properties
+      coachList.push({
+        id: 'nil',
+        firstname: 'nil',
+        surname: '',
+        team: '',
+        fullName: 'nil',
+        updated_at: new Date().toISOString()
+      });
       
       return coachList;
     },
