@@ -31,13 +31,14 @@ export const AFLCoachSelect = ({
         fullName: `${coach.firstname} ${coach.surname}`
       }));
       
-      // Add nil as an option
+      // Add nil as an option with all required properties
       coachList.push({
         id: 'nil',
         firstname: 'nil',
         surname: '',
         team: '',
-        fullName: 'nil'
+        fullName: 'nil',
+        updated_at: new Date().toISOString() // Add the missing updated_at field
       });
       
       return coachList;
