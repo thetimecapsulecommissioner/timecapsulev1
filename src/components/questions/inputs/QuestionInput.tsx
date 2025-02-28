@@ -35,21 +35,14 @@ export const QuestionInput = ({
     return Object.values(predictions[questionId]).filter(Boolean) as string[];
   };
 
-  // Special case for Question 3: ensure "nil" is in the options
-  let questionOptions = [...options];
-  if (id === 3) {
-    const hasNil = options.some(option => 
-      option.toLowerCase() === "nil" || option.toLowerCase() === "nil.");
-    
-    if (!hasNil) {
-      questionOptions.push("nil");
-    }
-    console.log("Question 3 options:", questionOptions);
-  }
-
   const commonProps = {
     disabled: disabled
   };
+
+  // For debugging
+  if (id === 3) {
+    console.log(`Input component for Q3: ${responseCategory}`, options);
+  }
 
   switch (responseCategory) {
     case "AFL Teams":
@@ -79,11 +72,22 @@ export const QuestionInput = ({
           {...commonProps}
         />
       );
+    case "Custom":
+      // For custom options list (used for Question 3)
+      return (
+        <RadioInput
+          id={id}
+          options={options}
+          selected={selected}
+          onAnswerChange={onAnswerChange}
+          {...commonProps}
+        />
+      );
     case "Multiple Choice":
       return (
         <MultipleChoiceInput
           id={id}
-          options={questionOptions}
+          options={options}
           selected={selected}
           requiredAnswers={requiredAnswers}
           onAnswerChange={onAnswerChange}
@@ -94,7 +98,7 @@ export const QuestionInput = ({
     case "Number":
       return (
         <NumberSelect
-          options={questionOptions}
+          options={options}
           selected={selected}
           onAnswerChange={onAnswerChange}
           {...commonProps}
@@ -112,7 +116,7 @@ export const QuestionInput = ({
       return (
         <RadioInput
           id={id}
-          options={questionOptions}
+          options={options}
           selected={selected}
           onAnswerChange={onAnswerChange}
           {...commonProps}

@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { QuestionHeader } from "./QuestionHeader";
@@ -31,6 +32,42 @@ export const QuestionCard = ({
 }: QuestionCardProps) => {
   const [selected, setSelected] = useState<string[]>(selectedAnswer);
   const [userAFLTeam, setUserAFLTeam] = useState<string | null>(null);
+  const [coaches, setCoaches] = useState<string[]>([]);
+
+  // Debug response categories and options
+  useEffect(() => {
+    if (id === 3) {
+      console.log(`Question ${id} responseCategory:`, responseCategory);
+      console.log(`Question ${id} options:`, options);
+    }
+  }, [id, responseCategory, options]);
+
+  // Load coaches for Question 3
+  useEffect(() => {
+    if (id === 3 && responseCategory === "AFL Coaches") {
+      const fetchCoaches = async () => {
+        const { data } = await supabase
+          .from('afl_coaches')
+          .select('firstname, surname, team');
+        
+        if (data) {
+          const coachList = data.map(coach => {
+            const fullName = coach.surname 
+              ? `${coach.firstname} ${coach.surname}`
+              : coach.firstname;
+            return `${fullName} (${coach.team})`;
+          });
+          
+          // Add "nil" to the coaches list
+          const coachesWithNil = [...coachList, "nil"];
+          setCoaches(coachesWithNil);
+          console.log("Coaches with nil:", coachesWithNil);
+        }
+      };
+      
+      fetchCoaches();
+    }
+  }, [id, responseCategory]);
 
   useEffect(() => {
     if (id === 24) {
@@ -66,6 +103,37 @@ export const QuestionCard = ({
     }
   };
 
+  // Create a modified version of the QuestionInput component specifically for Question 3
+  const getQuestionInput = () => {
+    // For question 3, which is coaches question, provide our custom coaches list with nil
+    if (id === 3 && responseCategory === "AFL Coaches" && coaches.length > 0) {
+      return (
+        <QuestionInput
+          id={id}
+          responseCategory="Custom"
+          options={coaches}
+          selected={selected}
+          requiredAnswers={requiredAnswers}
+          onAnswerChange={handleAnswerChange}
+          disabled={disabled}
+        />
+      );
+    }
+    
+    // For all other questions, use the standard component
+    return (
+      <QuestionInput
+        id={id}
+        responseCategory={responseCategory}
+        options={options}
+        selected={selected}
+        requiredAnswers={requiredAnswers}
+        onAnswerChange={handleAnswerChange}
+        disabled={disabled}
+      />
+    );
+  };
+
   return (
     <Card className="p-6 bg-mystical-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <QuestionHeader 
@@ -96,15 +164,7 @@ export const QuestionCard = ({
           </a>
         </div>
       )}
-      <QuestionInput
-        id={id}
-        responseCategory={responseCategory}
-        options={options}
-        selected={selected}
-        requiredAnswers={requiredAnswers}
-        onAnswerChange={handleAnswerChange}
-        disabled={disabled}
-      />
+      {getQuestionInput()}
     </Card>
   );
 };
