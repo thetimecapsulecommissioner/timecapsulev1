@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown, Search } from "lucide-react";
 
 interface AFLPlayerSelectProps {
   selected: string[];
@@ -22,6 +22,7 @@ export const AFLPlayerSelect = ({
 }: AFLPlayerSelectProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [isSearchMode, setIsSearchMode] = useState<boolean[]>(Array(requiredAnswers).fill(false));
   const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const { data: players } = useQuery({
@@ -48,12 +49,13 @@ export const AFLPlayerSelect = ({
       if (!containerRefs.current.some(ref => ref?.contains(event.target as Node))) {
         setActiveIndex(null);
         setSearchTerm("");
+        setIsSearchMode(Array(requiredAnswers).fill(false));
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [requiredAnswers]);
 
   const handlePlayerSelect = (playerName: string, index: number) => {
     const newSelected = [...selected];
@@ -61,6 +63,11 @@ export const AFLPlayerSelect = ({
     onAnswerChange(newSelected.filter(Boolean));
     setSearchTerm("");
     setActiveIndex(null);
+    setIsSearchMode(prev => {
+      const updated = [...prev];
+      updated[index] = false;
+      return updated;
+    });
   };
 
   const handleRemovePlayer = (index: number) => {
@@ -75,10 +82,24 @@ export const AFLPlayerSelect = ({
     }
   };
 
+  const toggleSearchMode = (index: number) => {
+    if (!disabled) {
+      setIsSearchMode(prev => {
+        const updated = [...prev];
+        updated[index] = !updated[index];
+        return updated;
+      });
+      setActiveIndex(isSearchMode[index] ? null : index);
+      setSearchTerm("");
+    }
+  };
+
   const toggleDropdown = (index: number) => {
     if (!disabled) {
-      setActiveIndex(activeIndex === index ? null : index);
-      setSearchTerm("");
+      if (!isSearchMode[index]) {
+        setActiveIndex(activeIndex === index ? null : index);
+        setSearchTerm("");
+      }
     }
   };
 
@@ -90,7 +111,7 @@ export const AFLPlayerSelect = ({
           className="relative" 
           ref={el => containerRefs.current[index] = el}
         >
-          {selected[index] ? (
+          {selected[index] && !isSearchMode[index] ? (
             <div 
               className="flex items-center gap-2 p-2 bg-white border rounded-md cursor-pointer group"
               onClick={() => toggleDropdown(index)}
@@ -105,9 +126,23 @@ export const AFLPlayerSelect = ({
                     handleRemovePlayer(index);
                   }}
                   disabled={disabled}
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 transition-opacity"
+                  aria-label="Remove player"
                 >
                   <X className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSearchMode(index);
+                  }}
+                  disabled={disabled}
+                  className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 transition-opacity"
+                  aria-label="Search players"
+                >
+                  <Search className="h-4 w-4" />
                 </Button>
                 <ChevronDown className="h-4 w-4 text-gray-500" />
               </div>
