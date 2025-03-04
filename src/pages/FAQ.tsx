@@ -60,7 +60,7 @@ const FAQ = () => {
                   How often and many predictions do I have to make?
                 </AccordionTrigger>
                 <AccordionContent className="text-secondary/80">
-                  This year, the main competition has 28 Pre-Season Prediction Questions and will have up to 4 rounds of in-season questions, of no more than three questions each! These in-season questions will be communicated to players through Instagram and the competition group chat.
+                  This year, the main competition has 28 Pre-Season Prediction Questions and will have up to 4 rounds of in-season questions, of no more than three questions each! These in-season questions will be communicated to players through Instagram and the competition group chat. Pre-Season Questions are due by Thursday 6th of March at 6pm.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -72,4 +72,3 @@ const FAQ = () => {
 };
 
 export default FAQ;
-

@@ -19,7 +19,7 @@ export const PredictionPhaseButtons = ({
   const navigate = useNavigate();
   const { id: competitionId } = useParams();
   const { isSubmitted } = usePredictions();
-  const preSeasonDeadline = new Date('2025-03-05T18:00:00+11:00');
+  const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
   const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
   const isPreSeasonOpen = !preSeasonTime.expired;
