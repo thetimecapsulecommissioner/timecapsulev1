@@ -76,7 +76,7 @@ export const useDashboardData = () => {
           const { data: distinctUsersData, error: distinctUsersError } = await supabase
             .from("predictions")
             .select("user_id", { count: "exact" })
-            .is("user_id", 'not.null'); // Ensure we only count valid users
+            .filter('user_id', 'not.is', null); // Ensure we only count valid users
             
           if (distinctUsersError) {
             console.error('Error fetching distinct users count:', distinctUsersError);
