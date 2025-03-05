@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import { RegisterForm } from "./components/RegisterForm";
 import { Login } from "./components/Login";
+import { ResetPassword } from "./components/ResetPassword";
+import { NewPassword } from "./components/NewPassword";
 import { Questions } from "./components/Questions";
 import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
@@ -64,6 +66,8 @@ const AppContent = () => {
       {/* Public routes */}
       <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
       <Route path="/login" element={!isLoggedIn ? <Login /> : <Navigate to="/dashboard" />} />
+      <Route path="/reset-password" element={!isLoggedIn ? <ResetPassword /> : <Navigate to="/dashboard" />} />
+      <Route path="/new-password" element={<NewPassword />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/sporting-clubs" element={<SportingClubs />} />
