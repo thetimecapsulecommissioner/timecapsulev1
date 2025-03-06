@@ -21,7 +21,7 @@ export const CompetitionButtons = ({
   const { id: competitionId } = useParams();
 
   // Define deadlines
-  const preSeasonDeadline = new Date('2025-03-06T18:00:00+11:00');
+  const preSeasonDeadline = new Date('2025-03-07T00:00:00+11:00');
   const midSeasonDeadline = new Date('2025-06-14T18:00:00+10:00');
   
   const { formattedTimeLeft: preSeasonTimeLeft, timeLeft: preSeasonTime } = useCountdown(preSeasonDeadline);
