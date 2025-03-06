@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CountdownButton } from "../competition-buttons/CountdownButton";
 import { usePredictions } from "@/hooks/usePredictions";
+import { useEffect, useState } from "react";
 
 interface PredictionPhaseButtonsProps {
   onPhaseSelect: (phase: 'pre-season' | 'mid-season') => void;
@@ -21,6 +22,12 @@ export const PredictionPhaseButtons = ({
   const { isSubmitted } = usePredictions();
   const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
   const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
+  const [isDeadlinePassed, setIsDeadlinePassed] = useState(preSeasonTime.expired);
+
+  // Update deadline status when time expires
+  useEffect(() => {
+    setIsDeadlinePassed(preSeasonTime.expired);
+  }, [preSeasonTime.expired]);
 
   const isPreSeasonOpen = !preSeasonTime.expired;
   const isMidSeasonOpen = false;
@@ -34,7 +41,7 @@ export const PredictionPhaseButtons = ({
       <CountdownButton
         label="Pre-Season Predictions"
         isOpen={isPreSeasonOpen}
-        timeLeft={preSeasonTimeLeft}
+        timeLeft={isDeadlinePassed ? "Predictions Locked" : preSeasonTimeLeft}
         onClick={handlePreSeasonSelect}
         disabled={false}
         isSubmitted={isSubmitted}

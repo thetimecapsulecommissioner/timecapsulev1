@@ -23,6 +23,15 @@ export const usePredictionForm = (questions: any[]) => {
 
   const handleSaveResponses = async () => {
     try {
+      // Check if the deadline has passed
+      const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
+      const now = new Date();
+      
+      if (now > preSeasonDeadline) {
+        toast.error("The deadline has passed. Predictions are now locked.");
+        return;
+      }
+      
       setIsSaving(true);
       if (!userData?.id || !competitionId) return;
 

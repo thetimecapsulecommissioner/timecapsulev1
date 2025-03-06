@@ -1,10 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PredictionFormHeader } from "./PredictionFormHeader";
 import { PredictionList } from "./PredictionList";
 import { PredictionFormFooter } from "./PredictionFormFooter";
 import { TermsDialog } from "../TermsDialog";
 import { GroupedPredictions, PredictionComments } from "@/types/predictions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export interface PredictionFormContainerProps {
   questions: any[];
@@ -32,10 +34,30 @@ export const PredictionFormContainer = ({
   isSubmitted
 }: PredictionFormContainerProps) => {
   const [showTerms, setShowTerms] = useState(false);
+  const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
+  
+  // Check if deadline has passed
+  useEffect(() => {
+    const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
+    const now = new Date();
+    setIsDeadlinePassed(now > preSeasonDeadline);
+  }, []);
+
+  // Determine if form should be read-only
+  const formReadOnly = readOnly || isSubmitted || isDeadlinePassed;
 
   return (
     <div className="space-y-8">
-      {!readOnly && (
+      {isDeadlinePassed && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            The deadline has passed. Predictions are now locked and cannot be modified.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {!formReadOnly && (
         <PredictionFormHeader
           onSave={onSave}
           onShowTerms={() => setShowTerms(true)}
@@ -51,10 +73,10 @@ export const PredictionFormContainer = ({
         onAnswerChange={onAnswerChange}
         onCommentChange={onCommentChange}
         isSubmitted={isSubmitted}
-        readOnly={readOnly}
+        readOnly={formReadOnly}
       />
 
-      {!readOnly && (
+      {!formReadOnly && (
         <>
           <PredictionFormFooter
             onSave={onSave}

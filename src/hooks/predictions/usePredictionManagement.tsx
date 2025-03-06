@@ -11,6 +11,15 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
   const handleAnswerChange = async (questionId: number, answers: string[], responseOrder?: number) => {
     try {
       if (!userId) return;
+      
+      // Check if the deadline has passed
+      const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
+      const now = new Date();
+      
+      if (now > preSeasonDeadline) {
+        toast.error("The deadline has passed. Predictions are now locked.");
+        return;
+      }
 
       if (responseOrder !== undefined) {
         // Update single prediction with conflict handling
