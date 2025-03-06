@@ -81,6 +81,8 @@ const AppContent = () => {
       <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
       <Route path="/competitions" element={isLoggedIn ? <Competitions /> : <Navigate to="/login" />} />
       <Route path="/admin" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
+      <Route path="/admin/competitions" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
+      <Route path="/admin/administrators" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
       
       {/* Root route */}
       <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />

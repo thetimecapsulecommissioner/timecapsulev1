@@ -1,96 +1,124 @@
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
+import { LoadingState } from "./ui/LoadingState";
 
-export const ProfileDropdown = () => {
+const ProfileDropdown = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
-    getProfile();
-  }, []);
+    const getProfile = async () => {
+      try {
+        setLoading(true);
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          return navigate("/login");
+        }
 
-  const getProfile = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+        // Get profile
         const { data, error } = await supabase
-          .from('profiles')
-          .select('avatar_url')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
           .single();
 
         if (error) throw error;
-        if (data?.avatar_url) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(data.avatar_url);
-          setAvatarUrl(publicUrl);
-        }
+        
+        setUser(data);
+        
+        // Check if user is admin
+        const { data: adminData } = await supabase
+          .from('administrators')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+          
+        setIsAdmin(!!adminData);
+      } catch (error) {
+        toast.error("Error loading profile");
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading avatar:', error);
-    }
-  };
+    };
+
+    getProfile();
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {
-      setIsLoading(true);
-      navigate('/'); // Navigate to home page first
       const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast.error("Error logging out");
-        return;
-      }
-      toast.success("Logged out successfully");
+      if (error) throw error;
+      navigate("/login");
     } catch (error) {
-      toast.error("Error logging out");
-    } finally {
-      setIsLoading(false);
+      toast.error("Error signing out");
+      console.error(error);
     }
   };
 
+  if (loading) {
+    return <LoadingState />;
+  }
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger disabled={isLoading}>
-        <Avatar className="h-10 w-10">
-          <AvatarImage 
-            src={avatarUrl || undefined}
-            alt="Profile"
-            className="h-full w-full object-cover"
-          />
-          <AvatarFallback>
-            <img 
-              src="/lovable-uploads/63e27305-cd9e-415f-a09a-47b02355d6e0.png" 
-              alt="Default Avatar" 
-              className="h-full w-full object-cover"
-            />
-          </AvatarFallback>
-        </Avatar>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user?.avatar_url} alt={user?.display_name} />
+            <AvatarFallback>
+              {user?.display_name?.substring(0, 2).toUpperCase() || ""}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48 bg-white border border-gray-200 shadow-lg rounded-md">
-        <DropdownMenuItem onClick={() => navigate("/profile")} className="text-green-600 hover:bg-gray-100">
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user?.display_name}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user?.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate('/profile')}>
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/competitions")} className="text-green-600 hover:bg-gray-100">
-          My Competitions
+        <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+          Dashboard
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-gray-200" />
-        <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="text-green-600 hover:bg-gray-100">
-          {isLoading ? "Logging out..." : "Logout"}
+        
+        {isAdmin && (
+          <DropdownMenuItem onClick={() => navigate('/admin')}>
+            Admin Dashboard
+          </DropdownMenuItem>
+        )}
+        
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout}>
+          Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
+
+export default ProfileDropdown;
