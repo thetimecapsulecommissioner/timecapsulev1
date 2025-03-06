@@ -51,9 +51,12 @@ const ProfileDropdown = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        console.log("No user found");
         setIsAdmin(false);
         return;
       }
+
+      console.log("Checking admin status for user ID:", user.id);
 
       // Check if user is in administrators table
       const { data, error } = await supabase
@@ -67,6 +70,8 @@ const ProfileDropdown = () => {
         throw error;
       }
 
+      console.log("Admin check result:", data);
+      
       setIsAdmin(!!data);
     } catch (error) {
       console.error('Error checking admin status:', error);
