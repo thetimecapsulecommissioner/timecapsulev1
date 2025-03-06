@@ -12,7 +12,6 @@ export const AdminNav = () => {
       <Button 
         variant={currentPath === "/admin" ? "default" : "outline"}
         onClick={() => navigate("/admin")}
-        className="w-full sm:w-auto"
       >
         Users & Predictions
       </Button>
@@ -20,7 +19,6 @@ export const AdminNav = () => {
       <Button 
         variant={currentPath === "/admin/competitions" ? "default" : "outline"}
         onClick={() => navigate("/admin/competitions")}
-        className="w-full sm:w-auto"
       >
         Competitions
       </Button>
@@ -28,7 +26,6 @@ export const AdminNav = () => {
       <Button 
         variant={currentPath === "/admin/administrators" ? "default" : "outline"}
         onClick={() => navigate("/admin/administrators")}
-        className="w-full sm:w-auto"
       >
         Administrators
       </Button>
