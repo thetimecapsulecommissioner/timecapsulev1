@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -15,6 +15,7 @@ const AdminDashboard = () => {
   const [loadingAdmins, setLoadingAdmins] = useState(false);
   const [addingAdmin, setAddingAdmin] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
   useEffect(() => {
@@ -28,10 +29,12 @@ const AdminDashboard = () => {
           return;
         }
 
+        console.log("Checking admin status for user:", user.id);
+
         // Check if user is in administrators table
         const { data: adminData, error: adminError } = await supabase
           .from('administrators')
-          .select('*')
+          .select('id')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -40,6 +43,8 @@ const AdminDashboard = () => {
           throw adminError;
         }
 
+        console.log("Admin data:", adminData);
+        
         setIsAdmin(!!adminData);
         setIsLoading(false);
       } catch (error) {
@@ -171,7 +176,15 @@ const AdminDashboard = () => {
     return (
       <div className="container mx-auto my-8 p-6 bg-card rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center mb-4">Access Denied</h1>
-        <p className="text-center">You don't have permission to view this page.</p>
+        <p className="text-center mb-6">You don't have permission to view this page.</p>
+        <div className="flex justify-center">
+          <Button onClick={() => navigate("/dashboard")} className="mr-2">
+            Return to Dashboard
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/profile")}>
+            Go to Profile
+          </Button>
+        </div>
       </div>
     );
   }

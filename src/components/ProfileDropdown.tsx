@@ -12,13 +12,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export const ProfileDropdown = () => {
+const ProfileDropdown = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     getProfile();
+    checkAdminStatus();
   }, []);
 
   const getProfile = async () => {
@@ -41,6 +43,34 @@ export const ProfileDropdown = () => {
       }
     } catch (error) {
       console.error('Error loading avatar:', error);
+    }
+  };
+
+  const checkAdminStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+
+      // Check if user is in administrators table
+      const { data, error } = await supabase
+        .from('administrators')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking admin status:', error);
+        throw error;
+      }
+
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
     }
   };
 
@@ -86,6 +116,11 @@ export const ProfileDropdown = () => {
         <DropdownMenuItem onClick={() => navigate("/competitions")} className="text-green-600 hover:bg-gray-100">
           My Competitions
         </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem onClick={() => navigate("/admin")} className="text-green-600 hover:bg-gray-100">
+            Admin Dashboard
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator className="bg-gray-200" />
         <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="text-green-600 hover:bg-gray-100">
           {isLoading ? "Logging out..." : "Logout"}
@@ -94,3 +129,5 @@ export const ProfileDropdown = () => {
     </DropdownMenu>
   );
 };
+
+export default ProfileDropdown;
