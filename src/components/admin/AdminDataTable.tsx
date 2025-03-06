@@ -57,27 +57,48 @@ export const AdminDataTable = () => {
   const fetchPredictions = async () => {
     setIsLoadingPredictions(true);
     try {
-      const { data, error } = await supabase
+      // First fetch predictions
+      const { data: predictionData, error: predictionError } = await supabase
         .from('predictions')
-        .select(`
-          id, user_id, question_id, answer, created_at, response_order,
-          profiles:user_id (display_name)
-        `)
+        .select('id, user_id, question_id, answer, created_at, response_order')
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (error) throw error;
+      if (predictionError) throw predictionError;
       
-      // Transform data to include display_name directly
-      const formattedData = data?.map(item => ({
-        id: item.id,
-        user_id: item.user_id,
-        question_id: item.question_id,
-        answer: item.answer,
-        created_at: item.created_at,
-        response_order: item.response_order,
-        display_name: item.profiles?.display_name || 'Unknown'
-      })) || [];
+      if (!predictionData || predictionData.length === 0) {
+        setPredictions([]);
+        setIsLoadingPredictions(false);
+        return;
+      }
+      
+      // Get unique user IDs from predictions
+      const userIds = [...new Set(predictionData.map(p => p.user_id))];
+      
+      // Fetch profile data for those users
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, display_name')
+        .in('id', userIds);
+        
+      if (profileError) throw profileError;
+      
+      // Create a mapping of user_id to display_name
+      const userMap = new Map();
+      profileData?.forEach(profile => {
+        userMap.set(profile.id, profile.display_name);
+      });
+      
+      // Combine the data
+      const formattedData = predictionData.map(prediction => ({
+        id: prediction.id,
+        user_id: prediction.user_id,
+        display_name: userMap.get(prediction.user_id) || 'Unknown',
+        question_id: prediction.question_id,
+        answer: prediction.answer,
+        created_at: prediction.created_at,
+        response_order: prediction.response_order,
+      }));
       
       setPredictions(formattedData);
     } catch (error) {
