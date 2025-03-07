@@ -23,15 +23,14 @@ export const usePredictionForm = (questions: any[]) => {
 
   const handleSaveResponses = async () => {
     try {
-      // Set deadline to 60 minutes from now
+      // Set deadline in the past to lock predictions
       const now = new Date();
-      const deadline = new Date(now.getTime() + 60 * 60000); // 60 minutes in milliseconds
+      const deadline = new Date(now.getTime() - 1000); // Set deadline to 1 second ago
       
-      if (now > deadline) {
-        toast.error("The deadline has passed. Predictions are now locked.");
-        return;
-      }
+      toast.error("The competition is now closed. Predictions are locked.");
+      return;
       
+      // The code below will not execute due to the return statement above
       setIsSaving(true);
       if (!userData?.id || !competitionId) return;
 

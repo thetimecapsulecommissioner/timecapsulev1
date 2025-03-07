@@ -27,11 +27,14 @@ export const CompetitionCard = ({
       case 'Submitted':
         return "bg-green-100";
       case 'In Progress':
-        return "bg-yellow-100";
+        return "bg-red-100"; // Changed to red for In Progress to show as "locked"
       default:
-        return "bg-red-100";
+        return "bg-red-100"; // Changed to red for Not Started to show as "locked"
     }
   };
+
+  // Override the status to always show "Closed"
+  const displayStatus = "Closed";
 
   return (
     <div
@@ -49,8 +52,8 @@ export const CompetitionCard = ({
       <div className="text-gray-600 text-sm md:text-base">
         {totalEntrants} {totalEntrants === 1 ? 'Entrant' : 'Entrants'}
       </div>
-      <div className="text-gray-600 text-sm md:text-base">
-        {status}
+      <div className="text-red-600 font-semibold text-sm md:text-base">
+        {displayStatus}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ interface CountdownButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   isSubmitted?: boolean;
+  forceClosed?: boolean;
 }
 
 export const CountdownButton = ({
@@ -16,15 +17,18 @@ export const CountdownButton = ({
   timeLeft,
   onClick,
   disabled = false,
-  isSubmitted = false
+  isSubmitted = false,
+  forceClosed = false
 }: CountdownButtonProps) => {
   const getStatusText = () => {
     if (isSubmitted) return 'Submitted';
+    if (forceClosed) return 'Closed';
     return isOpen ? 'Open' : 'Closed';
   };
 
   const getStatusClass = () => {
     if (isSubmitted) return 'bg-blue-500 text-white';
+    if (forceClosed) return 'bg-red-500 text-white';
     return isOpen ? 'bg-green-500 text-white' : 'bg-gray-400 text-white';
   };
 

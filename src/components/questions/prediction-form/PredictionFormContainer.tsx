@@ -6,7 +6,7 @@ import { PredictionFormFooter } from "./PredictionFormFooter";
 import { TermsDialog } from "../TermsDialog";
 import { GroupedPredictions, PredictionComments } from "@/types/predictions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Lock } from "lucide-react";
 
 export interface PredictionFormContainerProps {
   questions: any[];
@@ -34,26 +34,23 @@ export const PredictionFormContainer = ({
   isSubmitted
 }: PredictionFormContainerProps) => {
   const [showTerms, setShowTerms] = useState(false);
-  const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
+  const [isDeadlinePassed, setIsDeadlinePassed] = useState(true); // Set to true to lock predictions
   
-  // Check if deadline has passed - using a one hour deadline
+  // Always mark deadline as passed to lock predictions
   useEffect(() => {
-    const now = new Date();
-    const deadline = new Date(now.getTime() + 60 * 60000); // 60 minutes in milliseconds
-    setIsDeadlinePassed(now > deadline);
+    setIsDeadlinePassed(true);
   }, []);
 
-  // Only set form as read-only if explicitly requested or if submitted
-  // We're removing the deadline check here to allow answering
-  const formReadOnly = readOnly || isSubmitted;
+  // Set form as read-only if deadline passed, explicitly requested, or if submitted
+  const formReadOnly = readOnly || isSubmitted || isDeadlinePassed;
 
   return (
     <div className="space-y-8">
       {isDeadlinePassed && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <Lock className="h-4 w-4" />
           <AlertDescription>
-            The deadline has passed. Predictions are now locked and cannot be modified.
+            The competition is now closed. Predictions are locked and cannot be modified.
           </AlertDescription>
         </Alert>
       )}

@@ -21,19 +21,19 @@ export const PredictionPhaseButtons = ({
   const { id: competitionId } = useParams();
   const { isSubmitted } = usePredictions();
   
-  // Set deadline to 60 minutes from now
+  // Set deadline in the past to lock predictions
   const now = new Date();
-  const deadline = new Date(now.getTime() + 60 * 60000); // 60 minutes in milliseconds
+  const deadline = new Date(now.getTime() - 1000); // Set deadline to 1 second ago
   
   const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(deadline);
-  const [isDeadlinePassed, setIsDeadlinePassed] = useState(preSeasonTime.expired);
+  const [isDeadlinePassed, setIsDeadlinePassed] = useState(true);
 
-  // Update deadline status when time expires
+  // Always set deadline as passed
   useEffect(() => {
-    setIsDeadlinePassed(preSeasonTime.expired);
-  }, [preSeasonTime.expired]);
+    setIsDeadlinePassed(true);
+  }, []);
 
-  const isPreSeasonOpen = !preSeasonTime.expired;
+  const isPreSeasonOpen = false; // Force closed state
   const isMidSeasonOpen = false;
 
   const handlePreSeasonSelect = async () => {
@@ -45,10 +45,11 @@ export const PredictionPhaseButtons = ({
       <CountdownButton
         label="Pre-Season Predictions"
         isOpen={isPreSeasonOpen}
-        timeLeft={isDeadlinePassed ? "Predictions Locked" : preSeasonTimeLeft}
+        timeLeft="Competition Closed"
         onClick={handlePreSeasonSelect}
         disabled={false}
         isSubmitted={isSubmitted}
+        forceClosed={true}
       />
 
       <CountdownButton

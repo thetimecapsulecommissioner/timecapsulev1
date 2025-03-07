@@ -12,15 +12,11 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
     try {
       if (!userId) return;
       
-      // Set deadline to 60 minutes from now
-      const now = new Date();
-      const deadline = new Date(now.getTime() + 60 * 60000); // 60 minutes in milliseconds
+      // Competition is now locked
+      toast.error("The competition is now closed. Predictions are locked.");
+      return;
       
-      if (now > deadline) {
-        toast.error("The deadline has passed. Predictions are now locked.");
-        return;
-      }
-
+      // The code below will not execute due to the return statement above
       if (responseOrder !== undefined) {
         // Update single prediction with conflict handling
         const { error } = await supabase
