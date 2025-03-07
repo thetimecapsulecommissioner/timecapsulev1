@@ -12,11 +12,11 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
     try {
       if (!userId) return;
       
-      // Check if the deadline has passed
-      const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
+      // Set deadline to 30 minutes from now
       const now = new Date();
+      const deadline = new Date(now.getTime() + 30 * 60000); // 30 minutes in milliseconds
       
-      if (now > preSeasonDeadline) {
+      if (now > deadline) {
         toast.error("The deadline has passed. Predictions are now locked.");
         return;
       }

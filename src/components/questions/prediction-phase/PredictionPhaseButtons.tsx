@@ -20,8 +20,12 @@ export const PredictionPhaseButtons = ({
   const navigate = useNavigate();
   const { id: competitionId } = useParams();
   const { isSubmitted } = usePredictions();
-  const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
-  const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
+  
+  // Set deadline to 30 minutes from now
+  const now = new Date();
+  const deadline = new Date(now.getTime() + 30 * 60000); // 30 minutes in milliseconds
+  
+  const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(deadline);
   const [isDeadlinePassed, setIsDeadlinePassed] = useState(preSeasonTime.expired);
 
   // Update deadline status when time expires
