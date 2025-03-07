@@ -36,15 +36,16 @@ export const PredictionFormContainer = ({
   const [showTerms, setShowTerms] = useState(false);
   const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
   
-  // Check if deadline has passed
+  // Check if deadline has passed - using a one hour deadline
   useEffect(() => {
-    const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
     const now = new Date();
-    setIsDeadlinePassed(now > preSeasonDeadline);
+    const deadline = new Date(now.getTime() + 60 * 60000); // 60 minutes in milliseconds
+    setIsDeadlinePassed(now > deadline);
   }, []);
 
-  // Determine if form should be read-only
-  const formReadOnly = readOnly || isSubmitted || isDeadlinePassed;
+  // Only set form as read-only if explicitly requested or if submitted
+  // We're removing the deadline check here to allow answering
+  const formReadOnly = readOnly || isSubmitted;
 
   return (
     <div className="space-y-8">
