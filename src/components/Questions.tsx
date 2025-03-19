@@ -1,5 +1,5 @@
 
-import ProfileDropdown from "./ProfileDropdown";
+import { ProfileDropdown } from "./ProfileDropdown";
 import { useCompetition } from "@/hooks/useCompetition";
 import { LoadingState } from "./ui/LoadingState";
 import { Logo } from "./navigation/Logo";

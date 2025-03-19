@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase, trackLogin } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const useAuthCheck = () => {
@@ -29,9 +29,6 @@ export const useAuthCheck = () => {
           userId: session.user?.id,
           email: session.user?.email
         });
-        
-        // Track successful session restoration as a login event
-        trackLogin('session_restore');
         
         setIsAuthChecking(false);
       } catch (error) {

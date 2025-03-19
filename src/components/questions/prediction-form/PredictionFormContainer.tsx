@@ -1,12 +1,10 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PredictionFormHeader } from "./PredictionFormHeader";
 import { PredictionList } from "./PredictionList";
 import { PredictionFormFooter } from "./PredictionFormFooter";
 import { TermsDialog } from "../TermsDialog";
 import { GroupedPredictions, PredictionComments } from "@/types/predictions";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Lock } from "lucide-react";
 
 export interface PredictionFormContainerProps {
   questions: any[];
@@ -34,28 +32,10 @@ export const PredictionFormContainer = ({
   isSubmitted
 }: PredictionFormContainerProps) => {
   const [showTerms, setShowTerms] = useState(false);
-  const [isDeadlinePassed, setIsDeadlinePassed] = useState(true); // Set to true to lock predictions
-  
-  // Always mark deadline as passed to lock predictions
-  useEffect(() => {
-    setIsDeadlinePassed(true);
-  }, []);
-
-  // Set form as read-only if deadline passed, explicitly requested, or if submitted
-  const formReadOnly = readOnly || isSubmitted || isDeadlinePassed;
 
   return (
     <div className="space-y-8">
-      {isDeadlinePassed && (
-        <Alert variant="destructive">
-          <Lock className="h-4 w-4" />
-          <AlertDescription>
-            The competition is now closed. Predictions are locked and cannot be modified.
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {!formReadOnly && (
+      {!readOnly && (
         <PredictionFormHeader
           onSave={onSave}
           onShowTerms={() => setShowTerms(true)}
@@ -71,10 +51,10 @@ export const PredictionFormContainer = ({
         onAnswerChange={onAnswerChange}
         onCommentChange={onCommentChange}
         isSubmitted={isSubmitted}
-        readOnly={formReadOnly}
+        readOnly={readOnly}
       />
 
-      {!formReadOnly && (
+      {!readOnly && (
         <>
           <PredictionFormFooter
             onSave={onSave}

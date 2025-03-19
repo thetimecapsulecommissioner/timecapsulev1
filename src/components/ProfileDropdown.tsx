@@ -12,15 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const ProfileDropdown = () => {
+export const ProfileDropdown = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     getProfile();
-    checkAdminStatus();
   }, []);
 
   const getProfile = async () => {
@@ -43,39 +41,6 @@ const ProfileDropdown = () => {
       }
     } catch (error) {
       console.error('Error loading avatar:', error);
-    }
-  };
-
-  const checkAdminStatus = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        console.log("No user found");
-        setIsAdmin(false);
-        return;
-      }
-
-      console.log("Checking admin status for user ID:", user.id);
-
-      // Check if user is in administrators table
-      const { data, error } = await supabase
-        .from('administrators')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error checking admin status:', error);
-        throw error;
-      }
-
-      console.log("Admin check result:", data);
-      
-      setIsAdmin(!!data);
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      setIsAdmin(false);
     }
   };
 
@@ -121,11 +86,6 @@ const ProfileDropdown = () => {
         <DropdownMenuItem onClick={() => navigate("/competitions")} className="text-green-600 hover:bg-gray-100">
           My Competitions
         </DropdownMenuItem>
-        {isAdmin && (
-          <DropdownMenuItem onClick={() => navigate("/admin")} className="text-green-600 hover:bg-gray-100">
-            Admin Dashboard
-          </DropdownMenuItem>
-        )}
         <DropdownMenuSeparator className="bg-gray-200" />
         <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="text-green-600 hover:bg-gray-100">
           {isLoading ? "Logging out..." : "Logout"}
@@ -134,5 +94,3 @@ const ProfileDropdown = () => {
     </DropdownMenu>
   );
 };
-
-export default ProfileDropdown;

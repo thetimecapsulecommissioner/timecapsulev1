@@ -11,12 +11,7 @@ export const usePredictionManagement = (userId?: string, competitionId?: string)
   const handleAnswerChange = async (questionId: number, answers: string[], responseOrder?: number) => {
     try {
       if (!userId) return;
-      
-      // Competition is now locked
-      toast.error("The competition is now closed. Predictions are locked.");
-      return;
-      
-      // The code below will not execute due to the return statement above
+
       if (responseOrder !== undefined) {
         // Update single prediction with conflict handling
         const { error } = await supabase
