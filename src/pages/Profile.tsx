@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { StateSelect } from "@/components/registration/StateSelect";
 import { AFLClubSelect } from "@/components/registration/AFLClubSelect";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
 
 const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const { trackEvent } = useActivityTracking();
 
   useEffect(() => {
     loadProfile();
@@ -57,6 +59,12 @@ const Profile = () => {
         .eq('id', user.id);
 
       if (error) throw error;
+      
+      // Track profile update
+      await trackEvent('profile_updated', { 
+        fields_updated: ['first_name', 'last_name', 'display_name', 'phone', 'state', 'afl_team'] 
+      });
+      
       toast.success('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);

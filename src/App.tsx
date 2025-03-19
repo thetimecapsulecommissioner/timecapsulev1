@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import { RegisterForm } from "./components/RegisterForm";
 import { Login } from "./components/Login";
@@ -17,8 +18,9 @@ import SportingClubs from "./pages/SportingClubs";
 import Profile from "./pages/Profile";
 import Competitions from "./pages/Competitions";
 import FAQ from "./pages/FAQ";
-import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUserActivity from "./pages/AdminUserActivity";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,6 +81,12 @@ const AppContent = () => {
       <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
       <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
       <Route path="/competitions" element={isLoggedIn ? <Competitions /> : <Navigate to="/login" />} />
+      
+      {/* Admin routes */}
+      <Route path="/admin" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
+      <Route path="/admin/competitions" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
+      <Route path="/admin/administrators" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
+      <Route path="/admin/user-activity" element={isLoggedIn ? <AdminUserActivity /> : <Navigate to="/login" />} />
       
       {/* Root route */}
       <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />

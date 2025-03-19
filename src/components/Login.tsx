@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { X, Eye, EyeOff } from "lucide-react";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
 
 export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { trackEvent } = useActivityTracking();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,15 +32,23 @@ export const Login = () => {
 
     setIsLoading(true);
     try {
+      // Track login attempt
+      await trackEvent('login_attempt', { email: formData.email });
+      
       const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
       if (error) {
+        // Track failed login
+        await trackEvent('login_failed', { email: formData.email, error: error.message });
         toast.error(error.message);
         return;
       }
+
+      // Track successful login
+      await trackEvent('login_success', { email: formData.email });
 
       // If there's a redirect URL, use it, otherwise go to dashboard
       if (redirectUrl) {
