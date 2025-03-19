@@ -47,15 +47,20 @@ export const useActivityTracking = () => {
         
         // Only track durations that make sense (more than 1 second, less than 1 hour)
         if (duration > 1 && duration < 3600) {
-          supabase.from('user_activity').insert({
-            event_type: 'page_exit',
-            user_id: userId,
-            page_url: location.pathname,
-            session_duration: duration,
-            metadata: { path: location.pathname, duration }
-          }).then().catch(error => {
-            console.error('Error tracking page exit:', error);
-          });
+          // Fix: Use async IIFE instead of .then().catch()
+          (async () => {
+            try {
+              await supabase.from('user_activity').insert({
+                event_type: 'page_exit',
+                user_id: userId,
+                page_url: location.pathname,
+                session_duration: duration,
+                metadata: { path: location.pathname, duration }
+              });
+            } catch (error) {
+              console.error('Error tracking page exit:', error);
+            }
+          })();
         }
       }
     };
