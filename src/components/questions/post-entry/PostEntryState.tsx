@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { PredictionPhaseButtons } from "../prediction-phase/PredictionPhaseButtons";
 import { PredictionForm } from "../PredictionForm";
 import { KeyTile } from "../KeyTile";
@@ -16,11 +17,18 @@ export const PostEntryState = ({
   onPhaseSelect,
   entry
 }: PostEntryStateProps) => {
+  const [isTimeExpired, setIsTimeExpired] = useState(false);
+
+  const handleTimeStatusChange = (expired: boolean) => {
+    setIsTimeExpired(expired);
+  };
+
   return (
     <>
       <PredictionPhaseButtons
         onPhaseSelect={onPhaseSelect}
         selectedPhase={selectedPhase}
+        onTimeStatusChange={handleTimeStatusChange}
       />
       {selectedPhase === 'pre-season' && questions && (
         <div className="mt-12">
@@ -32,6 +40,7 @@ export const PostEntryState = ({
             questions={questions} 
             answeredQuestions={entry?.predictions_count || 0}
             readOnly={false}
+            isTimeExpired={isTimeExpired}
           />
         </div>
       )}

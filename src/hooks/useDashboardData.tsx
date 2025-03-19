@@ -2,9 +2,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { useCountdown } from "@/hooks/useCountdown";
 
 export const useDashboardData = () => {
   const [firstName, setFirstName] = useState<string>("");
+  const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
+  const { timeLeft: preSeasonTime } = useCountdown(preSeasonDeadline);
+  const isPreSeasonExpired = preSeasonTime.expired;
 
   const { data: competitions = [], isLoading } = useQuery({
     queryKey: ['dashboard-competitions'],
@@ -102,13 +106,17 @@ export const useDashboardData = () => {
             console.log(`Counted ${entrantsCount} unique users from predictions`);
           }
 
+          // Check the competition deadline
+          const isExpired = comp.id === "1" ? isPreSeasonExpired : false; // Assuming id 1 is pre-season
+
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
             total_entrants: entrantsCount,
             predictions_sealed: isSubmitted,
-            status
+            status,
+            isExpired
           };
         })
       );

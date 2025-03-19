@@ -17,6 +17,7 @@ export interface PredictionFormContainerProps {
   onCommentChange: (questionId: number, comment: string) => void;
   readOnly?: boolean;
   isSubmitted: boolean;
+  isTimeExpired?: boolean;
 }
 
 export const PredictionFormContainer = ({ 
@@ -29,9 +30,13 @@ export const PredictionFormContainer = ({
   onAnswerChange,
   onCommentChange,
   readOnly = false,
-  isSubmitted
+  isSubmitted,
+  isTimeExpired = false
 }: PredictionFormContainerProps) => {
   const [showTerms, setShowTerms] = useState(false);
+  
+  // Determine if the form should be readonly based on submission status or time expiration
+  const formIsReadOnly = readOnly || isSubmitted || isTimeExpired;
 
   return (
     <div className="space-y-8">
@@ -41,6 +46,7 @@ export const PredictionFormContainer = ({
           onShowTerms={() => setShowTerms(true)}
           isSaving={isSaving}
           isSubmitted={isSubmitted}
+          isTimeExpired={isTimeExpired}
         />
       )}
 
@@ -51,7 +57,7 @@ export const PredictionFormContainer = ({
         onAnswerChange={onAnswerChange}
         onCommentChange={onCommentChange}
         isSubmitted={isSubmitted}
-        readOnly={readOnly}
+        readOnly={formIsReadOnly}
       />
 
       {!readOnly && (
@@ -60,6 +66,7 @@ export const PredictionFormContainer = ({
             onSave={onSave}
             isSaving={isSaving}
             isSubmitted={isSubmitted}
+            isTimeExpired={isTimeExpired}
           />
 
           <TermsDialog open={showTerms} onOpenChange={setShowTerms} />

@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,11 +11,13 @@ import { usePredictions } from "@/hooks/usePredictions";
 interface PredictionPhaseButtonsProps {
   onPhaseSelect: (phase: 'pre-season' | 'mid-season') => void;
   selectedPhase: 'pre-season' | 'mid-season' | null;
+  onTimeStatusChange?: (isExpired: boolean) => void;
 }
 
 export const PredictionPhaseButtons = ({ 
   onPhaseSelect,
-  selectedPhase
+  selectedPhase,
+  onTimeStatusChange
 }: PredictionPhaseButtonsProps) => {
   const navigate = useNavigate();
   const { id: competitionId } = useParams();
@@ -24,6 +27,13 @@ export const PredictionPhaseButtons = ({
 
   const isPreSeasonOpen = !preSeasonTime.expired;
   const isMidSeasonOpen = false;
+
+  // Call the callback whenever the time status changes
+  React.useEffect(() => {
+    if (onTimeStatusChange) {
+      onTimeStatusChange(preSeasonTime.expired);
+    }
+  }, [preSeasonTime.expired, onTimeStatusChange]);
 
   const handlePreSeasonSelect = async () => {
     onPhaseSelect('pre-season');

@@ -25,7 +25,7 @@ export const CountdownButton = ({
 
   const getStatusClass = () => {
     if (isSubmitted) return 'bg-blue-500 text-white';
-    return isOpen ? 'bg-green-500 text-white' : 'bg-gray-400 text-white';
+    return isOpen ? 'bg-green-500 text-white' : 'bg-red-500 text-white'; // Changed to red for closed
   };
 
   return (

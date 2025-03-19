@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { PredictionFormContainer } from "./prediction-form/PredictionFormContainer";
 import { LoadingState } from "../ui/LoadingState";
 import { usePredictionForm } from "./prediction-form/usePredictionForm";
@@ -7,12 +8,14 @@ interface PredictionFormProps {
   questions: any[];
   answeredQuestions: number;
   readOnly?: boolean;
+  isTimeExpired?: boolean;
 }
 
 export const PredictionForm = ({ 
   questions,
   answeredQuestions,
-  readOnly = false
+  readOnly = false,
+  isTimeExpired = false
 }: PredictionFormProps) => {
   const {
     predictions,
@@ -41,6 +44,7 @@ export const PredictionForm = ({
       onCommentChange={handleCommentChange}
       readOnly={readOnly || isSubmitted}
       isSubmitted={isSubmitted}
+      isTimeExpired={isTimeExpired}
     />
   );
 };

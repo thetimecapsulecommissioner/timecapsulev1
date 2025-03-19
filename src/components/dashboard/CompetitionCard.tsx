@@ -9,6 +9,7 @@ interface CompetitionCardProps {
   totalEntrants: number;
   isSealed: boolean;
   status: string;
+  isExpired?: boolean;
 }
 
 export const CompetitionCard = ({
@@ -19,18 +20,26 @@ export const CompetitionCard = ({
   totalEntrants,
   isSealed,
   status,
+  isExpired = false,
 }: CompetitionCardProps) => {
   const navigate = useNavigate();
 
   const getStatusColor = () => {
+    if (isExpired) return "bg-red-100";
+    
     switch (status) {
       case 'Submitted':
         return "bg-green-100";
       case 'In Progress':
         return "bg-yellow-100";
       default:
-        return "bg-red-100";
+        return "bg-gray-100";
     }
+  };
+
+  const getStatusText = () => {
+    if (isExpired) return "Closed";
+    return status;
   };
 
   return (
@@ -50,7 +59,7 @@ export const CompetitionCard = ({
         {totalEntrants} {totalEntrants === 1 ? 'Entrant' : 'Entrants'}
       </div>
       <div className="text-gray-600 text-sm md:text-base">
-        {status}
+        {getStatusText()}
       </div>
     </div>
   );

@@ -6,13 +6,19 @@ interface PredictionFormFooterProps {
   onSave: () => void;
   isSaving: boolean;
   isSubmitted: boolean;
+  isTimeExpired?: boolean;
 }
 
 export const PredictionFormFooter = ({
   onSave,
   isSaving,
-  isSubmitted
+  isSubmitted,
+  isTimeExpired = false
 }: PredictionFormFooterProps) => {
+  if (isTimeExpired) {
+    return null; // Don't show save button if time expired
+  }
+
   return (
     <div className="flex flex-col gap-4 items-center mt-8">
       <Button 
