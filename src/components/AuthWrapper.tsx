@@ -9,15 +9,12 @@ interface AuthWrapperProps {
 }
 
 export const AuthWrapper = ({ children }: AuthWrapperProps) => {
-  const { isLoggedIn, isLoading } = useAuthCheck();
+  const { isAuthChecking } = useAuthCheck();
 
-  if (isLoading) {
+  if (isAuthChecking) {
     return <LoadingState />;
   }
 
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
-  }
-
+  // The hook redirects to login automatically if no session is found
   return <>{children}</>;
 };
