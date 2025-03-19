@@ -44,7 +44,7 @@ export const PredictionPhaseButtons = ({
       <CountdownButton
         label="Pre-Season Predictions"
         isOpen={isPreSeasonOpen}
-        timeLeft={preSeasonOpen ? preSeasonTimeLeft : "Closed"}
+        timeLeft={isPreSeasonOpen ? preSeasonTimeLeft : "Closed"}
         onClick={handlePreSeasonSelect}
         disabled={false}
         isSubmitted={isSubmitted}
