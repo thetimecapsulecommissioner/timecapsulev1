@@ -108,14 +108,10 @@ export const useDashboardData = () => {
 
           // Check the competition deadline and set isExpired flag
           // For competition with id 1, use the preSeasonDeadline
-          // For all other competitions, check their specific deadlines if available
+          // For all other competitions, we don't have deadlines yet
           let isExpired = false;
           if (comp.id === "1") {
             isExpired = isPreSeasonExpired;
-          } else if (comp.deadline) {
-            // If other competitions have their own deadlines, check them
-            const deadlineDate = new Date(comp.deadline);
-            isExpired = new Date() > deadlineDate;
           }
 
           return {
