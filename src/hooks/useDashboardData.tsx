@@ -98,10 +98,9 @@ export const useDashboardData = () => {
           // Determine competition status based on entry and deadline
           let isExpired = false;
           
-          // Check expiration (for competition 1 which has a pre-season deadline)
+          // Check expiration (for now, only competition 1 has a deadline)
           if (comp.id === "1") {
             isExpired = isPreSeasonExpired;
-            console.log(`Competition ${comp.id} expired status: ${isExpired}`);
           }
           
           // Determine status based on entry and expiration
@@ -110,24 +109,19 @@ export const useDashboardData = () => {
           
           if (entry) {
             hasEntered = true;
-            // If expired and entered, status should be 'Closed' regardless of entry status
-            if (isExpired) {
-              status = 'Closed';
-            } else if (entry.status === 'Submitted') {
+            if (entry.status === 'Submitted') {
               status = 'Submitted';
             } else if (entry.terms_accepted && entry.payment_completed) {
               status = 'In Progress';
             }
-          } else {
-            // If expired and not entered, status should be 'Expired'
-            if (isExpired) {
-              status = 'Expired';
-            } else {
-              status = 'Not Entered';
-            }
           }
           
-          console.log(`Competition ${comp.id} final status: ${status}, hasEntered: ${hasEntered}, isExpired: ${isExpired}`);
+          // Override status if competition is expired
+          if (isExpired && hasEntered) {
+            status = 'Closed';
+          } else if (isExpired && !hasEntered) {
+            status = 'Expired';
+          }
 
           return {
             ...comp,

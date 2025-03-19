@@ -46,12 +46,9 @@ export const CompetitionCard = ({
   };
 
   const getStatusText = () => {
-    // If competition is expired, display the appropriate status
     if (isExpired) {
       return hasEntered ? "Closed" : "Expired"; 
     }
-    
-    // If not expired, show the current status
     return status;
   };
 
