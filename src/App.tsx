@@ -15,6 +15,8 @@ import { Pricing } from "./components/Pricing";
 import { Contact } from "./components/Contact";
 import { Questions } from "./components/questions/Questions";
 import { Competition } from "./components/competition/Competition";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUserActivity from "./pages/AdminUserActivity";
 
 function App() {
   const location = useLocation();
@@ -50,6 +52,40 @@ function App() {
         element={
           <AuthWrapper>
             <Questions />
+          </AuthWrapper>
+        }
+      />
+      
+      {/* Admin Routes */}
+      <Route
+        path="/admin"
+        element={
+          <AuthWrapper>
+            <AdminDashboard />
+          </AuthWrapper>
+        }
+      />
+      <Route
+        path="/admin/user-data"
+        element={
+          <AuthWrapper>
+            <AdminDashboard />
+          </AuthWrapper>
+        }
+      />
+      <Route
+        path="/admin/administrators"
+        element={
+          <AuthWrapper>
+            <AdminDashboard />
+          </AuthWrapper>
+        }
+      />
+      <Route
+        path="/admin/user-activity"
+        element={
+          <AuthWrapper>
+            <AdminUserActivity />
           </AuthWrapper>
         }
       />
