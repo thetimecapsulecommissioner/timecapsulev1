@@ -19,34 +19,3 @@ export const supabase = createClient<Database>(
     }
   }
 );
-
-export const trackUserActivity = async (
-  event: string, 
-  metadata?: Record<string, any>
-) => {
-  try {
-    // Get current user (if authenticated)
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id;
-
-    // Call the edge function to track the activity
-    await supabase.functions.invoke('track-user-activity', {
-      body: { event, userId, metadata }
-    });
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Error tracking activity:', error);
-    return { success: false, error };
-  }
-};
-
-// Track page views
-export const trackPageView = (page: string) => {
-  return trackUserActivity('page_view', { page });
-};
-
-// Track login events
-export const trackLogin = (method: string = 'email') => {
-  return trackUserActivity('login', { method });
-};

@@ -1,34 +1,34 @@
 
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const AdminNav = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
-  
-  const navItems = [
-    { name: "Dashboard", path: "/admin" },
-    { name: "User Data", path: "/admin/user-data" },
-    { name: "Administrators", path: "/admin/administrators" },
-    { name: "User Activity", path: "/admin/user-activity" }
-  ];
 
   return (
-    <nav className="flex flex-wrap gap-2 mb-6">
-      {navItems.map((item) => (
-        <Link
-          key={item.path}
-          to={item.path}
-          className={cn(
-            "px-4 py-2 rounded-md text-sm font-medium",
-            currentPath === item.path
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted hover:bg-muted/80"
-          )}
-        >
-          {item.name}
-        </Link>
-      ))}
-    </nav>
+    <div className="flex flex-wrap gap-2 mb-6">
+      <Button 
+        variant={currentPath === "/admin" ? "default" : "outline"}
+        onClick={() => navigate("/admin")}
+      >
+        Users & Predictions
+      </Button>
+      
+      <Button 
+        variant={currentPath === "/admin/competitions" ? "default" : "outline"}
+        onClick={() => navigate("/admin/competitions")}
+      >
+        Competitions
+      </Button>
+      
+      <Button 
+        variant={currentPath === "/admin/administrators" ? "default" : "outline"}
+        onClick={() => navigate("/admin/administrators")}
+      >
+        Administrators
+      </Button>
+    </div>
   );
 };
