@@ -106,8 +106,17 @@ export const useDashboardData = () => {
             console.log(`Counted ${entrantsCount} unique users from predictions`);
           }
 
-          // Check the competition deadline
-          const isExpired = comp.id === "1" ? isPreSeasonExpired : false; // Assuming id 1 is pre-season
+          // Check the competition deadline and set isExpired flag
+          // For competition with id 1, use the preSeasonDeadline
+          // For all other competitions, check their specific deadlines if available
+          let isExpired = false;
+          if (comp.id === "1") {
+            isExpired = isPreSeasonExpired;
+          } else if (comp.deadline) {
+            // If other competitions have their own deadlines, check them
+            const deadlineDate = new Date(comp.deadline);
+            isExpired = new Date() > deadlineDate;
+          }
 
           return {
             ...comp,
@@ -115,8 +124,8 @@ export const useDashboardData = () => {
             total_questions: 29,
             total_entrants: entrantsCount,
             predictions_sealed: isSubmitted,
-            status,
-            isExpired
+            status: isExpired ? 'Closed' : status, // Override status with 'Closed' if expired
+            isExpired // Add the isExpired flag
           };
         })
       );
