@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useActivityTracking } from "@/hooks/useActivityTracking";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,7 @@ const ProfileDropdown = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { trackEvent } = useActivityTracking();
 
   useEffect(() => {
     getProfile();
@@ -83,6 +84,13 @@ const ProfileDropdown = () => {
     try {
       setIsLoading(true);
       navigate('/'); // Navigate to home page first
+      
+      // Track logout event before signing out
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await trackEvent('logout', { userId: user.id });
+      }
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         toast.error("Error logging out");

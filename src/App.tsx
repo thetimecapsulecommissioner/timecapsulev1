@@ -1,105 +1,72 @@
+import { useState, useEffect } from 'react'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { supabase } from './integrations/supabase/client';
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { Account } from './components/Account'
+import { Home } from './pages/Home';
+import { Dashboard } from './pages/Dashboard';
+import { Profile } from './pages/Profile';
+import { ResetPassword } from './pages/ResetPassword';
+import { Login } from './components/Login';
+import { Competitions } from './pages/Competitions';
+import { Toaster } from "@/components/ui/toaster"
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUserActivity from "./pages/AdminUserActivity";
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Index from "./pages/Index";
-import { RegisterForm } from "./components/RegisterForm";
-import { Login } from "./components/Login";
-import { ResetPassword } from "./components/ResetPassword";
-import { NewPassword } from "./components/NewPassword";
-import { Questions } from "./components/Questions";
-import Dashboard from "./pages/Dashboard";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import SportingClubs from "./pages/SportingClubs";
-import Profile from "./pages/Profile";
-import Competitions from "./pages/Competitions";
-import FAQ from "./pages/FAQ";
-import AdminDashboard from "./pages/AdminDashboard";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-const AppContent = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+function App() {
+  const [session, setSession] = useState(null)
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        setIsLoggedIn(!!user);
-      } catch (error) {
-        console.error('Auth check error:', error);
-        setIsLoggedIn(false);
-      }
-    };
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
 
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (isLoggedIn === null) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        Loading...
-      </div>
-    );
-  }
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+  }, [])
 
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/register" element={!isLoggedIn ? <RegisterForm /> : <Navigate to="/dashboard" />} />
-      <Route path="/login" element={!isLoggedIn ? <Login /> : <Navigate to="/dashboard" />} />
-      <Route path="/reset-password" element={!isLoggedIn ? <ResetPassword /> : <Navigate to="/dashboard" />} />
-      <Route path="/new-password" element={<NewPassword />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/sporting-clubs" element={<SportingClubs />} />
-      <Route path="/faq" element={<FAQ />} />
-      
-      {/* Protected routes */}
-      <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
-      <Route path="/questions" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
-      <Route path="/competition/:id" element={isLoggedIn ? <Questions /> : <Navigate to="/login" />} />
-      <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
-      <Route path="/competitions" element={isLoggedIn ? <Competitions /> : <Navigate to="/login" />} />
-      <Route path="/admin" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
-      
-      {/* Root route */}
-      <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Index />} />
-    </Routes>
-  );
-};
+    <Router>
+      <Routes>
+        <Route exact path="/" element={<Home />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+        <Route
+          path="/reset-password"
+          element={<ResetPassword />}
+        />
+        <Route
+          path="/dashboard"
+          element={session ? <Dashboard session={session} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/profile"
+          element={session ? <Profile session={session} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/competitions"
+          element={session ? <Competitions session={session} /> : <Navigate to="/login" />}
+        />
 
-const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <AppContent />
-        </TooltipProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+        {/* Admin routes */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/competitions" element={<AdminDashboard />} />
+        <Route path="/admin/administrators" element={<AdminDashboard />} />
+        <Route path="/admin/user-activity" element={<AdminUserActivity />} />
+      </Routes>
+
+      <Toaster />
+    </Router>
   );
-};
+}
 
 export default App;

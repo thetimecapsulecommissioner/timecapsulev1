@@ -29,6 +29,13 @@ export const AdminNav = () => {
       >
         Administrators
       </Button>
+      
+      <Button 
+        variant={currentPath === "/admin/user-activity" ? "default" : "outline"}
+        onClick={() => navigate("/admin/user-activity")}
+      >
+        User Activity
+      </Button>
     </div>
   );
 };
