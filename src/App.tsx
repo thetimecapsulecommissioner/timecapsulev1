@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import {
   BrowserRouter as Router,
@@ -9,17 +8,16 @@ import {
 import { supabase } from './integrations/supabase/client';
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { Account } from './components/Account'
+import { Home } from './pages/Home';
+import { Dashboard } from './pages/Dashboard';
+import { Profile } from './pages/Profile';
+import { ResetPassword } from './pages/ResetPassword';
 import { Login } from './components/Login';
+import { Competitions } from './pages/Competitions';
 import { Toaster } from "@/components/ui/toaster"
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUserActivity from "./pages/AdminUserActivity";
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
-import Competitions from './pages/Competitions';
-import { ResetPassword } from './components/ResetPassword';
-import { NewPassword } from './components/NewPassword';
-import { RegisterForm } from './components/RegisterForm';
-import { Questions } from './components/Questions';
 
 function App() {
   const [session, setSession] = useState(null)
@@ -37,7 +35,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<RegisterForm />} />
+        <Route exact path="/" element={<Home />} />
         <Route
           path="/login"
           element={<Login />}
@@ -45,10 +43,6 @@ function App() {
         <Route
           path="/reset-password"
           element={<ResetPassword />}
-        />
-        <Route
-          path="/new-password"
-          element={<NewPassword />}
         />
         <Route
           path="/dashboard"
@@ -61,10 +55,6 @@ function App() {
         <Route
           path="/competitions"
           element={session ? <Competitions session={session} /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/competition/:id"
-          element={session ? <Questions /> : <Navigate to="/login" />}
         />
 
         {/* Admin routes */}
