@@ -35,20 +35,20 @@ export const Competition = () => {
           
           <div className="prose max-w-none">
             <p className="mb-4">
-              {competition?.description || 'No description available.'}
+              {competition?.summary || 'No description available.'}
             </p>
             
-            {competition?.rules && (
+            {competition?.instructions && (
               <>
                 <h2 className="text-xl font-semibold mb-3">Rules</h2>
-                <p className="mb-4">{competition.rules}</p>
+                <p className="mb-4">{competition.instructions}</p>
               </>
             )}
             
-            {competition?.prizes && (
+            {competition?.prize_details && (
               <>
                 <h2 className="text-xl font-semibold mb-3">Prizes</h2>
-                <p className="mb-4">{competition.prizes}</p>
+                <p className="mb-4">{competition.prize_details}</p>
               </>
             )}
           </div>
