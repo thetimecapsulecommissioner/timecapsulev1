@@ -416,42 +416,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_activity: {
-        Row: {
-          event_type: string
-          id: string
-          ip_address: string | null
-          metadata: Json | null
-          page_url: string | null
-          session_duration: number | null
-          timestamp: string
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          event_type: string
-          id?: string
-          ip_address?: string | null
-          metadata?: Json | null
-          page_url?: string | null
-          session_duration?: number | null
-          timestamp?: string
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          event_type?: string
-          id?: string
-          ip_address?: string | null
-          metadata?: Json | null
-          page_url?: string | null
-          session_duration?: number | null
-          timestamp?: string
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -462,12 +426,6 @@ export type Database = {
           payment_session_id: string
         }
         Returns: undefined
-      }
-      is_admin: {
-        Args: {
-          user_uuid: string
-        }
-        Returns: boolean
       }
     }
     Enums: {

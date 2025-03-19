@@ -17,17 +17,19 @@ export const useAdminCheck = () => {
           return;
         }
 
-        // Check if user is in administrators table using our new function
-        const { data, error } = await supabase.rpc('is_admin', {
-          user_uuid: user.id
-        });
+        // Check if user is in administrators table
+        const { data: adminData, error: adminError } = await supabase
+          .from('administrators')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-        if (error) {
-          console.error('Error checking admin status:', error);
-          throw error;
+        if (adminError) {
+          console.error('Error checking admin status:', adminError);
+          throw adminError;
         }
         
-        setIsAdmin(!!data);
+        setIsAdmin(!!adminData);
         setIsLoading(false);
       } catch (error) {
         console.error('Error checking admin status:', error);

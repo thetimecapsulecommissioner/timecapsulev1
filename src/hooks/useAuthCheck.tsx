@@ -1,14 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, trackLogin } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useActivityTracking } from "./useActivityTracking";
 
 export const useAuthCheck = () => {
   const navigate = useNavigate();
   const [isAuthChecking, setIsAuthChecking] = useState(true);
-  const { trackEvent } = useActivityTracking();
 
   useEffect(() => {
     const checkAndRestoreSession = async () => {
@@ -32,11 +30,8 @@ export const useAuthCheck = () => {
           email: session.user?.email
         });
         
-        // Track successful session restoration
-        trackEvent('login_success', {
-          method: 'session_restored',
-          userId: session.user?.id,
-        });
+        // Track successful session restoration as a login event
+        trackLogin('session_restore');
         
         setIsAuthChecking(false);
       } catch (error) {
@@ -47,7 +42,7 @@ export const useAuthCheck = () => {
     };
 
     checkAndRestoreSession();
-  }, [navigate, trackEvent]);
+  }, [navigate]);
 
   return { isAuthChecking };
 };

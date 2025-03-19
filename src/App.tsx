@@ -1,71 +1,95 @@
-import { useState, useEffect } from 'react'
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { supabase } from './integrations/supabase/client';
-import { Auth } from '@supabase/auth-ui-react'
-import { ThemeSupa } from '@supabase/auth-ui-shared'
-import { Account } from './components/Account'
-import { Home } from './pages/Home';
-import { Dashboard } from './pages/Dashboard';
-import { Profile } from './pages/Profile';
-import { ResetPassword } from './pages/ResetPassword';
-import { Login } from './components/Login';
-import { Competitions } from './pages/Competitions';
-import { Toaster } from "@/components/ui/toaster"
-import AdminDashboard from './pages/AdminDashboard';
+
+import { useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { trackPageView } from "@/integrations/supabase/client";
+import { Register } from "./components/Register";
+import { Login } from "./components/Login";
+import { AuthWrapper } from "./components/AuthWrapper";
+import { Dashboard } from "./components/Dashboard";
+import { ResetPassword } from "./components/ResetPassword";
+import { UpdatePassword } from "./components/UpdatePassword";
+import { Terms } from "./components/Terms";
+import { Privacy } from "./components/Privacy";
+import { Home } from "./components/Home";
+import { Pricing } from "./components/Pricing";
+import { Contact } from "./components/Contact";
+import { Questions } from "./components/questions/Questions";
+import { Competition } from "./components/competition/Competition";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminUserActivity from "./pages/AdminUserActivity";
 
 function App() {
-  const [session, setSession] = useState(null)
-
+  const location = useLocation();
+  
+  // Track page views whenever the route changes
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-  }, [])
+    trackPageView(location.pathname);
+  }, [location.pathname]);
 
   return (
-    <Router>
-      <Routes>
-        <Route exact path="/" element={<Home />} />
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-        <Route
-          path="/reset-password"
-          element={<ResetPassword />}
-        />
-        <Route
-          path="/dashboard"
-          element={session ? <Dashboard session={session} /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/profile"
-          element={session ? <Profile session={session} /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/competitions"
-          element={session ? <Competitions session={session} /> : <Navigate to="/login" />}
-        />
+    <Routes>
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/update-password" element={<UpdatePassword />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/competition/:competitionId" element={<Competition />} />
 
-        {/* Admin routes */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/competitions" element={<AdminDashboard />} />
-        <Route path="/admin/administrators" element={<AdminDashboard />} />
-        <Route path="/admin/user-activity" element={<AdminUserActivity />} />
-      </Routes>
-
-      <Toaster />
-    </Router>
+      <Route
+        path="/dashboard"
+        element={
+          <AuthWrapper>
+            <Dashboard />
+          </AuthWrapper>
+        }
+      />
+      <Route
+        path="/questions"
+        element={
+          <AuthWrapper>
+            <Questions />
+          </AuthWrapper>
+        }
+      />
+      
+      {/* Admin Routes */}
+      <Route
+        path="/admin"
+        element={
+          <AuthWrapper>
+            <AdminDashboard />
+          </AuthWrapper>
+        }
+      />
+      <Route
+        path="/admin/user-data"
+        element={
+          <AuthWrapper>
+            <AdminDashboard />
+          </AuthWrapper>
+        }
+      />
+      <Route
+        path="/admin/administrators"
+        element={
+          <AuthWrapper>
+            <AdminDashboard />
+          </AuthWrapper>
+        }
+      />
+      <Route
+        path="/admin/user-activity"
+        element={
+          <AuthWrapper>
+            <AdminUserActivity />
+          </AuthWrapper>
+        }
+      />
+    </Routes>
   );
 }
 

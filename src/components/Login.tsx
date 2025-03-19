@@ -1,12 +1,11 @@
 
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, trackLogin } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { X, Eye, EyeOff } from "lucide-react";
-import { useActivityTracking } from "@/hooks/useActivityTracking";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -17,7 +16,6 @@ export const Login = () => {
     email: "",
     password: "",
   });
-  const { trackEvent } = useActivityTracking();
 
   // Parse competition ID and session ID from URL if they exist
   const searchParams = new URLSearchParams(location.search);
@@ -32,27 +30,18 @@ export const Login = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
       if (error) {
-        // Track failed login attempt
-        trackEvent('login_failed', {
-          email: formData.email,
-          reason: error.message
-        });
-        
         toast.error(error.message);
         return;
       }
 
       // Track successful login
-      trackEvent('login_success', {
-        userId: data.user?.id,
-        email: data.user?.email
-      });
+      trackLogin('password');
 
       // If there's a redirect URL, use it, otherwise go to dashboard
       if (redirectUrl) {
@@ -63,12 +52,6 @@ export const Login = () => {
       toast.success("Login successful!");
     } catch (error) {
       toast.error("An unexpected error occurred");
-      
-      // Track error
-      trackEvent('login_failed', {
-        email: formData.email,
-        reason: 'unexpected_error'
-      });
     } finally {
       setIsLoading(false);
     }

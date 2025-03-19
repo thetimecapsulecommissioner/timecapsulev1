@@ -1,77 +1,74 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { UserActivity } from '@/types/userActivity';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { UserActivity } from "@/types/UserActivityType";
 
 export const useUserActivity = () => {
   const [activities, setActivities] = useState<UserActivity[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadingActivities, setLoadingActivities] = useState(false);
 
-  const fetchActivities = useCallback(async () => {
-    setIsLoading(true);
+  const fetchUserActivity = async () => {
+    setLoadingActivities(true);
     try {
-      // Fetch activities with user profile information
-      const { data: activityData, error } = await supabase
-        .from('user_activity')
+      // Use the generic query method to fetch from the user_activity table
+      // since it's not in the TypeScript definitions
+      const { data: activityData, error: activityError } = await supabase
+        .from('user_activity' as any)
         .select('*')
-        .order('timestamp', { ascending: false })
+        .order('timestamp' as any, { ascending: false })
         .limit(100);
       
-      if (error) throw error;
+      if (activityError) throw activityError;
 
-      if (!activityData || activityData.length === 0) {
-        setActivities([]);
-        setIsLoading(false);
-        return;
-      }
-
-      // Get all user IDs that have activity
-      const userIds = activityData
-        .map(activity => activity.user_id)
-        .filter(id => id !== null) as string[];
-      
-      // Fetch profile data for those users if there are any
-      if (userIds.length > 0) {
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('id, display_name')
-          .in('id', userIds);
+      if (activityData && activityData.length > 0) {
+        // Get user display names for activities with user_ids
+        const userIds = (activityData as any[])
+          .filter(activity => activity.user_id)
+          .map(activity => activity.user_id);
+        
+        if (userIds.length > 0) {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('id, display_name')
+            .in('id', userIds);
+            
+          if (profileError) throw profileError;
           
-        if (profileError) throw profileError;
-        
-        // Create a mapping of user_id to display_name
-        const userMap = new Map();
-        profileData?.forEach(profile => {
-          userMap.set(profile.id, profile.display_name);
-        });
-        
-        // Combine the data
-        const activitiesWithProfiles = activityData.map(activity => ({
-          ...activity,
-          display_name: activity.user_id ? userMap.get(activity.user_id) || 'Unknown' : 'Anonymous'
-        }));
-        
-        setActivities(activitiesWithProfiles as UserActivity[]);
+          // Create a mapping of user_id to display_name
+          const userMap = new Map();
+          profileData?.forEach(profile => {
+            userMap.set(profile.id, profile.display_name);
+          });
+          
+          // Combine the data
+          const formattedData = (activityData as any[]).map(activity => ({
+            ...activity,
+            display_name: activity.user_id ? userMap.get(activity.user_id) || 'Unknown User' : 'Anonymous'
+          })) as UserActivity[];
+          
+          setActivities(formattedData);
+        } else {
+          // If there are no user IDs, just add 'Anonymous' as the display name
+          setActivities((activityData as any[]).map(activity => ({
+            ...activity,
+            display_name: 'Anonymous'
+          })) as UserActivity[]);
+        }
       } else {
-        // No user IDs in activity data, just use the data as is
-        setActivities(activityData as UserActivity[]);
+        setActivities([]);
       }
     } catch (error) {
-      console.error('Error fetching activity:', error);
+      console.error('Error fetching user activity:', error);
       toast.error('Failed to load user activity data');
     } finally {
-      setIsLoading(false);
+      setLoadingActivities(false);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchActivities();
-  }, [fetchActivities]);
+  };
 
   return {
     activities,
-    isLoading,
-    fetchActivities
+    loadingActivities,
+    fetchUserActivity
   };
 };
