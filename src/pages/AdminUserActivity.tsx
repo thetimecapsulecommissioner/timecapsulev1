@@ -13,6 +13,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, RefreshCw } from "lucide-react";
 
+// Define the UserActivity interface to match the actual data in the user_activity table
 type UserActivity = {
   id: string;
   event_type: string;
@@ -75,17 +76,18 @@ const AdminUserActivity = () => {
   const fetchUserActivity = async () => {
     setLoadingActivities(true);
     try {
-      // Fetch user activity data, most recent first
+      // Use the generic query method to fetch from the user_activity table
+      // since it's not in the TypeScript definitions
       const { data: activityData, error: activityError } = await supabase
-        .from('user_activity')
+        .from('user_activity' as any)
         .select('*')
-        .order('timestamp', { ascending: false })
+        .order('timestamp' as any, { ascending: false })
         .limit(100);
       
       if (activityError) throw activityError;
 
-      // Get user display names for activities with user_ids
       if (activityData && activityData.length > 0) {
+        // Get user display names for activities with user_ids
         const userIds = activityData
           .filter(activity => activity.user_id)
           .map(activity => activity.user_id);
@@ -104,18 +106,19 @@ const AdminUserActivity = () => {
             userMap.set(profile.id, profile.display_name);
           });
           
-          // Combine the data
+          // Combine the data - use type assertion to help TypeScript understand the structure
           const formattedData = activityData.map(activity => ({
             ...activity,
             display_name: activity.user_id ? userMap.get(activity.user_id) || 'Unknown User' : 'Anonymous'
-          }));
+          })) as UserActivity[];
           
           setActivities(formattedData);
         } else {
+          // If there are no user IDs, just add 'Anonymous' as the display name
           setActivities(activityData.map(activity => ({
             ...activity,
             display_name: 'Anonymous'
-          })));
+          })) as UserActivity[]);
         }
       } else {
         setActivities([]);
