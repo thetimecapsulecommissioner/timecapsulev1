@@ -65,6 +65,17 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
 
+          // Check entry status
+          const hasStarted = entry?.terms_accepted || false;
+          const isSubmitted = entry?.status === 'Submitted';
+          let status = 'Not Started';
+          
+          if (isSubmitted) {
+            status = 'Submitted';
+          } else if (hasStarted) {
+            status = 'In Progress';
+          }
+
           // Direct approach: Get a count of distinct users who have made any predictions
           const { data: distinctUsersData, error: distinctUsersError } = await supabase
             .from("predictions")
@@ -95,32 +106,12 @@ export const useDashboardData = () => {
             console.log(`Counted ${entrantsCount} unique users from predictions`);
           }
 
-          // Determine competition status based on entry and deadline
+          // Check the competition deadline and set isExpired flag
+          // For competition with id 1, use the preSeasonDeadline
+          // For all other competitions, we don't have deadlines yet
           let isExpired = false;
-          
-          // Check expiration (for now, only competition 1 has a deadline)
           if (comp.id === "1") {
             isExpired = isPreSeasonExpired;
-          }
-          
-          // Determine status based on entry and expiration
-          let status = 'Not Entered';
-          let hasEntered = false;
-          
-          if (entry) {
-            hasEntered = true;
-            if (entry.status === 'Submitted') {
-              status = 'Submitted';
-            } else if (entry.terms_accepted && entry.payment_completed) {
-              status = 'In Progress';
-            }
-          }
-          
-          // Override status if competition is expired
-          if (isExpired && hasEntered) {
-            status = 'Closed';
-          } else if (isExpired && !hasEntered) {
-            status = 'Expired';
           }
 
           return {
@@ -128,10 +119,9 @@ export const useDashboardData = () => {
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
             total_entrants: entrantsCount,
-            predictions_sealed: entry?.status === 'Submitted',
-            status,
-            isExpired,
-            hasEntered
+            predictions_sealed: isSubmitted,
+            status: isExpired ? 'Closed' : status, // Override status with 'Closed' if expired
+            isExpired // Add the isExpired flag
           };
         })
       );
