@@ -10,6 +10,7 @@ interface CompetitionCardProps {
   isSealed: boolean;
   status: string;
   isExpired?: boolean;
+  hasEntered?: boolean;
 }
 
 export const CompetitionCard = ({
@@ -21,24 +22,33 @@ export const CompetitionCard = ({
   isSealed,
   status,
   isExpired = false,
+  hasEntered = false,
 }: CompetitionCardProps) => {
   const navigate = useNavigate();
 
   const getStatusColor = () => {
-    if (isExpired) return "bg-red-100"; // Faint red for expired competitions
+    // First handle expired/closed state
+    if (isExpired) {
+      return hasEntered ? "bg-green-100" : "bg-red-100"; // Green for closed competitions user entered, red for those they didn't
+    }
     
+    // If not expired, handle normal states
     switch (status) {
       case 'Submitted':
         return "bg-green-100";
       case 'In Progress':
         return "bg-yellow-100";
+      case 'Not Entered':
+        return "bg-red-100";
       default:
         return "bg-gray-100";
     }
   };
 
   const getStatusText = () => {
-    if (isExpired) return "Closed"; // Display "Closed" when expired
+    if (isExpired) {
+      return hasEntered ? "Closed" : "Expired"; 
+    }
     return status;
   };
 
