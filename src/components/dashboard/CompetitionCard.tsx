@@ -25,7 +25,7 @@ export const CompetitionCard = ({
   const navigate = useNavigate();
 
   const getStatusColor = () => {
-    if (isExpired) return "bg-red-100";
+    if (isExpired) return "bg-red-100"; // Faint red for expired competitions
     
     switch (status) {
       case 'Submitted':
@@ -38,7 +38,7 @@ export const CompetitionCard = ({
   };
 
   const getStatusText = () => {
-    if (isExpired) return "Closed";
+    if (isExpired) return "Closed"; // Display "Closed" when expired
     return status;
   };
 

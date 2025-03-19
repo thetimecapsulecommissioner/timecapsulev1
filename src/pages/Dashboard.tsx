@@ -35,6 +35,7 @@ const Dashboard = () => {
                 totalEntrants={competition.total_entrants}
                 isSealed={competition.predictions_sealed}
                 status={competition.status}
+                isExpired={competition.isExpired}
               />
             ))}
           </div>
