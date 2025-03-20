@@ -24,8 +24,9 @@ export const CountdownButton = ({
   const getStatusText = () => {
     if (status) return status;
     
-    if (isSubmitted) return 'Submitted';
-    return isOpen ? 'Open' : 'Closed';
+    // Fallback logic if status is not provided
+    if (isSubmitted) return 'In Progress';
+    return isOpen ? 'In Progress' : 'Closed';
   };
 
   const getStatusClass = () => {
@@ -35,19 +36,16 @@ export const CountdownButton = ({
           return 'bg-red-500 text-white';
         case 'In Progress':
           return 'bg-yellow-500 text-white';
-        case 'Submitted':
-          return 'bg-green-500 text-white';
         case 'Closed':
-          return 'bg-green-500 text-white';
-        case 'Expired':
           return 'bg-red-500 text-white';
         default:
           return 'bg-gray-500 text-white';
       }
     }
     
-    if (isSubmitted) return 'bg-blue-500 text-white';
-    return isOpen ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
+    // Fallback logic if status is not provided
+    if (isSubmitted) return 'bg-yellow-500 text-white';
+    return isOpen ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white';
   };
 
   return (

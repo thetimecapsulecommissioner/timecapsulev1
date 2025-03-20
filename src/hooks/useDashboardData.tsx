@@ -4,13 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useCountdown } from "@/hooks/useCountdown";
 
-// Define our competition status types
+// Define our competition status types - simplified to three states
 export type CompetitionStatus = 
   | "Not Entered" 
   | "In Progress" 
-  | "Submitted" 
-  | "Closed" 
-  | "Expired";
+  | "Closed";
 
 export const useDashboardData = () => {
   const [firstName, setFirstName] = useState<string>("");
@@ -111,35 +109,29 @@ export const useDashboardData = () => {
             isExpired = isPreSeasonExpired;
           }
 
-          // Determine the status based on entry and expiration
+          // Simplified status determination based on new requirements
           let status: CompetitionStatus;
           const hasEntered = !!entry;
-          const isSubmitted = entry?.status === 'Submitted';
 
           if (isExpired) {
-            if (hasEntered) {
-              status = 'Closed';
-            } else {
-              status = 'Expired';
-            }
+            // If expired, it's closed regardless of whether the user entered
+            status = 'Closed';
+          } else if (!hasEntered) {
+            // Not expired and not entered
+            status = 'Not Entered';
           } else {
-            if (!hasEntered) {
-              status = 'Not Entered';
-            } else if (isSubmitted) {
-              status = 'Submitted';
-            } else {
-              status = 'In Progress';
-            }
+            // Not expired and entered
+            status = 'In Progress';
           }
 
-          console.log(`Competition ${comp.id} status: ${status} (expired: ${isExpired}, entered: ${hasEntered}, submitted: ${isSubmitted})`);
+          console.log(`Competition ${comp.id} status: ${status} (expired: ${isExpired}, entered: ${hasEntered})`);
 
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
             total_entrants: entrantsCount,
-            predictions_sealed: isSubmitted,
+            predictions_sealed: entry?.status === 'Submitted',
             status,
             isExpired
           };

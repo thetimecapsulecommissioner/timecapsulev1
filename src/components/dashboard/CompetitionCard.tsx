@@ -30,12 +30,8 @@ export const CompetitionCard = ({
         return "bg-red-100"; // Red for competitions not entered
       case 'In Progress':
         return "bg-yellow-100"; // Yellow for in-progress competitions
-      case 'Submitted':
-        return "bg-green-100"; // Green for submitted competitions
       case 'Closed':
-        return "bg-green-100"; // Green for closed competitions the user entered
-      case 'Expired':
-        return "bg-red-100"; // Red for expired competitions not entered
+        return "bg-red-100"; // Red for closed competitions
       default:
         return "bg-gray-100";
     }

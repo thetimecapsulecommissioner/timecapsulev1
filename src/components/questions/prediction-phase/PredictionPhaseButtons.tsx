@@ -43,9 +43,9 @@ export const PredictionPhaseButtons = ({
   // Determine status based on submission and expiration
   const getPreSeasonStatus = (): CompetitionStatus => {
     if (preSeasonTime.expired) {
-      return isSubmitted ? 'Closed' : 'Expired';
+      return 'Closed';
     }
-    return isSubmitted ? 'Submitted' : 'In Progress';
+    return isSubmitted ? 'In Progress' : 'Not Entered';
   };
 
   return (
