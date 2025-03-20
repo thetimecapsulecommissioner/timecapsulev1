@@ -48,6 +48,8 @@ export const CountdownButton = ({
     return isOpen ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white';
   };
 
+  console.log(`CountdownButton rendering with status: ${status}, resulting in class: ${getStatusClass()}`);
+
   return (
     <Button
       onClick={onClick}

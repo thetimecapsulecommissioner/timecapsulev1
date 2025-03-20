@@ -48,6 +48,9 @@ export const PredictionPhaseButtons = ({
     return isSubmitted ? 'In Progress' : 'Not Entered';
   };
 
+  const status = getPreSeasonStatus();
+  console.log(`PredictionPhaseButtons: Generated status ${status} (expired: ${preSeasonTime.expired}, submitted: ${isSubmitted})`);
+
   return (
     <div className="space-y-4 mt-8">
       <CountdownButton
@@ -57,7 +60,7 @@ export const PredictionPhaseButtons = ({
         onClick={handlePreSeasonSelect}
         disabled={false}
         isSubmitted={isSubmitted}
-        status={getPreSeasonStatus()}
+        status={status}
       />
 
       <CountdownButton

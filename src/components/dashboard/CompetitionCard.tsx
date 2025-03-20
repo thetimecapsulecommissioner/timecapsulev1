@@ -37,6 +37,8 @@ export const CompetitionCard = ({
     }
   };
 
+  console.log(`CompetitionCard rendering with status: ${status}, color: ${getStatusColor()}`);
+
   return (
     <div
       onClick={() => navigate(`/competition/${id}`)}
