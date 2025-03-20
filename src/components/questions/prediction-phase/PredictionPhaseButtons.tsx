@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CountdownButton } from "../competition-buttons/CountdownButton";
 import { usePredictions } from "@/hooks/usePredictions";
-import { CompetitionStatus } from "@/hooks/useDashboardData";
+import { CompetitionStatus, determineCompetitionStatus } from "@/hooks/useDashboardData";
 
 interface PredictionPhaseButtonsProps {
   onPhaseSelect: (phase: 'pre-season' | 'mid-season') => void;
@@ -23,7 +23,7 @@ export const PredictionPhaseButtons = ({
   const navigate = useNavigate();
   const { id: competitionId } = useParams();
   const { isSubmitted } = usePredictions();
-  const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
+  const preSeasonDeadline = new Date('2023-09-06T23:59:00+11:00'); // Setting to past date to match useDashboardData
   const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
   const isPreSeasonOpen = !preSeasonTime.expired;
@@ -40,15 +40,8 @@ export const PredictionPhaseButtons = ({
     onPhaseSelect('pre-season');
   };
 
-  // Determine status based on submission and expiration
-  const getPreSeasonStatus = (): CompetitionStatus => {
-    if (preSeasonTime.expired) {
-      return 'Closed';
-    }
-    return isSubmitted ? 'In Progress' : 'Not Entered';
-  };
-
-  const status = getPreSeasonStatus();
+  // Use the central function to determine status
+  const status = determineCompetitionStatus(preSeasonTime.expired, isSubmitted);
   console.log(`PredictionPhaseButtons: Generated status ${status} (expired: ${preSeasonTime.expired}, submitted: ${isSubmitted})`);
 
   return (
@@ -61,6 +54,7 @@ export const PredictionPhaseButtons = ({
         disabled={false}
         isSubmitted={isSubmitted}
         status={status}
+        isExpired={preSeasonTime.expired}
       />
 
       <CountdownButton

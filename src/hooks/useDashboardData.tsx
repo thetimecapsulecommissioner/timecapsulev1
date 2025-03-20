@@ -10,9 +10,23 @@ export type CompetitionStatus =
   | "In Progress" 
   | "Closed";
 
+// Central function to determine competition status
+export const determineCompetitionStatus = (
+  isExpired: boolean,
+  hasEntered: boolean
+): CompetitionStatus => {
+  if (isExpired) {
+    return 'Closed';
+  } else if (!hasEntered) {
+    return 'Not Entered';
+  } else {
+    return 'In Progress';
+  }
+};
+
 export const useDashboardData = () => {
   const [firstName, setFirstName] = useState<string>("");
-  const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
+  const preSeasonDeadline = new Date('2023-09-06T23:59:00+11:00'); // Setting to past date to test expiration
   const { timeLeft: preSeasonTime } = useCountdown(preSeasonDeadline);
   const isPreSeasonExpired = preSeasonTime.expired;
 
@@ -109,20 +123,9 @@ export const useDashboardData = () => {
             isExpired = isPreSeasonExpired;
           }
 
-          // Simplified status determination based on new requirements
-          let status: CompetitionStatus;
+          // Use the central function to determine status
           const hasEntered = !!entry;
-
-          if (isExpired) {
-            // If expired, it's closed regardless of whether the user entered
-            status = 'Closed';
-          } else if (!hasEntered) {
-            // Not expired and not entered
-            status = 'Not Entered';
-          } else {
-            // Not expired and entered
-            status = 'In Progress';
-          }
+          const status = determineCompetitionStatus(isExpired, hasEntered);
 
           console.log(`Competition ${comp.id} status: ${status} (expired: ${isExpired}, entered: ${hasEntered})`);
 

@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { CompetitionStatus } from "@/hooks/useDashboardData";
+import { CompetitionStatus, determineCompetitionStatus } from "@/hooks/useDashboardData";
 
 interface CountdownButtonProps {
   label: string;
@@ -10,6 +10,7 @@ interface CountdownButtonProps {
   disabled?: boolean;
   isSubmitted?: boolean;
   status?: CompetitionStatus;
+  isExpired?: boolean;
 }
 
 export const CountdownButton = ({
@@ -19,36 +20,26 @@ export const CountdownButton = ({
   onClick,
   disabled = false,
   isSubmitted = false,
-  status
+  status,
+  isExpired = false
 }: CountdownButtonProps) => {
-  const getStatusText = () => {
-    if (status) return status;
-    
-    // Fallback logic if status is not provided
-    if (isSubmitted) return 'In Progress';
-    return isOpen ? 'In Progress' : 'Closed';
-  };
+  // If status is provided directly, use it, otherwise determine it from props
+  const effectiveStatus: CompetitionStatus = status || determineCompetitionStatus(isExpired, isSubmitted);
 
   const getStatusClass = () => {
-    if (status) {
-      switch (status) {
-        case 'Not Entered':
-          return 'bg-red-500 text-white';
-        case 'In Progress':
-          return 'bg-yellow-500 text-white';
-        case 'Closed':
-          return 'bg-red-500 text-white';
-        default:
-          return 'bg-gray-500 text-white';
-      }
+    switch (effectiveStatus) {
+      case 'Not Entered':
+        return 'bg-red-500 text-white';
+      case 'In Progress':
+        return 'bg-yellow-500 text-white';
+      case 'Closed':
+        return 'bg-red-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
     }
-    
-    // Fallback logic if status is not provided
-    if (isSubmitted) return 'bg-yellow-500 text-white';
-    return isOpen ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white';
   };
 
-  console.log(`CountdownButton rendering with status: ${status}, resulting in class: ${getStatusClass()}`);
+  console.log(`CountdownButton rendering with status: ${effectiveStatus}, expired: ${isExpired}, resulting in class: ${getStatusClass()}`);
 
   return (
     <Button
@@ -59,7 +50,7 @@ export const CountdownButton = ({
       <span className="text-primary font-semibold w-48">{label}</span>
       <div className="flex-1 flex justify-center">
         <span className={`px-3 py-1 rounded ${getStatusClass()}`}>
-          {getStatusText()}
+          {effectiveStatus}
         </span>
       </div>
       <span className="text-primary w-48 text-right">

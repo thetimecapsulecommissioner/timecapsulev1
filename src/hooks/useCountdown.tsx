@@ -12,6 +12,9 @@ export const useCountdown = (targetDate: Date) => {
   const calculateTimeLeft = (): TimeLeft => {
     const difference = targetDate.getTime() - new Date().getTime();
     
+    // Force the expired state for testing if needed
+    // const difference = -1; // Uncomment to force expired state
+    
     if (difference <= 0) {
       return {
         days: 0,
