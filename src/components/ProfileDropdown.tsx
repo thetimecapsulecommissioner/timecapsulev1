@@ -11,14 +11,17 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Shield } from "lucide-react";
 
 export const ProfileDropdown = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     getProfile();
+    checkAdminStatus();
   }, []);
 
   const getProfile = async () => {
@@ -41,6 +44,22 @@ export const ProfileDropdown = () => {
       }
     } catch (error) {
       console.error('Error loading avatar:', error);
+    }
+  };
+
+  const checkAdminStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase.rpc('is_admin', {
+          user_uuid: user.id
+        });
+        
+        if (error) throw error;
+        setIsAdmin(!!data);
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
     }
   };
 
@@ -86,6 +105,17 @@ export const ProfileDropdown = () => {
         <DropdownMenuItem onClick={() => navigate("/competitions")} className="text-green-600 hover:bg-gray-100">
           My Competitions
         </DropdownMenuItem>
+        
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator className="bg-gray-200" />
+            <DropdownMenuItem onClick={() => navigate("/admin")} className="text-green-600 hover:bg-gray-100 flex items-center">
+              <Shield className="w-4 h-4 mr-2" />
+              Admin Dashboard
+            </DropdownMenuItem>
+          </>
+        )}
+        
         <DropdownMenuSeparator className="bg-gray-200" />
         <DropdownMenuItem onClick={handleLogout} disabled={isLoading} className="text-green-600 hover:bg-gray-100">
           {isLoading ? "Logging out..." : "Logout"}

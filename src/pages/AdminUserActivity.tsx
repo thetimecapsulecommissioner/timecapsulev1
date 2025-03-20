@@ -54,23 +54,45 @@ const AdminUserActivity = () => {
   const fetchUserActivity = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch user activity without trying to join with profiles
+      const { data: activityData, error: activityError } = await supabase
         .from('user_activity')
-        .select(`
-          id,
-          event_type,
-          user_id,
-          timestamp,
-          page_url,
-          session_duration,
-          metadata,
-          profiles(email, first_name, last_name)
-        `)
+        .select('*')
         .order('timestamp', { ascending: false })
         .limit(100);
       
-      if (error) throw error;
-      setUserActivity(data || []);
+      if (activityError) throw activityError;
+      
+      // If we have user IDs, fetch corresponding profile information separately
+      const userIds = activityData
+        .filter(item => item.user_id)
+        .map(item => item.user_id);
+      
+      let profilesMap = {};
+      
+      if (userIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name, email')
+          .in('id', userIds);
+        
+        if (profilesError) throw profilesError;
+        
+        // Create a map of user_id to profile data
+        profilesMap = profilesData.reduce((acc, profile) => {
+          acc[profile.id] = profile;
+          return acc;
+        }, {});
+      }
+      
+      // Combine activity data with profile information
+      const combinedData = activityData.map(activity => ({
+        ...activity,
+        profile: activity.user_id ? profilesMap[activity.user_id] : null
+      }));
+      
+      setUserActivity(combinedData);
     } catch (error) {
       console.error('Error fetching user activity:', error);
       toast.error("Error loading user activity data");
@@ -126,8 +148,8 @@ const AdminUserActivity = () => {
                         {new Date(activity.timestamp).toLocaleString()}
                       </td>
                       <td className="px-4 py-2">
-                        {activity.profiles ? 
-                          `${activity.profiles.first_name} ${activity.profiles.last_name}` : 
+                        {activity.profile ? 
+                          `${activity.profile.first_name || ''} ${activity.profile.last_name || ''}` : 
                           'Guest'}
                       </td>
                       <td className="px-4 py-2">{activity.event_type}</td>
