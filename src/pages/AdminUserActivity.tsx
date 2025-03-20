@@ -5,11 +5,18 @@ import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { TimeFrame, processActivityData } from "@/utils/activityChartUtils"; 
+import { ActivityChartContainer } from "@/components/admin/ActivityChart";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { format } from "date-fns";
 
 const AdminUserActivity = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [userActivity, setUserActivity] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState<TimeFrame>("24hours");
+  const [customRange, setCustomRange] = useState<{ start: Date; end: Date } | undefined>(undefined);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -55,12 +62,11 @@ const AdminUserActivity = () => {
     try {
       setIsLoading(true);
       
-      // Fetch user activity without trying to join with profiles
+      // Fetch all user activity data for analysis
       const { data: activityData, error: activityError } = await supabase
         .from('user_activity')
         .select('*')
-        .order('timestamp', { ascending: false })
-        .limit(100);
+        .order('timestamp', { ascending: false });
       
       if (activityError) throw activityError;
       
@@ -100,6 +106,12 @@ const AdminUserActivity = () => {
       setIsLoading(false);
     }
   };
+
+  const metrics = processActivityData(userActivity, timeframe, customRange);
+  
+  const handleTimeframeChange = (value: string) => {
+    setTimeframe(value as TimeFrame);
+  };
   
   if (isAdmin === null) {
     return (
@@ -126,7 +138,31 @@ const AdminUserActivity = () => {
           </Button>
         </div>
         
-        <div className="bg-primary/10 rounded-lg p-4 md:p-6">
+        {/* Charts Section */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Activity Analytics</h2>
+            <div className="w-40">
+              <Select value={timeframe} onValueChange={handleTimeframeChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select timeframe" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="24hours">Last 24 Hours</SelectItem>
+                  <SelectItem value="7days">Last 7 Days</SelectItem>
+                  <SelectItem value="30days">Last 30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          {/* Activity Charts */}
+          <ActivityChartContainer metrics={metrics} />
+        </div>
+        
+        {/* Activity Table */}
+        <Card className="bg-primary/10 rounded-lg p-4 md:p-6">
+          <h2 className="text-xl font-semibold mb-4">Raw Activity Data</h2>
           {isLoading ? (
             <p className="text-center text-gray-500">Loading user activity...</p>
           ) : userActivity.length > 0 ? (
@@ -142,7 +178,7 @@ const AdminUserActivity = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {userActivity.map((activity) => (
+                  {userActivity.slice(0, 100).map((activity) => (
                     <tr key={activity.id} className="border-b border-gray-200">
                       <td className="px-4 py-2">
                         {new Date(activity.timestamp).toLocaleString()}
@@ -167,7 +203,7 @@ const AdminUserActivity = () => {
           ) : (
             <p className="text-center text-gray-500">No user activity data available.</p>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );
