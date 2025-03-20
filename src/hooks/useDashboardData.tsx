@@ -116,12 +116,9 @@ export const useDashboardData = () => {
           }
 
           // Check the competition deadline and set isExpired flag
-          // For competition with id 1, use the preSeasonDeadline
-          // For all other competitions, we don't have deadlines yet
-          let isExpired = false;
-          if (comp.id === "1") {
-            isExpired = isPreSeasonExpired;
-          }
+          // For all competitions, use the preSeasonDeadline
+          // This ensures consistent expiration status across the app
+          let isExpired = isPreSeasonExpired;
 
           // Use the central function to determine status
           const hasEntered = !!entry;
@@ -150,6 +147,7 @@ export const useDashboardData = () => {
   return {
     firstName,
     competitions,
-    isLoading
+    isLoading,
+    isPreSeasonExpired // Export this so other components can use the same expiration status
   };
 };

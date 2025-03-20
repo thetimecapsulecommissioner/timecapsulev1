@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { CountdownButton } from "../competition-buttons/CountdownButton";
 import { usePredictions } from "@/hooks/usePredictions";
 import { CompetitionStatus, determineCompetitionStatus } from "@/hooks/useDashboardData";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 interface PredictionPhaseButtonsProps {
   onPhaseSelect: (phase: 'pre-season' | 'mid-season') => void;
@@ -23,7 +24,9 @@ export const PredictionPhaseButtons = ({
   const navigate = useNavigate();
   const { id: competitionId } = useParams();
   const { isSubmitted } = usePredictions();
-  const preSeasonDeadline = new Date('2023-09-06T23:59:00+11:00'); // Setting to past date to match useDashboardData
+  const { isPreSeasonExpired } = useDashboardData(); // Get the shared expiration status
+  
+  const preSeasonDeadline = new Date('2023-09-06T23:59:00+11:00'); // Keep the same date for consistency
   const { timeLeft: preSeasonTime, formattedTimeLeft: preSeasonTimeLeft } = useCountdown(preSeasonDeadline);
 
   const isPreSeasonOpen = !preSeasonTime.expired;
@@ -41,8 +44,9 @@ export const PredictionPhaseButtons = ({
   };
 
   // Use the central function to determine status
-  const status = determineCompetitionStatus(preSeasonTime.expired, isSubmitted);
-  console.log(`PredictionPhaseButtons: Generated status ${status} (expired: ${preSeasonTime.expired}, submitted: ${isSubmitted})`);
+  // Use isPreSeasonExpired to ensure consistency across the app
+  const status = determineCompetitionStatus(isPreSeasonExpired, isSubmitted);
+  console.log(`PredictionPhaseButtons: Generated status ${status} (expired: ${isPreSeasonExpired}, submitted: ${isSubmitted})`);
 
   return (
     <div className="space-y-4 mt-8">
@@ -54,7 +58,7 @@ export const PredictionPhaseButtons = ({
         disabled={false}
         isSubmitted={isSubmitted}
         status={status}
-        isExpired={preSeasonTime.expired}
+        isExpired={isPreSeasonExpired}
       />
 
       <CountdownButton

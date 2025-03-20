@@ -4,7 +4,7 @@ import { CompetitionCard } from "@/components/dashboard/CompetitionCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
 
 const Competitions = () => {
-  const { competitions, isLoading } = useDashboardData();
+  const { competitions, isLoading, isPreSeasonExpired } = useDashboardData();
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -31,6 +31,7 @@ const Competitions = () => {
                   totalEntrants={competition.total_entrants}
                   isSealed={competition.predictions_sealed}
                   status={competition.status}
+                  isExpired={isPreSeasonExpired} // Use the consistent expiration status
                 />
               ))
             ) : (

@@ -6,7 +6,7 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { firstName, competitions, isLoading } = useDashboardData();
+  const { firstName, competitions, isLoading, isPreSeasonExpired } = useDashboardData();
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -35,7 +35,7 @@ const Dashboard = () => {
                 totalEntrants={competition.total_entrants}
                 isSealed={competition.predictions_sealed}
                 status={competition.status}
-                isExpired={competition.isExpired}
+                isExpired={isPreSeasonExpired} // Use the consistent expiration status
               />
             ))}
           </div>

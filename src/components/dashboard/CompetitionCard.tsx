@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { CompetitionStatus, determineCompetitionStatus } from "@/hooks/useDashboardData";
+import { CompetitionStatus } from "@/hooks/useDashboardData";
 
 interface CompetitionCardProps {
   id: string;
@@ -38,9 +38,7 @@ export const CompetitionCard = ({
     }
   };
 
-  // Double-check status based on props to ensure consistency
-  const verifiedStatus = determineCompetitionStatus(isExpired || false, status !== 'Not Entered');
-  console.log(`CompetitionCard rendering with status: ${status}, verified status: ${verifiedStatus}, color: ${getStatusColor()}`);
+  console.log(`CompetitionCard rendering with status: ${status}, expired: ${isExpired}, color: ${getStatusColor()}`);
 
   return (
     <div
