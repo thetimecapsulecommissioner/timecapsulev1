@@ -1,5 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
+import { CompetitionStatus } from "@/hooks/useDashboardData";
 
 interface CompetitionCardProps {
   id: string;
@@ -8,7 +9,7 @@ interface CompetitionCardProps {
   totalQuestions: number;
   totalEntrants: number;
   isSealed: boolean;
-  status: string;
+  status: CompetitionStatus;
   isExpired?: boolean;
 }
 
@@ -20,26 +21,24 @@ export const CompetitionCard = ({
   totalEntrants,
   isSealed,
   status,
-  isExpired = false,
 }: CompetitionCardProps) => {
   const navigate = useNavigate();
 
   const getStatusColor = () => {
-    if (isExpired) return "bg-red-100"; // Faint red for expired competitions
-    
     switch (status) {
-      case 'Submitted':
-        return "bg-green-100";
+      case 'Not Entered':
+        return "bg-red-100"; // Red for competitions not entered
       case 'In Progress':
-        return "bg-yellow-100";
+        return "bg-yellow-100"; // Yellow for in-progress competitions
+      case 'Submitted':
+        return "bg-green-100"; // Green for submitted competitions
+      case 'Closed':
+        return "bg-green-100"; // Green for closed competitions the user entered
+      case 'Expired':
+        return "bg-red-100"; // Red for expired competitions not entered
       default:
         return "bg-gray-100";
     }
-  };
-
-  const getStatusText = () => {
-    if (isExpired) return "Closed"; // Display "Closed" when expired
-    return status;
   };
 
   return (
@@ -59,7 +58,7 @@ export const CompetitionCard = ({
         {totalEntrants} {totalEntrants === 1 ? 'Entrant' : 'Entrants'}
       </div>
       <div className="text-gray-600 text-sm md:text-base">
-        {getStatusText()}
+        {status}
       </div>
     </div>
   );

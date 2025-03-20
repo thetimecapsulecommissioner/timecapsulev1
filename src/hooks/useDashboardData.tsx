@@ -4,6 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useCountdown } from "@/hooks/useCountdown";
 
+// Define our competition status types
+export type CompetitionStatus = 
+  | "Not Entered" 
+  | "In Progress" 
+  | "Submitted" 
+  | "Closed" 
+  | "Expired";
+
 export const useDashboardData = () => {
   const [firstName, setFirstName] = useState<string>("");
   const preSeasonDeadline = new Date('2025-03-06T23:59:00+11:00');
@@ -65,17 +73,6 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
 
-          // Check entry status
-          const hasStarted = entry?.terms_accepted || false;
-          const isSubmitted = entry?.status === 'Submitted';
-          let status = 'Not Started';
-          
-          if (isSubmitted) {
-            status = 'Submitted';
-          } else if (hasStarted) {
-            status = 'In Progress';
-          }
-
           // Direct approach: Get a count of distinct users who have made any predictions
           const { data: distinctUsersData, error: distinctUsersError } = await supabase
             .from("predictions")
@@ -114,14 +111,37 @@ export const useDashboardData = () => {
             isExpired = isPreSeasonExpired;
           }
 
+          // Determine the status based on entry and expiration
+          let status: CompetitionStatus;
+          const hasEntered = !!entry;
+          const isSubmitted = entry?.status === 'Submitted';
+
+          if (isExpired) {
+            if (hasEntered) {
+              status = 'Closed';
+            } else {
+              status = 'Expired';
+            }
+          } else {
+            if (!hasEntered) {
+              status = 'Not Entered';
+            } else if (isSubmitted) {
+              status = 'Submitted';
+            } else {
+              status = 'In Progress';
+            }
+          }
+
+          console.log(`Competition ${comp.id} status: ${status} (expired: ${isExpired}, entered: ${hasEntered}, submitted: ${isSubmitted})`);
+
           return {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
             total_entrants: entrantsCount,
             predictions_sealed: isSubmitted,
-            status: isExpired ? 'Closed' : status, // Override status with 'Closed' if expired
-            isExpired // Add the isExpired flag
+            status,
+            isExpired
           };
         })
       );
