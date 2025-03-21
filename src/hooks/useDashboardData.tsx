@@ -56,47 +56,35 @@ export const useDashboardData = () => {
 
       if (!competitionsData) return [];
 
-      // APPROACH 1: Direct count of entries
-      // This query gets the COUNT of entries with distinct users from competition_entries who have started
-      const { count: entriesCount, error: entriesError } = await supabase
+      // IMPROVED APPROACH: Count number of unique entries
+      // Get all entries where status is not 'Not Started'
+      const { data: allEntries, error: entriesError } = await supabase
         .from("competition_entries")
-        .select('user_id', { count: 'exact', head: true })
+        .select('user_id, competition_id')
         .neq('status', 'Not Started');
-
-      console.log("ENTRIES COUNT:", entriesCount);
-      console.log("ENTRIES COUNT ERROR:", entriesError);
       
-      // APPROACH 2: Get actual entries and count them
-      const { data: actualEntries, error: actualEntriesError } = await supabase
-        .from("competition_entries")
-        .select('user_id')
-        .neq('status', 'Not Started');
-        
-      const uniqueEntrants = new Set(actualEntries?.map(entry => entry.user_id) || []);
-      console.log("ACTUAL ENTRIES:", actualEntries);
-      console.log("ACTUAL ENTRIES ERROR:", actualEntriesError);
-      console.log("UNIQUE ENTRANTS FROM ENTRIES:", uniqueEntrants);
-      console.log("UNIQUE ENTRANTS COUNT:", uniqueEntrants.size);
-
-      // APPROACH 3: Count from predictions table
-      const { data: allPredictors } = await supabase
+      console.log("ALL ENTRIES:", allEntries);
+      console.log("ENTRIES ERROR:", entriesError);
+      
+      // Group entries by competition ID
+      const entriesByCompetition = {};
+      allEntries?.forEach(entry => {
+        if (!entriesByCompetition[entry.competition_id]) {
+          entriesByCompetition[entry.competition_id] = new Set();
+        }
+        entriesByCompetition[entry.competition_id].add(entry.user_id);
+      });
+      
+      console.log("ENTRIES BY COMPETITION:", entriesByCompetition);
+      
+      // BACKUP APPROACH: Get all predictions and count unique users
+      const { data: allPredictions } = await supabase
         .from("predictions")
         .select('user_id, id');
-
-      // Use a Set to get only unique user IDs
-      const uniquePredictors = new Set(allPredictors?.map(p => p.user_id) || []);
-      console.log("ALL PREDICTIONS:", allPredictors);
-      console.log("UNIQUE PREDICTORS:", uniquePredictors);
-      console.log("UNIQUE PREDICTORS COUNT:", uniquePredictors.size);
-
-      // Use the maximum count across all methods
-      const totalEntrantsCount = Math.max(
-        entriesCount || 0,
-        uniqueEntrants.size,
-        uniquePredictors.size
-      );
       
-      console.log(`FINAL TOTAL ENTRANTS COUNT: ${totalEntrantsCount}`);
+      // Get all unique predictors (as a fallback)
+      const allPredictors = new Set(allPredictions?.map(p => p.user_id) || []);
+      console.log("UNIQUE PREDICTORS COUNT (ALL):", allPredictors.size);
 
       // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
@@ -127,6 +115,10 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
           
+          // Calculate entrants for this competition from our grouped data
+          const competitionEntrants = entriesByCompetition[comp.id]?.size || 0;
+          console.log(`Competition ${comp.id} entrants: ${competitionEntrants}`);
+          
           // Check the competition deadline and set isExpired flag
           // For all competitions, use the preSeasonDeadline
           // This ensures consistent expiration status across the app
@@ -142,7 +134,7 @@ export const useDashboardData = () => {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
-            total_entrants: totalEntrantsCount,
+            total_entrants: competitionEntrants > 0 ? competitionEntrants : allPredictors.size,
             predictions_sealed: entry?.status === 'Submitted',
             status,
             isExpired
