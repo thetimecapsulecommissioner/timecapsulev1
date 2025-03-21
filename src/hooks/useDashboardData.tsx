@@ -56,6 +56,24 @@ export const useDashboardData = () => {
 
       if (!competitionsData) return [];
 
+      // First, get ALL unique users who have made any predictions
+      // This is a separate query to ensure we count ALL users in the system
+      const { data: allUserPredictions, error: allPredictionsError } = await supabase
+        .from("predictions")
+        .select('user_id', { count: 'exact', head: false })
+        .not('question_id', 'is', null);
+        
+      if (allPredictionsError) {
+        console.error('Error fetching all prediction users:', allPredictionsError);
+      }
+      
+      // Create a set of unique user IDs across all predictions
+      const allUniqueUsers = new Set(allUserPredictions?.map(p => p.user_id) || []);
+      const totalEntrantsCount = allUniqueUsers.size;
+      
+      console.log(`TOTAL UNIQUE USERS across all predictions: ${totalEntrantsCount}`);
+      console.log('All unique users:', allUniqueUsers);
+
       // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
         competitionsData.map(async (comp) => {
@@ -85,28 +103,8 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
 
-          // Count all distinct users who have made predictions
-          // First, get all predictions to count unique users
-          const { data: allPredictions, error: predictionsError } = await supabase
-            .from("predictions")
-            .select('user_id')
-            .not('question_id', 'is', null);
-            
-          if (predictionsError) {
-            console.error('Error fetching predictions:', predictionsError);
-          }
-            
-          // Create a set of unique user IDs from all predictions
-          const uniqueEntrants = new Set(allPredictions?.map(p => p.user_id) || []);
-          const entrantsCount = uniqueEntrants.size;
-            
-          console.log('All predictions query result:', { 
-            totalPredictions: allPredictions?.length || 0,
-            uniqueEntrants: uniqueEntrants,
-            entrantsCount: entrantsCount
-          });
-          
-          console.log(`Competition ${comp.id} total prediction users: ${entrantsCount || 0}`);
+          // Display the total users count for all competitions
+          console.log(`Counted ${totalEntrantsCount} unique users from predictions`);
           
           // Check the competition deadline and set isExpired flag
           // For all competitions, use the preSeasonDeadline
@@ -123,7 +121,7 @@ export const useDashboardData = () => {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
-            total_entrants: entrantsCount || 0,
+            total_entrants: totalEntrantsCount,
             predictions_sealed: entry?.status === 'Submitted',
             status,
             isExpired

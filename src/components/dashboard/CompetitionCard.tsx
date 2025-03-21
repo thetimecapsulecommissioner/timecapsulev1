@@ -53,7 +53,7 @@ export const CompetitionCard = ({
       <div className="text-gray-600 text-sm md:text-base">
         {predictionsCount}/{totalQuestions} Predictions Made
       </div>
-      <div className="text-gray-600 text-sm md:text-base">
+      <div className="text-gray-600 text-sm md:text-base font-semibold">
         {totalEntrants} {totalEntrants === 1 ? 'Entrant' : 'Entrants'}
       </div>
       <div className="text-gray-600 text-sm md:text-base">
