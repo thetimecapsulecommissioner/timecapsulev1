@@ -56,34 +56,47 @@ export const useDashboardData = () => {
 
       if (!competitionsData) return [];
 
-      // Get a count of all unique users who have made predictions
-      const { count: entrantCount, error: countError } = await supabase
+      // APPROACH 1: Direct count of entries
+      // This query gets the COUNT of distinct users from competition_entries who have started
+      const { data: entriesCount, error: entriesError } = await supabase
         .from("competition_entries")
-        .select('user_id', { count: 'exact', head: true })
+        .select('user_id', { count: 'exact' })
         .neq('status', 'Not Started');
 
-      if (countError) {
-        console.error('Error counting entrants:', countError);
-      }
+      console.log("ENTRIES COUNT RESPONSE:", entriesCount);
+      console.log("ENTRIES COUNT ERROR:", entriesError);
+      
+      // APPROACH 2: Get actual entries and count them
+      const { data: actualEntries, error: actualEntriesError } = await supabase
+        .from("competition_entries")
+        .select('user_id')
+        .neq('status', 'Not Started');
+        
+      const uniqueEntrants = new Set(actualEntries?.map(entry => entry.user_id) || []);
+      console.log("ACTUAL ENTRIES:", actualEntries);
+      console.log("ACTUAL ENTRIES ERROR:", actualEntriesError);
+      console.log("UNIQUE ENTRANTS FROM ENTRIES:", uniqueEntrants);
+      console.log("UNIQUE ENTRANTS COUNT:", uniqueEntrants.size);
 
-      // Log the exact count for debugging
-      console.log(`TOTAL ENTRANTS (from competition_entries table): ${entrantCount || 0}`);
-
-      // As a fallback, also count unique users from predictions table
-      const { data: allUsers } = await supabase
+      // APPROACH 3: Count from predictions table
+      const { data: allPredictors } = await supabase
         .from("predictions")
-        .select('user_id');
+        .select('user_id, id');
 
       // Use a Set to get only unique user IDs
-      const uniqueUsers = new Set(allUsers?.map(entry => entry.user_id) || []);
-      const uniqueUserCount = uniqueUsers.size;
+      const uniquePredictors = new Set(allPredictors?.map(p => p.user_id) || []);
+      console.log("ALL PREDICTIONS:", allPredictors);
+      console.log("UNIQUE PREDICTORS:", uniquePredictors);
+      console.log("UNIQUE PREDICTORS COUNT:", uniquePredictors.size);
 
-      console.log(`TOTAL UNIQUE USERS (from predictions table): ${uniqueUserCount}`);
-      console.log('Unique user IDs:', Array.from(uniqueUsers));
-
-      // Set the final entrant count, using the higher of the two counts
-      const totalEntrantsCount = Math.max(entrantCount || 0, uniqueUserCount);
-      console.log(`USING ENTRANT COUNT: ${totalEntrantsCount}`);
+      // Use the maximum count across all methods
+      const totalEntrantsCount = Math.max(
+        entriesCount?.count || 0,
+        uniqueEntrants.size,
+        uniquePredictors.size
+      );
+      
+      console.log(`FINAL TOTAL ENTRANTS COUNT: ${totalEntrantsCount}`);
 
       // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
