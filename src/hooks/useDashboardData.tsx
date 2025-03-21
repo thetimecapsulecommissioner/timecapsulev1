@@ -97,9 +97,12 @@ export const useDashboardData = () => {
           const uniqueEntrants = new Set(uniqueUsers?.map(p => p.user_id));
           const entrantsCount = uniqueEntrants.size;
             
-          if (uniqueUsersError) {
-            console.error('Error fetching unique prediction users:', uniqueUsersError);
-          }
+          console.log('Unique users query result:', { 
+            uniqueUsers,
+            uniqueUsersError,
+            uniqueEntrantsSet: uniqueEntrants,
+            entrantsCount
+          });
           
           console.log(`Competition ${comp.id} total prediction users: ${entrantsCount || 0}`);
           
