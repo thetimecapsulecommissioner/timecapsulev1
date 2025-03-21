@@ -85,20 +85,23 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
 
-          // Get TOTAL competition entrants count from ALL users (not just the current user)
-          // by counting unique entries in competition_entries where terms and payment are completed
-          const { count: entrantsCount, error: entrantsError } = await supabase
-            .from("competition_entries")
-            .select("*", { count: "exact" })
-            .eq("competition_id", comp.id)
-            .eq("terms_accepted", true)
-            .eq("payment_completed", true);
+          // Count users who have made at least one prediction as entrants
+          // This query gets distinct user_ids from the predictions table related to this competition
+          const { data: uniqueUsers, error: uniqueUsersError } = await supabase
+            .from("predictions")
+            .select('user_id', { count: 'exact', head: false })
+            .not('question_id', 'is', null)
+            .limit(1000); // Add a reasonable limit
             
-          if (entrantsError) {
-            console.error('Error fetching entrants count:', entrantsError);
+          // Create a set of unique user IDs from the predictions
+          const uniqueEntrants = new Set(uniqueUsers?.map(p => p.user_id));
+          const entrantsCount = uniqueEntrants.size;
+            
+          if (uniqueUsersError) {
+            console.error('Error fetching unique prediction users:', uniqueUsersError);
           }
           
-          console.log(`Competition ${comp.id} total entrants: ${entrantsCount || 0}`);
+          console.log(`Competition ${comp.id} total prediction users: ${entrantsCount || 0}`);
           
           // Check the competition deadline and set isExpired flag
           // For all competitions, use the preSeasonDeadline
