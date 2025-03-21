@@ -59,7 +59,7 @@ export const useDashboardData = () => {
       // Fetch competition entries for the user
       const enhancedCompetitions = await Promise.all(
         competitionsData.map(async (comp) => {
-          // Get competition entry status and predictions
+          // Get competition entry status and predictions for the current user
           const { data: entry } = await supabase
             .from("competition_entries")
             .select("*")
@@ -85,18 +85,20 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
 
-          // Get actual competition entrants count by counting unique entries in competition_entries
+          // Get TOTAL competition entrants count from ALL users (not just the current user)
+          // by counting unique entries in competition_entries where terms and payment are completed
           const { count: entrantsCount, error: entrantsError } = await supabase
             .from("competition_entries")
             .select("*", { count: "exact" })
             .eq("competition_id", comp.id)
-            // Only count entries that have accepted terms and completed payment
             .eq("terms_accepted", true)
             .eq("payment_completed", true);
             
           if (entrantsError) {
             console.error('Error fetching entrants count:', entrantsError);
           }
+          
+          console.log(`Competition ${comp.id} total entrants: ${entrantsCount || 0}`);
           
           // Check the competition deadline and set isExpired flag
           // For all competitions, use the preSeasonDeadline

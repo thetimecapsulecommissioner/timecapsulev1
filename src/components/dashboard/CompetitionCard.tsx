@@ -38,7 +38,7 @@ export const CompetitionCard = ({
     }
   };
 
-  console.log(`CompetitionCard rendering with status: ${status}, expired: ${isExpired}, color: ${getStatusColor()}`);
+  console.log(`CompetitionCard rendering with status: ${status}, expired: ${isExpired}, color: ${getStatusColor()}, totalEntrants: ${totalEntrants}`);
 
   return (
     <div
