@@ -85,23 +85,25 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
 
-          // Count users who have made at least one prediction as entrants
-          // This query gets distinct user_ids from the predictions table related to this competition
-          const { data: uniqueUsers, error: uniqueUsersError } = await supabase
+          // Count all distinct users who have made predictions
+          // First, get all predictions to count unique users
+          const { data: allPredictions, error: predictionsError } = await supabase
             .from("predictions")
-            .select('user_id', { count: 'exact', head: false })
-            .not('question_id', 'is', null)
-            .limit(1000); // Add a reasonable limit
+            .select('user_id')
+            .not('question_id', 'is', null);
             
-          // Create a set of unique user IDs from the predictions
-          const uniqueEntrants = new Set(uniqueUsers?.map(p => p.user_id));
+          if (predictionsError) {
+            console.error('Error fetching predictions:', predictionsError);
+          }
+            
+          // Create a set of unique user IDs from all predictions
+          const uniqueEntrants = new Set(allPredictions?.map(p => p.user_id) || []);
           const entrantsCount = uniqueEntrants.size;
             
-          console.log('Unique users query result:', { 
-            uniqueUsers,
-            uniqueUsersError,
-            uniqueEntrantsSet: uniqueEntrants,
-            entrantsCount
+          console.log('All predictions query result:', { 
+            totalPredictions: allPredictions?.length || 0,
+            uniqueEntrants: uniqueEntrants,
+            entrantsCount: entrantsCount
           });
           
           console.log(`Competition ${comp.id} total prediction users: ${entrantsCount || 0}`);
