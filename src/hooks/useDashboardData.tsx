@@ -57,13 +57,13 @@ export const useDashboardData = () => {
       if (!competitionsData) return [];
 
       // APPROACH 1: Direct count of entries
-      // This query gets the COUNT of distinct users from competition_entries who have started
-      const { data: entriesCount, error: entriesError } = await supabase
+      // This query gets the COUNT of entries with distinct users from competition_entries who have started
+      const { count: entriesCount, error: entriesError } = await supabase
         .from("competition_entries")
-        .select('user_id', { count: 'exact' })
+        .select('user_id', { count: 'exact', head: true })
         .neq('status', 'Not Started');
 
-      console.log("ENTRIES COUNT RESPONSE:", entriesCount);
+      console.log("ENTRIES COUNT:", entriesCount);
       console.log("ENTRIES COUNT ERROR:", entriesError);
       
       // APPROACH 2: Get actual entries and count them
@@ -91,7 +91,7 @@ export const useDashboardData = () => {
 
       // Use the maximum count across all methods
       const totalEntrantsCount = Math.max(
-        entriesCount?.count || 0,
+        entriesCount || 0,
         uniqueEntrants.size,
         uniquePredictors.size
       );
