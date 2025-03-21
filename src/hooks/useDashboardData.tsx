@@ -85,36 +85,19 @@ export const useDashboardData = () => {
             predictions?.map(p => p.question_id) || []
           );
 
-          // Direct approach: Get a count of distinct users who have made any predictions
-          const { data: distinctUsersData, error: distinctUsersError } = await supabase
-            .from("predictions")
-            .select("user_id", { count: "exact" })
-            .filter('user_id', 'not.is', null); // Ensure we only count valid users
+          // Get actual competition entrants count by counting unique entries in competition_entries
+          const { count: entrantsCount, error: entrantsError } = await supabase
+            .from("competition_entries")
+            .select("*", { count: "exact" })
+            .eq("competition_id", comp.id)
+            // Only count entries that have accepted terms and completed payment
+            .eq("terms_accepted", true)
+            .eq("payment_completed", true);
             
-          if (distinctUsersError) {
-            console.error('Error fetching distinct users count:', distinctUsersError);
+          if (entrantsError) {
+            console.error('Error fetching entrants count:', entrantsError);
           }
           
-          let entrantsCount = 0;
-          
-          if (distinctUsersData !== null) {
-            // Get all distinct user IDs
-            const { data: allUserIds } = await supabase
-              .from("predictions")
-              .select("user_id");
-              
-            // Create a Set to count unique user IDs
-            const uniqueUserIds = new Set();
-            allUserIds?.forEach(p => {
-              if (p.user_id) {
-                uniqueUserIds.add(p.user_id);
-              }
-            });
-            
-            entrantsCount = uniqueUserIds.size;
-            console.log(`Counted ${entrantsCount} unique users from predictions`);
-          }
-
           // Check the competition deadline and set isExpired flag
           // For all competitions, use the preSeasonDeadline
           // This ensures consistent expiration status across the app
@@ -130,7 +113,7 @@ export const useDashboardData = () => {
             ...comp,
             predictions_made: uniqueAnsweredQuestions.size,
             total_questions: 29,
-            total_entrants: entrantsCount,
+            total_entrants: entrantsCount || 0,
             predictions_sealed: entry?.status === 'Submitted',
             status,
             isExpired
