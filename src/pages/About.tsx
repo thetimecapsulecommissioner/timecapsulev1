@@ -47,7 +47,7 @@ const About = () => {
 
         <AboutSection
           title="The Time Capsule in 2025"
-          content="We are excited to be offering the new "Time Capsule Mini" Competition for local sports teams, workplace or any interested groups. Free for the first five groups, please reach out if you are an interested group or sponsor business"
+          content="We are excited to be offering the new &quot;Time Capsule Mini&quot; Competition for local sports teams, workplace or any interested groups. Free for the first five groups, please reach out if you are an interested group or sponsor business"
           imagePosition="left"
           imageSrc="/lovable-uploads/8ba92b6c-cf2f-4437-bbaf-a0c3265d6742.png"
         />
