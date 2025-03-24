@@ -47,7 +47,7 @@ const About = () => {
 
         <AboutSection
           title="The Time Capsule in 2025"
-          content="We are excited to this year be opening up the Time Capsule to entry by referral from a current member. This will ensure this tight-knit community remains while still be able to spread the Time Capsule impacts wider! If you want to be involved for the first time, please mention your reference's name when registering!"
+          content="We are excited to be offering the new "Time Capsule Mini" Competition for local sports teams, workplace or any interested groups. Free for the first five groups, please reach out if you are an interested group or sponsor business"
           imagePosition="left"
           imageSrc="/lovable-uploads/8ba92b6c-cf2f-4437-bbaf-a0c3265d6742.png"
         />
