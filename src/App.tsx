@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,7 @@ import FAQ from "./pages/FAQ";
 import { supabase } from "@/integrations/supabase/client";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUserActivity from "./pages/AdminUserActivity";
+import AdminTemplatesPage from "./components/admin/competition-templates/AdminTemplatesPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,6 +85,7 @@ const AppContent = () => {
       {/* Admin routes */}
       <Route path="/admin" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
       <Route path="/admin/competitions" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
+      <Route path="/admin/templates" element={isLoggedIn ? <AdminTemplatesPage /> : <Navigate to="/login" />} />
       <Route path="/admin/administrators" element={isLoggedIn ? <AdminDashboard /> : <Navigate to="/login" />} />
       <Route path="/admin/user-activity" element={isLoggedIn ? <AdminUserActivity /> : <Navigate to="/login" />} />
       
