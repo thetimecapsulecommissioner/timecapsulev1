@@ -58,6 +58,7 @@ const AdminDashboard = () => {
   
   const isCompetitionsPage = location.pathname === '/admin/competitions';
   const isAdministratorsPage = location.pathname === '/admin/administrators';
+  const isTemplatesPage = location.pathname === '/admin/templates';
   
   return (
     <div className="min-h-screen bg-background">
@@ -69,7 +70,7 @@ const AdminDashboard = () => {
         
         <div className="flex gap-4 mb-6">
           <Button 
-            variant={!isCompetitionsPage && !isAdministratorsPage ? "default" : "outline"}
+            variant={!isCompetitionsPage && !isAdministratorsPage && !isTemplatesPage ? "default" : "outline"}
             onClick={() => navigate('/admin')}
           >
             Overview
@@ -79,6 +80,12 @@ const AdminDashboard = () => {
             onClick={() => navigate('/admin/competitions')}
           >
             Competitions
+          </Button>
+          <Button 
+            variant={isTemplatesPage ? "default" : "outline"}
+            onClick={() => navigate('/admin/templates')}
+          >
+            Templates
           </Button>
           <Button 
             variant={isAdministratorsPage ? "default" : "outline"}
@@ -100,6 +107,11 @@ const AdminDashboard = () => {
               <h2 className="text-xl font-semibold mb-4">Manage Competitions</h2>
               <p className="text-gray-500">Competition management functionality will be implemented here.</p>
             </div>
+          ) : isTemplatesPage ? (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Manage Templates</h2>
+              <p className="text-gray-500">Template management functionality will be implemented here.</p>
+            </div>
           ) : isAdministratorsPage ? (
             <div>
               <h2 className="text-xl font-semibold mb-4">Manage Administrators</h2>
@@ -118,3 +130,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
