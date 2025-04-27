@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
@@ -30,20 +29,20 @@ export const DownloadTemplate = ({ type }: DownloadTemplateProps) => {
       ];
 
       example = [
-        'afl-2025-sub1',
-        'Sub',
         'afl-2025',
-        '2025 AFL Round 1 Predictions',
+        'Parent',
+        '',
+        '2025 AFL Time Capsule',
         'AFL',
-        'First round competition for 2025 AFL season',
-        '2025-03-01',
-        '2025-03-14',
-        '2025-03-15',
-        '10.00',
-        '1st: $100, 2nd: $50',
-        '100',
-        '10',
-        '0'
+        'Make your predictions for the 2025 AFL season',
+        '2025-01-01',
+        '2025-03-06',
+        '2025-11-15',
+        '65.00',
+        '1st: 60% of the Winnings Pool, 2nd: 30% of the Winnings Pool, 3rd: 10% of the Winnings Pool',
+        '',
+        '',
+        ''
       ];
     } else {
       headers = [
