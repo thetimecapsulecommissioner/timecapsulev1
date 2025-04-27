@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
@@ -35,8 +36,8 @@ export const DownloadTemplate = ({ type }: DownloadTemplateProps) => {
         '2025 AFL Time Capsule',
         'AFL',
         'Make your predictions for the 2025 AFL season',
-        '2025-01-01',
-        '2025-03-06',
+        '2025-01-01T00:00:00+11:00',
+        '2025-03-06T23:59:59+11:00',
         '2025-11-15',
         '65.00',
         '1st: 60% of the Winnings Pool, 2nd: 30% of the Winnings Pool, 3rd: 10% of the Winnings Pool',
