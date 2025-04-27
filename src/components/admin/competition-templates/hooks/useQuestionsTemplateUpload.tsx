@@ -17,6 +17,19 @@ interface QuestionTemplateData {
   reference_table?: string;
 }
 
+// Define a type that matches the database schema
+interface QuestionTemplateDB {
+  competition_id: string;
+  question_id: string;
+  question_text: string;
+  response_category: string;
+  points_value: number;  // Database expects a number
+  help_text?: string;
+  number_of_responses?: number;  // Database expects a number
+  possible_answers?: string;
+  reference_table?: string;
+}
+
 export const useQuestionsTemplateUpload = () => {
   const [previewData, setPreviewData] = useState<QuestionTemplateData[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,7 +75,7 @@ export const useQuestionsTemplateUpload = () => {
         throw lookupError;
       }
       
-      const existingIds = existingCompetitions.map(comp => comp.competition_id);
+      const existingIds = existingCompetitions?.map(comp => comp.competition_id) || [];
       const missingIds = competitionIds.filter(id => !existingIds.includes(id));
       
       if (missingIds.length > 0) {
@@ -71,9 +84,9 @@ export const useQuestionsTemplateUpload = () => {
         return;
       }
 
-      // Process special categories
+      // Process special categories and convert numeric fields to proper numbers
       const processedData = data.map((row) => {
-        const processed = {...row};
+        const processed = {...row} as QuestionTemplateDB;
         
         if (row.response_category === 'Team') {
           processed.reference_table = 'teams';
@@ -81,15 +94,28 @@ export const useQuestionsTemplateUpload = () => {
           processed.reference_table = 'players';
         }
         
+        // Convert numeric fields
+        processed.points_value = Number(processed.points_value);
+        if (processed.number_of_responses !== undefined) {
+          processed.number_of_responses = Number(processed.number_of_responses);
+        }
+        
         return processed;
       });
 
       // Insert into Supabase
-      const { error } = await supabase
-        .from('questions_template')
-        .insert(processedData);
+      for (const item of processedData) {
+        const { error } = await supabase
+          .from('questions_template')
+          .insert(item);
 
-      if (error) throw error;
+        if (error) {
+          console.error('Upload error:', error);
+          toast.error(`Failed to upload template: ${error.message}`);
+          setIsLoading(false);
+          return;
+        }
+      }
       
       toast.success("Questions template uploaded successfully");
       setPreviewData(null);
