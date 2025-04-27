@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
@@ -23,10 +22,7 @@ export const DownloadTemplate = ({ type }: DownloadTemplateProps) => {
         'close_date',
         'event_date',
         'entry_fee',
-        'prizes',
-        'max_participants',
-        'preseason_questions_count',
-        'midseason_questions_count'
+        'prizes'
       ];
 
       example = [
@@ -40,10 +36,7 @@ export const DownloadTemplate = ({ type }: DownloadTemplateProps) => {
         '2025-03-06T23:59:59+11:00',
         '2025-11-15',
         '65.00',
-        '1st: 60% of the Winnings Pool, 2nd: 30% of the Winnings Pool, 3rd: 10% of the Winnings Pool',
-        '',
-        '',
-        ''
+        '1st: 60% of the Winnings Pool, 2nd: 30% of the Winnings Pool, 3rd: 10% of the Winnings Pool'
       ];
     } else {
       headers = [
