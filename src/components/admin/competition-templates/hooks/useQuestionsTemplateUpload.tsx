@@ -37,19 +37,44 @@ export const useQuestionsTemplateUpload = () => {
         return;
       }
 
-      // Validate special categories
-      for (const row of data) {
-        if (row.response_category === 'Team') {
-          row.reference_table = 'teams';
-        } else if (row.response_category === 'Player') {
-          row.reference_table = 'players';
-        }
+      // First verify that all referenced competition_ids exist
+      const competitionIds = [...new Set(data.map((row: any) => row.competition_id))];
+      
+      const { data: existingCompetitions, error: lookupError } = await supabase
+        .from('competitions_template')
+        .select('competition_id')
+        .in('competition_id', competitionIds);
+        
+      if (lookupError) {
+        throw lookupError;
       }
+      
+      const existingIds = existingCompetitions.map(comp => comp.competition_id);
+      const missingIds = competitionIds.filter(id => !existingIds.includes(id));
+      
+      if (missingIds.length > 0) {
+        toast.error(`Competition IDs not found: ${missingIds.join(', ')}. Please upload competition template first.`);
+        setIsLoading(false);
+        return;
+      }
+
+      // Process special categories
+      const processedData = data.map((row: any) => {
+        const processed = {...row};
+        
+        if (row.response_category === 'Team') {
+          processed.reference_table = 'teams';
+        } else if (row.response_category === 'Player') {
+          processed.reference_table = 'players';
+        }
+        
+        return processed;
+      });
 
       // Insert into Supabase
       const { error } = await supabase
         .from('questions_template')
-        .insert(data);
+        .insert(processedData);
 
       if (error) throw error;
       

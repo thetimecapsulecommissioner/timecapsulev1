@@ -37,10 +37,22 @@ export const useCompetitionTemplateUpload = () => {
         return;
       }
 
+      // Process data to handle empty parent_competition_id correctly
+      const processedData = data.map(row => {
+        const processed = {...row};
+        
+        // Set parent_competition_id to null if it's empty
+        if (!processed.parent_competition_id || processed.parent_competition_id.trim() === '') {
+          processed.parent_competition_id = null;
+        }
+        
+        return processed;
+      });
+
       // Insert into Supabase
       const { error } = await supabase
         .from('competitions_template')
-        .insert(data);
+        .insert(processedData);
 
       if (error) throw error;
       
