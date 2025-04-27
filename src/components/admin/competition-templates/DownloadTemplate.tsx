@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
@@ -29,7 +28,7 @@ export const DownloadTemplate = ({ type }: DownloadTemplateProps) => {
       example = [
         'afl-2025',
         'Parent',
-        '',  // Empty parent_competition_id for a parent competition
+        '',
         '2025 AFL Time Capsule',
         'AFL',
         'Make your predictions for the 2025 AFL season',
