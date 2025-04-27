@@ -11,7 +11,7 @@ export const useCompetitionTemplateUpload = () => {
   const uploadTemplate = async (file: File) => {
     setIsLoading(true);
     try {
-      const result = await new Promise((resolve, reject) => {
+      const result = await new Promise<Papa.ParseResult<any>>((resolve, reject) => {
         Papa.parse(file, {
           header: true,
           complete: resolve,
@@ -19,7 +19,7 @@ export const useCompetitionTemplateUpload = () => {
         });
       });
 
-      const data = (result as any).data;
+      const data = result.data;
       setPreviewData(data);
 
       // Validate required fields

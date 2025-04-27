@@ -30,20 +30,20 @@ export const DownloadTemplate = ({ type }: DownloadTemplateProps) => {
       ];
 
       example = [
+        'afl-2025-sub1',
+        'Sub',
         'afl-2025',
-        'Parent',
-        '',
-        '2025 AFL Predictions',
+        '2025 AFL Round 1 Predictions',
         'AFL',
-        'Main competition for 2025 AFL season',
+        'First round competition for 2025 AFL season',
         '2025-03-01',
         '2025-03-14',
         '2025-03-15',
-        '30.00',
-        '1st: $500, 2nd: $200, 3rd: $100',
+        '10.00',
+        '1st: $100, 2nd: $50',
         '100',
-        '20',
-        '10'
+        '10',
+        '0'
       ];
     } else {
       headers = [
