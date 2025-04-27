@@ -2,7 +2,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface CSVPreviewProps {
-  data: any[];
+  data: Record<string, any>[];
 }
 
 export const CSVPreview = ({ data }: CSVPreviewProps) => {

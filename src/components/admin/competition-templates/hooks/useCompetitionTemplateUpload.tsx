@@ -4,14 +4,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import Papa from "papaparse";
 
+// Define a type for our competition template data
+interface CompetitionTemplateData {
+  competition_id: string;
+  competition_type: string;
+  parent_competition_id?: string | null;
+  competition_name: string;
+  sport: string;
+  competition_description?: string;
+  open_date: string;
+  close_date: string;
+  event_date: string;
+  entry_fee: string | number;
+  prizes?: string;
+}
+
 export const useCompetitionTemplateUpload = () => {
-  const [previewData, setPreviewData] = useState<any[] | null>(null);
+  const [previewData, setPreviewData] = useState<CompetitionTemplateData[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const uploadTemplate = async (file: File) => {
     setIsLoading(true);
     try {
-      const result = await new Promise<Papa.ParseResult<any>>((resolve, reject) => {
+      const result = await new Promise<Papa.ParseResult<CompetitionTemplateData>>((resolve, reject) => {
         Papa.parse(file, {
           header: true,
           complete: resolve,
@@ -29,7 +44,7 @@ export const useCompetitionTemplateUpload = () => {
       ];
 
       const missingFields = requiredFields.filter(field => 
-        !data[0]?.[field]
+        !data[0]?.[field as keyof CompetitionTemplateData]
       );
 
       if (missingFields.length > 0) {
