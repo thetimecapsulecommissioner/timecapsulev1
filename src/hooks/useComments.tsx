@@ -1,53 +1,46 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { PredictionComments } from "@/types/predictions";
-import { useParams } from "react-router-dom";
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useParams } from 'react-router-dom';
+import { PredictionComments } from '@/types/predictions';
+import { toast } from 'sonner';
 
 export const useComments = (userId: string | undefined) => {
-  const { id: competitionId } = useParams();
   const [comments, setComments] = useState<PredictionComments>({});
+  const { id: competitionId } = useParams();
 
-  const { data: savedComments } = useQuery({
-    queryKey: ['prediction-comments', competitionId, userId],
-    queryFn: async () => {
-      if (!userId || !competitionId) return null;
-
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!userId || !competitionId) return;
+      
       const { data, error } = await supabase
         .from('prediction_comments')
         .select('*')
         .eq('user_id', userId);
-
+      
       if (error) {
         console.error('Error fetching comments:', error);
-        return null;
+        toast.error("Failed to load your comments");
+        return;
       }
-
-      const commentMap: PredictionComments = {};
-      data?.forEach(comment => {
-        commentMap[comment.question_id] = comment.comment || '';
+      
+      const loadedComments: PredictionComments = {};
+      data.forEach(comment => {
+        loadedComments[comment.question_id] = comment.comment || '';
       });
-
-      return commentMap;
-    },
-    enabled: !!userId && !!competitionId,
-  });
-
-  useEffect(() => {
-    if (savedComments) {
-      setComments(savedComments);
-    }
-  }, [savedComments]);
-
+      
+      setComments(loadedComments);
+    };
+    
+    fetchComments();
+  }, [userId, competitionId]);
+  
   const handleCommentChange = (questionId: number, comment: string) => {
-    setComments(prev => ({
-      ...prev,
+    setComments(prevComments => ({
+      ...prevComments,
       [questionId]: comment
     }));
   };
-
-  return {
-    comments,
-    handleCommentChange
-  };
+  
+  return { comments, handleCommentChange };
 };

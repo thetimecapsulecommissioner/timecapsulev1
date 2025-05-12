@@ -127,7 +127,7 @@ export const useCompetitionTemplateUpload = () => {
         };
         
         const { error: competitionError } = await supabase
-          .from('competitions')
+          .from('legacy_competitions')
           .insert(competitionData);
           
         if (competitionError) {

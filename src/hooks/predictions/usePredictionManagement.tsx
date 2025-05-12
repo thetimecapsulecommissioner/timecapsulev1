@@ -1,88 +1,64 @@
 
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-export const usePredictionManagement = (userId?: string, competitionId?: string) => {
+export const usePredictionManagement = (userId: string | undefined, competitionId: string | undefined) => {
   const [isSaving, setIsSaving] = useState(false);
-  const queryClient = useQueryClient();
 
   const handleAnswerChange = async (questionId: number, answers: string[], responseOrder?: number) => {
+    if (!userId || !competitionId) return;
+
     try {
-      if (!userId) return;
-
-      if (responseOrder !== undefined) {
-        // Update single prediction with conflict handling
-        const { error } = await supabase
-          .from('predictions')
-          .upsert({
-            question_id: questionId,
-            user_id: userId,
-            answer: answers[responseOrder - 1],
-            response_order: responseOrder
-          }, {
-            onConflict: 'user_id,question_id,response_order'
-          });
-
-        if (error) throw error;
-      } else {
-        // Delete existing predictions for this question
-        await supabase
-          .from('predictions')
-          .delete()
-          .eq('user_id', userId)
-          .eq('question_id', questionId);
-
-        // Create new predictions with proper conflict handling
-        const predictions = answers.map((answer, index) => ({
-          question_id: questionId,
-          user_id: userId,
-          answer,
-          response_order: index + 1
-        }));
-
-        const { error } = await supabase
-          .from('predictions')
-          .upsert(predictions, {
-            onConflict: 'user_id,question_id,response_order'
-          });
-
-        if (error) throw error;
+      setIsSaving(true);
+      
+      // Handle multiple answers (like when there are multiple required responses)
+      if (Array.isArray(answers) && answers.length > 0) {
+        for (let i = 0; i < answers.length; i++) {
+          const order = responseOrder !== undefined ? responseOrder : i + 1;
+          const answer = answers[i];
+          
+          // Check if a prediction already exists
+          const { data: existingPrediction } = await supabase
+            .from('legacy_predictions')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('question_id', questionId)
+            .eq('response_order', order)
+            .maybeSingle();
+          
+          if (existingPrediction) {
+            // Update existing prediction
+            await supabase
+              .from('legacy_predictions')
+              .update({ answer })
+              .eq('id', existingPrediction.id);
+          } else {
+            // Create new prediction
+            await supabase
+              .from('legacy_predictions')
+              .insert({
+                user_id: userId,
+                question_id: questionId,
+                answer,
+                response_order: order
+              });
+          }
+        }
       }
-
-      // Check if all questions are answered and update status
-      const { count } = await supabase
-        .from('predictions')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-
-      if (count === 29) { // Total number of questions
-        await supabase
-          .from('competition_entries')
-          .update({ status: 'Complete' })
-          .eq('user_id', userId)
-          .eq('competition_id', competitionId);
-      } else {
-        await supabase
-          .from('competition_entries')
-          .update({ status: 'In Progress' })
-          .eq('user_id', userId)
-          .eq('competition_id', competitionId);
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['predictions'] });
-      queryClient.invalidateQueries({ queryKey: ['competition-entry'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-competitions'] });
+      
+      console.log(`Answer saved for question ${questionId}`);
     } catch (error) {
       console.error('Error saving prediction:', error);
-      toast.error("Failed to save prediction");
+      toast.error('Failed to save your prediction');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return {
-    isSaving,
     handleAnswerChange,
+    isSaving,
     setIsSaving
   };
 };

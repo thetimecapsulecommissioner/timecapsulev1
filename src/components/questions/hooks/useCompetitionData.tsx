@@ -29,7 +29,7 @@ export const useCompetitionData = () => {
     queryKey: ['questions'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('questions')
+        .from('legacy_questions')
         .select('*')
         .order('id');
       if (error) {
@@ -62,7 +62,7 @@ export const useCompetitionData = () => {
       }
 
       const { count, error: countError } = await supabase
-        .from('predictions')
+        .from('legacy_predictions')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userData.id);
 

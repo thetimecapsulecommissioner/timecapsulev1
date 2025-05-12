@@ -31,7 +31,7 @@ export const usePredictions = () => {
 
       // Get predictions
       const { data, error } = await supabase
-        .from('predictions')
+        .from('legacy_predictions')
         .select('*')
         .eq('user_id', userData.id)
         .order('response_order');

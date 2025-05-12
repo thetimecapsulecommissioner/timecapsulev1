@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,7 @@ export const TermsDialog = ({ open, onOpenChange }: TermsDialogProps) => {
     queryKey: ['terms-and-conditions'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('Terms and Conditions 2025 AFL Time Capsule')
+        .from('legacy_terms_and_conditions_2025')
         .select('*')
         .order('"Rule Reference"');
       

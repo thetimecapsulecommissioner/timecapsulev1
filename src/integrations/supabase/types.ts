@@ -9,36 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      "2025 Pre-Season AFL Time Capsule Questions, Rules": {
-        Row: {
-          "If Multi-Choice": string | null
-          "Number of Responses able to be selected": number | null
-          Points: number | null
-          Question: string | null
-          "Question Reference": number
-          "Response Category": string | null
-          "Rules/Help": string | null
-        }
-        Insert: {
-          "If Multi-Choice"?: string | null
-          "Number of Responses able to be selected"?: number | null
-          Points?: number | null
-          Question?: string | null
-          "Question Reference": number
-          "Response Category"?: string | null
-          "Rules/Help"?: string | null
-        }
-        Update: {
-          "If Multi-Choice"?: string | null
-          "Number of Responses able to be selected"?: number | null
-          Points?: number | null
-          Question?: string | null
-          "Question Reference"?: number
-          "Response Category"?: string | null
-          "Rules/Help"?: string | null
-        }
-        Relationships: []
-      }
       administrators: {
         Row: {
           created_at: string | null
@@ -165,76 +135,174 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "competition_entries_competition_id_fkey"
+            foreignKeyName: "competition_entries_competition_id_v2_fkey"
             columns: ["competition_id"]
             isOneToOne: false
-            referencedRelation: "competitions"
+            referencedRelation: "competitions_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competition_entries_competition_id_v2_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "legacy_competitions_view"
             referencedColumns: ["id"]
           },
         ]
       }
+      competition_entries_backup: {
+        Row: {
+          competition_id: string | null
+          created_at: string | null
+          id: string | null
+          payment_completed: boolean | null
+          payment_session_id: string | null
+          questions_completed: number | null
+          responses_saved: number | null
+          status: string | null
+          terms_accepted: boolean | null
+          testing_mode: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          competition_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          payment_completed?: boolean | null
+          payment_session_id?: string | null
+          questions_completed?: number | null
+          responses_saved?: number | null
+          status?: string | null
+          terms_accepted?: boolean | null
+          testing_mode?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          competition_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          payment_completed?: boolean | null
+          payment_session_id?: string | null
+          questions_completed?: number | null
+          responses_saved?: number | null
+          status?: string | null
+          terms_accepted?: boolean | null
+          testing_mode?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       competition_terms: {
         Row: {
           competition_id: string
+          compiled_terms: string
           created_at: string
-          id: number
-          term_template_id: number
+          custom_fields: Json | null
+          id: string
+          terms_template_id: string
+          updated_at: string
         }
         Insert: {
           competition_id: string
+          compiled_terms: string
           created_at?: string
-          id?: number
-          term_template_id: number
+          custom_fields?: Json | null
+          id?: string
+          terms_template_id: string
+          updated_at?: string
         }
         Update: {
           competition_id?: string
+          compiled_terms?: string
           created_at?: string
-          id?: number
-          term_template_id?: number
+          custom_fields?: Json | null
+          id?: string
+          terms_template_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
             foreignKeyName: "competition_terms_competition_id_fkey"
             columns: ["competition_id"]
             isOneToOne: false
-            referencedRelation: "competitions_template"
-            referencedColumns: ["competition_id"]
+            referencedRelation: "competitions_v2"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "competition_terms_term_template_id_fkey"
-            columns: ["term_template_id"]
+            foreignKeyName: "competition_terms_competition_id_fkey"
+            columns: ["competition_id"]
             isOneToOne: false
-            referencedRelation: "term_templates"
+            referencedRelation: "legacy_competitions_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competition_terms_terms_template_id_fkey"
+            columns: ["terms_template_id"]
+            isOneToOne: false
+            referencedRelation: "terms_templates"
             referencedColumns: ["id"]
           },
         ]
       }
-      competitions: {
+      competition_user_fields: {
         Row: {
+          competition_id: string
           created_at: string
+          display_order: number
+          field_key: string
+          field_label: string
+          field_options: Json | null
+          field_type: string
+          help_text: string | null
           id: string
-          label: string
-          status: string
-          total_questions: number
+          is_required: boolean | null
           updated_at: string
         }
         Insert: {
+          competition_id: string
           created_at?: string
+          display_order?: number
+          field_key: string
+          field_label: string
+          field_options?: Json | null
+          field_type: string
+          help_text?: string | null
           id?: string
-          label: string
-          status?: string
-          total_questions?: number
+          is_required?: boolean | null
           updated_at?: string
         }
         Update: {
+          competition_id?: string
           created_at?: string
+          display_order?: number
+          field_key?: string
+          field_label?: string
+          field_options?: Json | null
+          field_type?: string
+          help_text?: string | null
           id?: string
-          label?: string
-          status?: string
-          total_questions?: number
+          is_required?: boolean | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "competition_user_fields_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competition_user_fields_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "legacy_competitions_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       competitions_template: {
         Row: {
@@ -298,6 +366,102 @@ export type Database = {
           },
         ]
       }
+      competitions_v2: {
+        Row: {
+          available_to_new_entrants: boolean | null
+          competition_relationship_type: string | null
+          competition_type: string | null
+          created_at: string | null
+          description: string | null
+          display_status: string | null
+          end_date: string | null
+          entry_deadline: string | null
+          entry_fee: number | null
+          event_date: string | null
+          id: string
+          is_public: boolean | null
+          max_participants: number | null
+          new_entrant_fee: number | null
+          parent_competition_id: string | null
+          prediction_phase: string | null
+          prizes: string | null
+          requires_group: boolean | null
+          sponsor_id: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string | null
+          user_data_fields: Json | null
+        }
+        Insert: {
+          available_to_new_entrants?: boolean | null
+          competition_relationship_type?: string | null
+          competition_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_status?: string | null
+          end_date?: string | null
+          entry_deadline?: string | null
+          entry_fee?: number | null
+          event_date?: string | null
+          id?: string
+          is_public?: boolean | null
+          max_participants?: number | null
+          new_entrant_fee?: number | null
+          parent_competition_id?: string | null
+          prediction_phase?: string | null
+          prizes?: string | null
+          requires_group?: boolean | null
+          sponsor_id?: string | null
+          start_date?: string | null
+          status: string
+          title: string
+          updated_at?: string | null
+          user_data_fields?: Json | null
+        }
+        Update: {
+          available_to_new_entrants?: boolean | null
+          competition_relationship_type?: string | null
+          competition_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_status?: string | null
+          end_date?: string | null
+          entry_deadline?: string | null
+          entry_fee?: number | null
+          event_date?: string | null
+          id?: string
+          is_public?: boolean | null
+          max_participants?: number | null
+          new_entrant_fee?: number | null
+          parent_competition_id?: string | null
+          prediction_phase?: string | null
+          prizes?: string | null
+          requires_group?: boolean | null
+          sponsor_id?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_data_fields?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitions_v2_parent_competition_id_fkey"
+            columns: ["parent_competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitions_v2_parent_competition_id_fkey"
+            columns: ["parent_competition_id"]
+            isOneToOne: false
+            referencedRelation: "legacy_competitions_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       instagram_credentials: {
         Row: {
           api_key: string
@@ -316,34 +480,34 @@ export type Database = {
         }
         Relationships: []
       }
-      prediction_comments: {
+      legacy_competitions: {
         Row: {
-          comment: string | null
           created_at: string
           id: string
-          question_id: number
+          label: string
+          status: string
+          total_questions: number
           updated_at: string
-          user_id: string
         }
         Insert: {
-          comment?: string | null
           created_at?: string
           id?: string
-          question_id: number
+          label: string
+          status?: string
+          total_questions?: number
           updated_at?: string
-          user_id: string
         }
         Update: {
-          comment?: string | null
           created_at?: string
           id?: string
-          question_id?: number
+          label?: string
+          status?: string
+          total_questions?: number
           updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
-      predictions: {
+      legacy_predictions: {
         Row: {
           answer: string
           created_at: string
@@ -375,6 +539,226 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      legacy_preseason_questions_2025: {
+        Row: {
+          "If Multi-Choice": string | null
+          "Number of Responses able to be selected": number | null
+          Points: number | null
+          Question: string | null
+          "Question Reference": number
+          "Response Category": string | null
+          "Rules/Help": string | null
+        }
+        Insert: {
+          "If Multi-Choice"?: string | null
+          "Number of Responses able to be selected"?: number | null
+          Points?: number | null
+          Question?: string | null
+          "Question Reference": number
+          "Response Category"?: string | null
+          "Rules/Help"?: string | null
+        }
+        Update: {
+          "If Multi-Choice"?: string | null
+          "Number of Responses able to be selected"?: number | null
+          Points?: number | null
+          Question?: string | null
+          "Question Reference"?: number
+          "Response Category"?: string | null
+          "Rules/Help"?: string | null
+        }
+        Relationships: []
+      }
+      legacy_questions: {
+        Row: {
+          created_at: string
+          help_text: string | null
+          id: number
+          options: string[]
+          points: number | null
+          question: string
+          required_answers: number | null
+          response_category: string | null
+        }
+        Insert: {
+          created_at?: string
+          help_text?: string | null
+          id: number
+          options?: string[]
+          points?: number | null
+          question: string
+          required_answers?: number | null
+          response_category?: string | null
+        }
+        Update: {
+          created_at?: string
+          help_text?: string | null
+          id?: number
+          options?: string[]
+          points?: number | null
+          question?: string
+          required_answers?: number | null
+          response_category?: string | null
+        }
+        Relationships: []
+      }
+      legacy_questions_old: {
+        Row: {
+          created_at: string
+          help_text: string | null
+          id: number
+          options: string[]
+          points: number | null
+          question: string
+          required_answers: number | null
+          response_category: string | null
+        }
+        Insert: {
+          created_at?: string
+          help_text?: string | null
+          id?: number
+          options: string[]
+          points?: number | null
+          question: string
+          required_answers?: number | null
+          response_category?: string | null
+        }
+        Update: {
+          created_at?: string
+          help_text?: string | null
+          id?: number
+          options?: string[]
+          points?: number | null
+          question?: string
+          required_answers?: number | null
+          response_category?: string | null
+        }
+        Relationships: []
+      }
+      legacy_terms_and_conditions_2025: {
+        Row: {
+          Category: string | null
+          Description: string | null
+          Name: string | null
+          "Rule Reference": number
+        }
+        Insert: {
+          Category?: string | null
+          Description?: string | null
+          Name?: string | null
+          "Rule Reference": number
+        }
+        Update: {
+          Category?: string | null
+          Description?: string | null
+          Name?: string | null
+          "Rule Reference"?: number
+        }
+        Relationships: []
+      }
+      prediction_comments: {
+        Row: {
+          comment: string | null
+          competition_id: string | null
+          created_at: string
+          id: string
+          question_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          competition_id?: string | null
+          created_at?: string
+          id?: string
+          question_id: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          competition_id?: string | null
+          created_at?: string
+          id?: string
+          question_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prediction_comments_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prediction_comments_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "legacy_competitions_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      predictions_v2: {
+        Row: {
+          competition_id: string
+          created_at: string | null
+          id: string
+          is_correct: boolean | null
+          points_earned: number | null
+          prediction_value: string
+          question_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          competition_id: string
+          created_at?: string | null
+          id?: string
+          is_correct?: boolean | null
+          points_earned?: number | null
+          prediction_value: string
+          question_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          competition_id?: string
+          created_at?: string | null
+          id?: string
+          is_correct?: boolean | null
+          points_earned?: number | null
+          prediction_value?: string
+          question_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "predictions_v2_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "predictions_v2_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "legacy_competitions_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "predictions_v2_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions_v2"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -424,72 +808,6 @@ export type Database = {
           player_status?: string | null
           state?: string | null
           updated_at?: string
-        }
-        Relationships: []
-      }
-      questions: {
-        Row: {
-          created_at: string
-          help_text: string | null
-          id: number
-          options: string[]
-          points: number | null
-          question: string
-          required_answers: number | null
-          response_category: string | null
-        }
-        Insert: {
-          created_at?: string
-          help_text?: string | null
-          id: number
-          options?: string[]
-          points?: number | null
-          question: string
-          required_answers?: number | null
-          response_category?: string | null
-        }
-        Update: {
-          created_at?: string
-          help_text?: string | null
-          id?: number
-          options?: string[]
-          points?: number | null
-          question?: string
-          required_answers?: number | null
-          response_category?: string | null
-        }
-        Relationships: []
-      }
-      questions_old: {
-        Row: {
-          created_at: string
-          help_text: string | null
-          id: number
-          options: string[]
-          points: number | null
-          question: string
-          required_answers: number | null
-          response_category: string | null
-        }
-        Insert: {
-          created_at?: string
-          help_text?: string | null
-          id?: number
-          options: string[]
-          points?: number | null
-          question: string
-          required_answers?: number | null
-          response_category?: string | null
-        }
-        Update: {
-          created_at?: string
-          help_text?: string | null
-          id?: number
-          options?: string[]
-          points?: number | null
-          question?: string
-          required_answers?: number | null
-          response_category?: string | null
         }
         Relationships: []
       }
@@ -543,86 +861,81 @@ export type Database = {
           },
         ]
       }
-      term_template_sections: {
+      questions_v2: {
         Row: {
-          category: string
-          content_template: string
-          created_at: string
-          id: number
-          rule_id: string
-          sequence: number
-          template_id: number
-          title: string
+          competition_id: string
+          created_at: string | null
+          id: string
+          points: number | null
+          question_number: number
+          question_text: string
+          question_type: string
+          response_options: Json | null
+          updated_at: string | null
         }
         Insert: {
-          category: string
-          content_template: string
-          created_at?: string
-          id?: number
-          rule_id: string
-          sequence: number
-          template_id: number
-          title: string
+          competition_id: string
+          created_at?: string | null
+          id?: string
+          points?: number | null
+          question_number: number
+          question_text: string
+          question_type: string
+          response_options?: Json | null
+          updated_at?: string | null
         }
         Update: {
-          category?: string
-          content_template?: string
-          created_at?: string
-          id?: number
-          rule_id?: string
-          sequence?: number
-          template_id?: number
-          title?: string
+          competition_id?: string
+          created_at?: string | null
+          id?: string
+          points?: number | null
+          question_number?: number
+          question_text?: string
+          question_type?: string
+          response_options?: Json | null
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "term_template_sections_template_id_fkey"
-            columns: ["template_id"]
+            foreignKeyName: "questions_v2_competition_id_fkey"
+            columns: ["competition_id"]
             isOneToOne: false
-            referencedRelation: "term_templates"
+            referencedRelation: "competitions_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_v2_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "legacy_competitions_view"
             referencedColumns: ["id"]
           },
         ]
       }
-      term_templates: {
+      terms_templates: {
         Row: {
+          competition_type: string
           created_at: string
-          description: string | null
-          id: number
+          id: string
+          is_active: boolean | null
+          template_content: string
           template_name: string
         }
         Insert: {
+          competition_type: string
           created_at?: string
-          description?: string | null
-          id?: number
+          id?: string
+          is_active?: boolean | null
+          template_content: string
           template_name: string
         }
         Update: {
+          competition_type?: string
           created_at?: string
-          description?: string | null
-          id?: number
+          id?: string
+          is_active?: boolean | null
+          template_content?: string
           template_name?: string
-        }
-        Relationships: []
-      }
-      "Terms and Conditions 2025 AFL Time Capsule": {
-        Row: {
-          Category: string | null
-          Description: string | null
-          Name: string | null
-          "Rule Reference": number
-        }
-        Insert: {
-          Category?: string | null
-          Description?: string | null
-          Name?: string | null
-          "Rule Reference": number
-        }
-        Update: {
-          Category?: string | null
-          Description?: string | null
-          Name?: string | null
-          "Rule Reference"?: number
         }
         Relationships: []
       }
@@ -662,17 +975,224 @@ export type Database = {
         }
         Relationships: []
       }
+      user_field_responses: {
+        Row: {
+          competition_id: string
+          created_at: string
+          field_id: string
+          id: string
+          response_value: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          competition_id: string
+          created_at?: string
+          field_id: string
+          id?: string
+          response_value: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          competition_id?: string
+          created_at?: string
+          field_id?: string
+          id?: string
+          response_value?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_field_responses_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_field_responses_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "legacy_competitions_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_field_responses_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "competition_user_fields"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      legacy_competitions_view: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          label: string | null
+          status: string | null
+          total_questions: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          label?: string | null
+          status?: string | null
+          total_questions?: never
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          label?: string | null
+          status?: string | null
+          total_questions?: never
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      direct_update_competition: {
+        Args: {
+          p_id: string
+          p_title: string
+          p_description: string
+          p_status: string
+          p_competition_type: string
+        }
+        Returns: boolean
+      }
+      fix_competition_ids: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      get_competition_display_status: {
+        Args:
+          | {
+              p_start_date: string
+              p_entry_deadline: string
+              p_end_date: string
+            }
+          | {
+              p_start_date: string
+              p_entry_deadline: string
+              p_end_date: string
+              p_event_date?: string
+            }
+        Returns: string
+      }
+      get_competition_status: {
+        Args:
+          | {
+              p_start_date: string
+              p_entry_deadline: string
+              p_end_date: string
+            }
+          | {
+              p_start_date: string
+              p_entry_deadline: string
+              p_end_date: string
+              p_event_date?: string
+            }
+        Returns: string
+      }
+      get_user_field_history: {
+        Args: { p_user_id: string; p_field_key: string }
+        Returns: {
+          competition_id: string
+          response_value: Json
+          created_at: string
+        }[]
+      }
       handle_stripe_payment_success: {
         Args: { payment_session_id: string }
         Returns: undefined
       }
       is_admin: {
         Args: { user_uuid: string }
+        Returns: boolean
+      }
+      migrate_competition_metadata: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      migrate_competitions_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      safe_create_competition: {
+        Args: {
+          p_title: string
+          p_description: string
+          p_start_date: string
+          p_end_date: string
+          p_entry_deadline: string
+          p_event_date: string
+          p_entry_fee: number
+          p_competition_relationship_type: string
+          p_parent_competition_id: string
+          p_competition_type: string
+          p_available_to_new_entrants: boolean
+          p_new_entrant_fee: number
+          p_is_public: boolean
+          p_prediction_phase: string
+          p_status: string
+          p_requires_group: boolean
+          p_user_data_fields: Json
+          p_max_participants: number
+          p_prizes: string
+          p_display_status: string
+          p_sponsor_id: string
+        }
+        Returns: string
+      }
+      safe_timestamp_cast: {
+        Args: { p_value: string }
+        Returns: string
+      }
+      safe_update_competition: {
+        Args: {
+          p_id: string
+          p_title: string
+          p_description: string
+          p_start_date: string
+          p_end_date: string
+          p_entry_deadline: string
+          p_event_date: string
+          p_entry_fee: number
+          p_competition_relationship_type: string
+          p_parent_competition_id: string
+          p_competition_type: string
+          p_available_to_new_entrants: boolean
+          p_new_entrant_fee: number
+          p_is_public: boolean
+          p_prediction_phase: string
+          p_status: string
+          p_requires_group: boolean
+          p_user_data_fields: Json
+          p_max_participants: number
+          p_prizes: string
+          p_display_status: string
+          p_sponsor_id: string
+        }
+        Returns: boolean
+      }
+      update_all_competition_statuses: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_competition_relationship_type: {
+        Args: { p_competition_id: string; p_relationship_type: string }
+        Returns: boolean
+      }
+      update_competition_simple: {
+        Args: { competition_data: Json }
         Returns: boolean
       }
     }

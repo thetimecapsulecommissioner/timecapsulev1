@@ -51,7 +51,7 @@ export const useDashboardData = () => {
 
       // Fetch competitions
       const { data: competitionsData } = await supabase
-        .from("competitions")
+        .from("legacy_competitions")
         .select("*");
 
       if (!competitionsData) return [];
@@ -79,7 +79,7 @@ export const useDashboardData = () => {
       
       // BACKUP APPROACH: Get all predictions and count unique users
       const { data: allPredictions } = await supabase
-        .from("predictions")
+        .from("legacy_predictions")
         .select('user_id, id');
       
       // Get all unique predictors (as a fallback)
@@ -105,7 +105,7 @@ export const useDashboardData = () => {
 
           // Get predictions for this user
           const { data: predictions } = await supabase
-            .from("predictions")
+            .from("legacy_predictions")
             .select("question_id")
             .eq("user_id", user.id)
             .not('question_id', 'is', null);
